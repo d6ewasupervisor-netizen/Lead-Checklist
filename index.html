@@ -275,12 +275,14 @@
             body {
                 background: white;
                 padding: 0;
+                margin: 0;
             }
             
             .container {
                 box-shadow: none;
                 border-radius: 0;
                 max-width: 100%;
+                margin: 0;
             }
             
             .header {
@@ -288,9 +290,36 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 page-break-after: avoid;
+                padding: 15px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            
+            .header-info {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                margin-top: 10px;
+            }
+            
+            .input-group {
+                gap: 2px;
+            }
+            
+            .input-group label {
+                font-size: 0.7em;
+            }
+            
+            .header-info input {
+                padding: 4px 8px;
+                font-size: 0.8em;
             }
             
             .progress-bar-container {
+                height: 20px;
+                margin-top: 10px;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -298,11 +327,17 @@
             .progress-bar {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                font-size: 0.8em;
+            }
+            
+            .content {
+                padding: 15px 20px;
             }
             
             .section {
                 page-break-inside: avoid;
                 break-inside: avoid;
+                margin-bottom: 15px;
             }
             
             .section:first-of-type {
@@ -321,6 +356,12 @@
                 background: #667eea !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                padding: 8px 12px;
+                font-size: 1em;
+            }
+            
+            .section-content {
+                padding: 10px;
             }
             
             .checklist-item {
@@ -328,6 +369,27 @@
                 break-inside: avoid;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                margin-bottom: 8px;
+                padding: 8px;
+            }
+            
+            .item-title {
+                font-size: 0.9em;
+                margin-bottom: 4px;
+            }
+            
+            .item-description {
+                font-size: 0.8em;
+                line-height: 1.4;
+            }
+            
+            .item-description ul {
+                margin-top: 4px;
+                margin-bottom: 4px;
+            }
+            
+            .item-description li {
+                margin-bottom: 2px;
             }
             
             .button-group {
@@ -338,16 +400,46 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 page-break-inside: avoid;
+                padding: 10px;
+                margin-top: 15px;
+            }
+            
+            .notes-section h3 {
+                font-size: 0.95em;
+                margin-bottom: 6px;
+            }
+            
+            .notes-section textarea {
+                min-height: 60px;
+                padding: 6px;
+                font-size: 0.85em;
             }
             
             .email-list {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                padding: 8px;
+                margin-top: 6px;
+            }
+            
+            .email-list h4 {
+                font-size: 0.85em;
+                margin-bottom: 4px;
+            }
+            
+            .email-list li {
+                font-size: 0.8em;
+                padding: 1px 0;
+            }
+            
+            input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
             }
             
             @page {
                 size: letter;
-                margin: 0.75in;
+                margin: 0.5in 0.6in;
             }
         }
 
