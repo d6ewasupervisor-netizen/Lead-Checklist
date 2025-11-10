@@ -1462,7 +1462,8 @@
     </div>
 
     <script>
-        const pdfUrl = 'End Of Day Cover Sheet Form Editable Template.pdf';
+          const PDF_FILE = 'End%20Of%20Day%20Cover%20Sheet%20Form%20Editable%20Template.pdf';
+          const pdfUrl = `${PDF_FILE}?v=${(crypto?.randomUUID?.() || Date.now())}`;
 
         // Set today's date by default
         document.getElementById('workDate').valueAsDate = new Date();
