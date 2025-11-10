@@ -2006,6 +2006,23 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             autoSave();
         }
+        <button id="listFields">List PDF Fields</button>
+<script>
+  document.getElementById('listFields').addEventListener('click', async () => {
+    try {
+      const r = await fetch(pdfUrl);
+      if (!r.ok) throw new Error('PDF not found at pdfUrl: ' + pdfUrl);
+      const bytes = await r.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(bytes);
+      const form = pdfDoc.getForm();
+      const names = form.getFields().map(f => f.getName());
+      alert('Form fields found:\n\n' + names.join('\n'));
+    } catch (e) {
+      alert('Load/list error: ' + e.message);
+    }
+  });
+</script>
+
     </script>
 </body>
 </html>
