@@ -15,6 +15,85 @@
         html {
             scroll-behavior: smooth;
         }
+       
+        <!-- DISCLAIMER (first-visit only) -->
+<style>
+  .kompass-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:9999}
+  .kompass-card{background:#fff;max-width:760px;width:min(92vw,760px);max-height:88vh;overflow:auto;border-radius:14px;padding:22px 22px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .kompass-card h2{margin:0 0 .5rem 0;font-size:1.35rem}
+  .kompass-card h3{margin:1rem 0 .25rem 0;font-size:1.05rem}
+  .kompass-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1rem}
+  .btn{border:0;border-radius:10px;padding:.6rem .9rem;cursor:pointer}
+  .btn-primary{background:#2563eb;color:#fff}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+</style>
+
+<div id="kompassDisclaimer" class="kompass-modal" hidden aria-modal="true" role="dialog" aria-labelledby="kdc-title">
+  <div class="kompass-card">
+    <h2 id="kdc-title">⚠️ Important: Please Read Before Using This Checklist</h2>
+    <p><strong>Welcome to the KOMPASS Lead Daily Checklist!</strong></p>
+    <p>Before you begin, please understand and acknowledge the following:</p>
+
+    <h3>This is a Living Document</h3>
+    <p>Much like the dynamic nature of your role as a KOMPASS Lead, this checklist is fluid and ever-evolving. Don't expect it to stay the same—it will be updated as processes improve and new insights are gained.</p>
+
+    <h3>It's a Guide, Not a Rulebook</h3>
+    <p>I've compiled what I believe are the primary steps and processes to help you navigate your day successfully. However, I know there are pieces missing, and I'm not perfect—nor do I expect you to be. Use this as a tool and a guide, not as an inflexible set of rules.</p>
+
+    <h3>Your Feedback Matters</h3>
+    <p>If you notice something missing, unclear, or out of order, please share that feedback. Your real-world experience is invaluable in making this resource better for everyone.</p>
+
+    <h3>Every Situation is Different</h3>
+    <p>Every store, every day, and every lead has a slightly different process. Don't get stuck on specific wording or the exact order of items. If a step doesn't fit your situation or doesn't apply, use your logic, common sense, and best practices to either:</p>
+    <ul>
+      <li>Ask questions of your supervisor or support team</li>
+      <li>Arrive at a solution independently based on your training and experience</li>
+    </ul>
+
+    <h3>Limitation of Liability</h3>
+    <p>By using this checklist, you acknowledge and agree that:</p>
+    <ul>
+      <li>This is an aid created to support your success</li>
+      <li>You will not hold me or anyone else responsible for the information contained within</li>
+      <li>You understand this is meant as a guide to help support official policy</li>
+      <li>You will use your professional judgment and company guidelines when making decisions</li>
+    </ul>
+
+    <p>If you can be understanding of these points and use the checklist as the helpful tool it's meant to be, it will serve you well in navigating your responsibilities and achieving success in your role.</p>
+
+    <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.75rem">
+      <input id="kdc-agree" type="checkbox" />
+      <span> I have read, understand, and agree to the above disclaimer</span>
+    </label>
+
+    <div class="kompass-actions">
+      <button id="kdc-cancel" class="btn">Cancel</button>
+      <button id="kdc-accept" class="btn btn-primary" disabled>Agree & Continue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KEY = 'kompassDisclaimerAccepted.v1';
+  const modal = document.getElementById('kompassDisclaimer');
+  const agree = document.getElementById('kdc-agree');
+  const accept = document.getElementById('kdc-accept');
+  const cancel = document.getElementById('kdc-cancel');
+
+  function openModal(){ modal.hidden = false; document.body.style.overflow = 'hidden'; agree.focus(); }
+  function closeModal(){ modal.hidden = true; document.body.style.overflow = ''; }
+
+  if (localStorage.getItem(KEY) !== 'true') {
+    window.addEventListener('DOMContentLoaded', openModal);
+  }
+
+  agree.addEventListener('change', () => { accept.disabled = !agree.checked; });
+  accept.addEventListener('click', () => { localStorage.setItem(KEY,'true'); closeModal(); });
+  cancel.addEventListener('click', () => { closeModal(); }); // shows again next visit if not accepted
+})();
+</script>
+<!-- /DISCLAIMER -->
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
