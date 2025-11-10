@@ -2132,5 +2132,152 @@
     }
   });
 </script>
+    <script>
+(() => {
+  // Local helpers used by the overrides
+  const pickYN = (v) => {
+    if (typeof v === 'string') {
+      const s = v.trim().toLowerCase();
+      if (s.startsWith('y')) return 'Yes';
+      if (s.startsWith('n')) return 'No';
+    }
+    return v ? 'Yes' : 'No';
+  };
+  const pickYNN = (v) => {
+    if (typeof v === 'string') {
+      const s = v.trim().toLowerCase();
+      if (s === 'na' || s === 'n/a') return 'NA';
+      if (s.startsWith('y')) return 'Yes';
+      if (s.startsWith('n')) return 'No';
+    }
+    if (v === null || v === undefined) return 'NA';
+    return v ? 'Yes' : 'No';
+  };
+  async function embedDataUrl(pdfDoc, dataUrl) {
+    if (!dataUrl) return null;
+    const res = await fetch(dataUrl);
+    const bytes = await res.arrayBuffer();
+    const isPng = dataUrl.startsWith('data:image/png');
+    return isPng ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
+  }
+  function isoDate(d) {
+    if (!d) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+    const dt = new Date(d);
+    return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
+  }
+  async function getSignatureDataURL() {
+    const pad = document.getElementById('signaturePad');
+    if (pad && pad.toDataURL) {
+      const dataUrl = pad.toDataURL('image/png');
+      if (dataUrl === 'data:,') return '';
+      return dataUrl;
+    }
+    return '';
+  }
+
+  // ---------- OVERRIDES ----------
+  // Collect payload (adds WhatIsIssue + hotline "No" cascade to N/A)
+  window.collectPayload = async function collectPayload() {
+    const v = sel => document.querySelector(sel)?.value ?? '';
+    const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
+    const yn = name => r(name).toLowerCase().startsWith('y');
+
+    const payload = {
+      LeadName: v('#leadName'),
+      DateISO: isoDate(v('#workDate')),
+      StoreNumber: String(v('#storeNumber') || ''),
+      CheckInManager: v('#checkInManager'),
+      IssueCommodities: v('#issueCommodities'),
+      WhatIsIssue: v('#issueDescription'),
+      TempSolution: v('#tempSolution'),
+      CheckOutManager: v('#checkOutManager'),
+
+      BeforePicPosted: yn('beforePicPosted'),
+      CalledHotline: yn('calledHotline'),
+      IssueResolved: r('issueResolved') || 'NA',
+      SignedOutPROD: yn('signedOutPROD'),
+      SignedOutSI: yn('signedOutSI'),
+      SignoutSheetAttachedEmail: yn('signoutEmail'),
+      SignoutSheetAttachedPROD: yn('signoutPROD'),
+      AfterPicPosted: yn('afterPicPosted'),
+
+      signatureDataURL: await getSignatureDataURL()
+    };
+
+    // If hotline was NOT called, normalize related fields to N/A
+    if (!payload.CalledHotline) {
+      payload.IssueCommodities = 'N/A';
+      payload.WhatIsIssue = 'N/A';
+      payload.TempSolution = 'N/A';
+      payload.IssueResolved = 'NA';
+    }
+
+    return payload;
+  };
+
+  // Fill the PDF (adds WhatIsIssue and new filename)
+  window.fillPdf = async function fillPdf(data) {
+    const src = await fetch(pdfUrl).then(r => {
+      if (!r.ok) throw new Error('PDF not found. Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+      return r.arrayBuffer();
+    });
+
+    const pdfDoc = await PDFLib.PDFDocument.load(src);
+    const form = pdfDoc.getForm();
+
+    // Text fields (includes WhatIsIssue)
+    form.getTextField('LeadName').setText(data.LeadName ?? '');
+    form.getTextField('DateISO').setText(data.DateISO ?? '');
+    form.getTextField('StoreNumber').setText(String(data.StoreNumber ?? ''));
+    form.getTextField('CheckInManager').setText(data.CheckInManager ?? '');
+    form.getTextField('IssueCommodities').setText(data.IssueCommodities ?? '');
+    form.getTextField('WhatIsIssue').setText(data.WhatIsIssue ?? '');
+    form.getTextField('TempSolution').setText(data.TempSolution ?? '');
+    form.getTextField('CheckOutManager').setText(data.CheckOutManager ?? '');
+
+    // Radio groups
+    form.getRadioGroup('BeforePicPosted').select(pickYN(data.BeforePicPosted));
+    form.getRadioGroup('CalledHotline').select(pickYN(data.CalledHotline));
+    form.getRadioGroup('IssueResolved').select(pickYNN(data.IssueResolved));
+    form.getRadioGroup('SignedOutPROD').select(pickYN(data.SignedOutPROD));
+    form.getRadioGroup('SignedOutSI').select(pickYN(data.SignedOutSI));
+    form.getRadioGroup('SignoutSheetAttachedEmail').select(pickYN(data.SignoutSheetAttachedEmail));
+    form.getRadioGroup('SignoutSheetAttachedPROD').select(pickYN(data.SignoutSheetAttachedPROD));
+    form.getRadioGroup('AfterPicPosted').select(pickYN(data.AfterPicPosted));
+
+    // Signature image (Push Button named LeadSignatureImage)
+    if (data.signatureDataURL) {
+      const img = await embedDataUrl(pdfDoc, data.signatureDataURL);
+      if (img) form.getButton('LeadSignatureImage').setImage(img);
+    }
+
+    form.flatten();
+
+    const out = await pdfDoc.save();
+    const blob = new Blob([out], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url,
+      download: `EOD Cover Sheet FM${data.StoreNumber || 'store'} ${data.DateISO || 'date'}.pdf`
+    });
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Rebind generator to use the overrides (name unchanged)
+  window.generateEODCoverSheet = async function generateEODCoverSheet() {
+    try {
+      const payload = await window.collectPayload();
+      await window.fillPdf(payload);
+      alert('EOD Cover Sheet PDF generated and downloaded successfully!\n\nPlease review the file and attach it to your EOD email along with sign-off sheets and photos.');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF: ' + error.message + '\n\nPlease ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
