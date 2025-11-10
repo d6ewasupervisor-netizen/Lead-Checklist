@@ -2009,6 +2009,48 @@
         }
         
     </script>
+    <button id="selectAll">Select All & Fill "Test"</button>
+
+<script>
+  (function () {
+    const setVal = (sel, val) => {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    const pick = (name, val) => {
+      const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+      if (!el) return;
+      el.checked = true;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    document.getElementById('selectAll').addEventListener('click', () => {
+      // Text fields → "Test" (date = today)
+      setVal('#leadName', 'Test');
+      setVal('#workDate', new Date().toISOString().slice(0,10));
+      setVal('#storeNumber', 'Test');
+      setVal('#checkInManager', 'Test');
+      setVal('#issueCommodities', 'Test');
+      setVal('#tempSolution', 'Test');
+      setVal('#checkOutManager', 'Test');
+
+      // Radios: force "Yes"
+      ['beforePicPosted','calledHotline','signedOutPROD','signedOutSI',
+       'signoutEmail','signoutPROD','afterPicPosted'].forEach(n => pick(n, 'Yes'));
+      pick('issueResolved','Yes'); // 3-state group
+
+      // Any loose checkboxes on the page
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = true;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    });
+  })();
+</script>
+
     <button id="listFields">List PDF Fields</button>
 <script>
   document.getElementById('listFields').addEventListener('click', async () => {
