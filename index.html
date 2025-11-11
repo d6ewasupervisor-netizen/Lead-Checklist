@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
@@ -21,7 +23,8 @@
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* UPDATED: Dark theme background */
+        background: #1f2937; /* gray-800 */
         min-height: 100vh;
         padding: 20px;
         -webkit-font-smoothing: antialiased;
@@ -35,11 +38,12 @@
             display: none;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.8);
+            /* UPDATED: Dark theme loader */
+            background: rgba(17, 24, 39, 0.8); /* gray-900 with opacity */
             z-index: 10000;
             font-size: 1.5em;
             font-weight: bold;
-            color: #667eea;
+            color: #88c4ed; /* RO Light Blue */
             backdrop-filter: blur(5px);
         }
         .loading-overlay.show {
@@ -51,10 +55,14 @@
             max-width: 1000px;
             width: 100%;
             margin: 0 auto;
-            background: white;
+            /* UPDATED: Dark theme container */
+            background: #374151; /* gray-700 */
+            color: #f9fafb; /* gray-50 */
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
+            /* UPDATED: Add padding-top to account for sticky header */
+            padding-top: 300px; /* Adjust this value based on header's final height */
         }
 
         @media (max-width: 1024px) {
@@ -71,15 +79,75 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* UPDATED: Darker header background */
+            background: #111827; /* gray-900 */
             color: white;
-            padding: 30px;
+            padding: 20px 30px 15px 30px; /* Adjusted padding */
             text-align: center;
+            /* --- NEW: Sticky Header --- */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            /* Find the matching container width */
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            border-bottom: 2px solid #0d4f8b;
+            border-radius: 0 0 15px 15px; /* Match container */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
+        /* Adjust container padding-top when header is fixed */
+        body {
+            padding-top: 320px; /* Give space for the fixed header */
+        }
+        /* Remove body padding for a full-width header effect */
+        @media (min-width: 1040px) { /* 1000px container + 20px padding * 2 */
+             body {
+                padding: 20px;
+                padding-top: 320px; 
+             }
+             .header {
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 0 0 15px 15px;
+             }
+        }
+         @media (max-width: 1040px) {
+             body {
+                 padding: 0; /* No padding on mobile */
+                 padding-top: 300px; /* Adjust based on mobile header height */
+             }
+             .container {
+                 padding-top: 0; /* Container is no longer padded */
+                 border-radius: 0;
+             }
+             .header {
+                 position: fixed;
+                 top: 0;
+                 left: 0;
+                 right: 0;
+                 width: 100%;
+                 max-width: 100%;
+                 border-radius: 0;
+                 padding: 15px 15px 10px 15px;
+             }
+         }
+
+
+        /* --- NEW: Logo Style --- */
+        .header-logo {
+            max-width: 250px; /* Adjusted size */
+            width: 60%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        /* --- END NEW STYLE --- */
 
         .header h1 {
-            font-size: 2em;
-            margin-bottom: 20px;
+            font-size: 1.8em; /* Adjusted size */
+            margin-bottom: 15px;
         }
 
         .header-row {
@@ -97,7 +165,8 @@
         }
 
         .input-group label {
-            font-size: 0.85em;
+            /* UPDATED: Increased font size */
+            font-size: 1em;
             font-weight: 600;
             color: white;
         }
@@ -109,13 +178,29 @@
             font-size: 0.9em;
             width: 100%;
         }
+        
+        /* UPDATED: Increased height and font size for header inputs */
+        .input-group input {
+            padding: 18px 10px; /* Slightly adjusted height */
+            font-size: 1.3em;   /* Increased font size */
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            /* Dark mode inputs */
+            background: #4b5563; /* gray-600 */
+            color: #f9fafb;
+        }
+        .input-group input[type="date"] {
+            line-height: 1.5; /* Adjust date input line height */
+        }
+
 
         .progress-bar-container {
             background: rgba(255, 255, 255, 0.2);
             height: 30px;
             border-radius: 15px;
             overflow: hidden;
-            margin-top: 20px;
+            margin-top: 15px; /* Adjusted margin */
             position: relative;
         }
 
@@ -138,14 +223,15 @@
 
         .section {
             margin-bottom: 30px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #4b5563; /* gray-600 */
             border-radius: 10px;
             overflow: hidden;
         }
 
         .section-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            /* UPDATED: Use Retail Odyssey logo colors */
+            background: #0d4f8b; /* RO Dark Blue */
+            color: #88c4ed; /* RO Light Blue */
             padding: 15px 20px;
             font-size: 1.3em;
             font-weight: bold;
@@ -168,19 +254,20 @@
 
         .section-content {
             padding: 20px;
-            background: #fafafa;
+            /* UPDATED: Dark theme content bg */
+            background: #4b5563; /* gray-600 */
         }
         
-        /* --- NEW STYLE FOR BOTTOM COLLAPSE BUTTON --- */
         /* --- This style block has been removed as it's no longer needed --- */
-        /* --- END NEW STYLE --- */
 
         .checklist-item {
-            background: white;
+            /* UPDATED: Dark theme item bg */
+            background: #374151; /* gray-700 */
             margin-bottom: 15px;
             padding: 15px;
             border-radius: 8px;
-            border-left: 4px solid #667eea;
+            /* UPDATED: Use RO Dark Blue for border */
+            border-left: 4px solid #0d4f8b;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
@@ -210,7 +297,8 @@
             width: 24px;
             height: 24px;
             cursor: pointer;
-            accent-color: #667eea;
+            /* UPDATED: Use RO Light Blue for accent */
+            accent-color: #88c4ed;
             flex-shrink: 0;
         }
 
@@ -220,13 +308,29 @@
 
         .item-title {
             font-weight: bold;
-            color: #333;
+            /* UPDATED: Light text */
+            color: #f9fafb; /* gray-50 */
             margin-bottom: 8px;
             font-size: 1.1em;
         }
 
+        /* --- NEW: EOD Cover Sheet Style --- */
+        .eod-highlight {
+            color: #f59e0b; /* amber-500 (gold) */
+            font-weight: bold;
+            /* Red border effect */
+            text-shadow: 
+                -1px -1px 0 #dc2626,  
+                 1px -1px 0 #dc2626,
+                -1px  1px 0 #dc2626,
+                 1px  1px 0 #dc2626;
+        }
+        /* --- END NEW STYLE --- */
+
+
         .item-description {
-            color: #666;
+            /* UPDATED: Light text */
+            color: #d1d5db; /* gray-300 */
             line-height: 1.6;
         }
 
@@ -242,15 +346,18 @@
         .eod-field {
             margin: 10px 0;
             padding: 10px;
-            background: #f0f7ff;
+            /* UPDATED: Dark theme EOD field */
+            background: #374151; /* gray-700 */
             border-radius: 5px;
-            border-left: 3px solid #2196F3;
+            /* UPDATED: Use RO Light Blue for border */
+            border-left: 3px solid #88c4ed;
         }
 
         .eod-field label {
             display: block;
             font-weight: 600;
-            color: #1976d2;
+            /* UPDATED: Use RO Light Blue for text */
+            color: #88c4ed;
             margin-bottom: 5px;
             font-size: 0.95em;
         }
@@ -259,7 +366,10 @@
         .eod-field textarea {
             width: 100%;
             padding: 8px;
-            border: 1px solid #ccc;
+            /* UPDATED: Dark theme inputs */
+            border: 1px solid #4b5563; /* gray-600 */
+            background: #4b5563; /* gray-600 */
+            color: #f9fafb;
             border-radius: 4px;
             font-family: inherit;
             font-size: 0.95em;
@@ -290,16 +400,19 @@
 
         .checkbox-option label {
             font-weight: 600;
-            color: #333;
+            /* UPDATED: Light text */
+            color: #f9fafb; /* gray-50 */
             cursor: pointer;
         }
 
         .signature-section {
             margin: 30px 0;
             padding: 20px;
-            background: #f5f5f5;
+            /* UPDATED: Dark theme bg */
+            background: #4b5563; /* gray-600 */
             border-radius: 10px;
-            border: 2px solid #667eea;
+            /* UPDATED: Use RO Dark Blue for border */
+            border: 2px solid #0d4f8b;
         }
 
         .signature-label {
@@ -307,24 +420,28 @@
             font-size: 1em;
             display: block;
             margin-bottom: 10px;
-            color: #667eea;
+            /* UPDATED: Use RO Light Blue for text */
+            color: #88c4ed;
         }
 
         .signature-canvas {
-            border: 2px solid #667eea;
+            border: 2px solid #0d4f8b;
             border-radius: 8px;
+            /* UPDATED: Keep canvas white so signature is visible */
             background: white;
             cursor: crosshair;
             display: block;
             width: 100%;
-            height: 150px;
+            /* UPDATED: 25% taller (150 * 1.25) */
+            height: 188px;
             touch-action: none;
         }
 
         .btn-clear-sig {
             margin-top: 10px;
             padding: 10px 20px;
-            background: #667eea;
+            /* UPDATED: Use RO Dark Blue */
+            background: #0d4f8b;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -335,7 +452,9 @@
         }
 
         .btn-clear-sig:hover {
-            background: #764ba2;
+            /* UPDATED: Use RO Light Blue */
+            background: #88c4ed;
+            color: #111827;
         }
 
         .button-group {
@@ -356,22 +475,26 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* UPDATED: Use RO Dark Blue */
+            background: #0d4f8b;
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            /* UPDATED: Use RO Light Blue for shadow */
+            box-shadow: 0 5px 15px rgba(136, 196, 237, 0.4);
+            background: #1e66ab; /* Darken RO blue */
         }
 
         .btn-secondary {
-            background: #e0e0e0;
-            color: #333;
+            /* UPDATED: Dark theme secondary */
+            background: #4b5563; /* gray-600 */
+            color: #f9fafb; /* gray-50 */
         }
 
         .btn-secondary:hover {
-            background: #d0d0d0;
+            background: #5a6573;
         }
 
         .btn-success {
@@ -384,16 +507,64 @@
             box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
         }
 
+        /* --- NEW CUSTOM ALERT MODAL --- */
+        .custom-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            backdrop-filter: blur(4px);
+        }
+        .custom-modal-overlay.show {
+            display: flex;
+        }
+        .custom-modal-dialog {
+            /* UPDATED: Dark theme modal */
+            background: #374151; /* gray-700 */
+            color: #f9fafb;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .custom-modal-dialog h2 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 1.25em;
+            /* UPDATED: Light text */
+            color: #f9fafb;
+        }
+        .custom-modal-dialog p {
+            margin-bottom: 24px;
+            /* UPDATED: Light text */
+            color: #d1d5db; /* gray-300 */
+            line-height: 1.6;
+        }
+        .custom-modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        /* --- END CUSTOM ALERT MODAL --- */
+
         .notes-section {
             margin-top: 30px;
             padding: 20px;
-            background: #fff3cd;
+            /* UPDATED: Dark theme notes */
+            background: #4a2c0d;
             border-radius: 10px;
-            border: 2px solid #ffc107;
+            border: 2px solid #f59e0b; /* amber-500 */
         }
 
         .notes-section h3 {
-            color: #856404;
+            /* UPDATED: Light text */
+            color: #fcd34d; /* amber-300 */
             margin-bottom: 10px;
         }
 
@@ -401,7 +572,10 @@
             width: 100%;
             min-height: 100px;
             padding: 10px;
-            border: 1px solid #ccc;
+            /* UPDATED: Dark theme textarea */
+            border: 1px solid #f59e0b;
+            background: #5a3c1d;
+            color: #f9fafb;
             border-radius: 5px;
             font-family: inherit;
             font-size: 0.95em;
@@ -409,14 +583,16 @@
         }
 
         .email-list {
-            background: #e3f2fd;
+            /* UPDATED: Dark theme email list (use RO colors) */
+            background: #0d4f8b;
             padding: 15px;
             border-radius: 8px;
             margin-top: 10px;
         }
 
         .email-list h4 {
-            color: #1976d2;
+            /* UPDATED: Light text */
+            color: #f9fafb;
             margin-bottom: 8px;
         }
 
@@ -426,7 +602,8 @@
         }
 
         .email-list li {
-            color: #0d47a1;
+            /* UPDATED: Use RO Light Blue */
+            color: #88c4ed;
             padding: 3px 0;
         }
 
@@ -440,21 +617,28 @@
 
         @media (max-width: 768px) {
             body {
-                padding: 10px 5px;
+                padding: 0;
+                padding-top: 280px; /* Adjust for mobile sticky header */
             }
 
             .container {
-                border-radius: 10px;
-                max-width: 100%;
+                border-radius: 0;
             }
 
             .header {
-                padding: 15px 12px;
+                padding: 15px 12px 10px 12px;
+                height: 280px; /* Fixed height for mobile */
             }
 
             .header h1 {
                 font-size: 1.3em;
                 margin-bottom: 12px;
+            }
+            
+            /* UPDATED: Adjust header inputs for mobile */
+            .input-group input {
+                padding: 15px 10px;
+                font-size: 1.2em;
             }
 
             .header-row {
@@ -468,12 +652,14 @@
                 margin-bottom: 3px;
             }
 
+            /*
             .header-info input,
             .input-group input {
                 padding: 10px;
                 font-size: 1em;
                 width: 100%;
             }
+            */
 
             .progress-bar-container {
                 margin-top: 15px;
@@ -537,23 +723,60 @@
                 padding: 15px;
             }
         }
+        
+        /* Recalculate sticky header for smaller mobile */
+        @media (max-width: 380px) {
+            body {
+                padding-top: 300px; /* Needs a bit more space */
+            }
+            .header {
+                height: 300px;
+            }
+            .input-group input {
+                font-size: 1.1em;
+            }
+        }
+
 
         @media print {
             body {
                 background: white;
                 padding: 0;
+                /* UPDATED: Ensure text is black for printing */
+                color: #000;
+            }
+            
+            /* --- Hide sticky header for printing --- */
+            .header {
+                position: static;
+                height: auto;
+                box-shadow: none;
+                border-radius: 0;
+                border-bottom: 3px solid #667eea;
             }
 
             .container {
                 box-shadow: none;
                 border-radius: 0;
                 max-width: 100%;
+                /* UPDATED: Ensure text is black for printing */
+                color: #000;
+                padding-top: 0; /* Remove padding for printing */
+            }
+            
+            body {
+                padding-top: 0; /* Remove padding for printing */
             }
 
             .header {
                 background: white;
                 color: black;
                 border-bottom: 3px solid #667eea;
+            }
+            
+            /* NEW: Hide logo when printing */
+            .header-logo {
+                display: none;
             }
 
             .section-header {
@@ -570,12 +793,38 @@
 
             .section-content {
                 page-break-inside: avoid;
+                /* UPDATED: Force white bg for printing */
+                background: #fff;
             }
 
             .checklist-item {
                 page-break-inside: avoid;
                 box-shadow: none;
                 border: 1px solid #e0e0e0;
+                /* UPDATED: Force white bg for printing */
+                background: #fff;
+            }
+            
+            /* UPDATED: Force text to black for printing */
+            .item-title, .item-description, .checkbox-option label {
+                color: #333;
+            }
+            /* Revert EOD highlight for printing */
+            .eod-highlight {
+                color: #000;
+                font-weight: bold;
+                text-shadow: none;
+            }
+            
+            .eod-field {
+                background: #f0f7ff;
+            }
+            .eod-field label {
+                color: #1976d2;
+            }
+            .input-group input {
+                background: #eee;
+                color: #000;
             }
 
             .button-group,
@@ -589,6 +838,15 @@
 
             .notes-section {
                 page-break-inside: avoid;
+                background: #fff3cd;
+                border-color: #ffc107;
+            }
+            .notes-section h3 {
+                color: #856404;
+            }
+            .notes-section textarea {
+                background: #fff;
+                color: #000;
             }
             
             @page {
@@ -614,21 +872,26 @@
 <body>
     <div class="container">
         <div class="header">
+            <!-- NEW: Added Retail Odyssey Logo -->
+            <img src="rologo.png" alt="Retail Odyssey Logo" class="header-logo" onerror="this.style.display='none'">
             <h1>KOMPASS LEAD DAILY CHECKLIST</h1>
             
             <!-- Single Row: Store, Date, Lead Name -->
             <div class="header-row">
                 <div class="input-group">
                     <label>Store #:</label>
-                    <input type="text" id="storeNumber" placeholder="Enter store number">
+                    <!-- ADDED onchange handler -->
+                    <input type="text" id="storeNumber" placeholder="Enter store number" onchange="autoSave()">
                 </div>
                 <div class="input-group">
                     <label>Date:</label>
-                    <input type="date" id="workDate">
+                    <!-- ADDED onchange handler -->
+                    <input type="date" id="workDate" onchange="autoSave()">
                 </div>
                 <div class="input-group">
                     <label>Lead Name:</label>
-                    <input type="text" id="leadName" placeholder="Enter your name">
+                    <!-- ADDED onchange handler -->
+                    <input type="text" id="leadName" placeholder="Enter your name" onchange="autoSave()">
                 </div>
             </div>
 
@@ -636,11 +899,12 @@
                 <div class="progress-bar" id="progressBar" style="width: 0%;">0%</div>
             </div>
         </div>
-        <div class="section-controls">
-            <button class="btn btn-secondary btn-sm" onclick="expandAllSections()" title="Expand all sections">Expand All</button>
-            <button class="btn btn-secondary btn-sm" onclick="collapseAllSections()" title="Collapse all sections">Collapse All</button>
-        </div>
+        <!-- This content div is now a sibling of the header, not a parent -->
         <div class="content">
+            <div class="section-controls" style="padding-bottom: 20px; display: flex; gap: 10px; justify-content: center;">
+                <button class="btn btn-secondary btn-sm" onclick="expandAllSections()" title="Expand all sections" style="padding: 8px 12px; font-size: 0.9em;">Expand All</button>
+                <button class="btn btn-secondary btn-sm" onclick="collapseAllSections()" title="Collapse all sections" style="padding: 8px 12px; font-size: 0.9em;">Collapse All</button>
+            </div>
             <!-- Section 1: Pre-Work Setup -->
             <div class="section">
                 <div class="section-header" onclick="toggleSection(this)">
@@ -767,7 +1031,8 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">1.6 Locate the Kompass Box & Take Kompass Cart Photo <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <!-- UPDATED: EOD text -->
+                                <div class="item-title">1.6 Locate the Kompass Box & Take Kompass Cart Photo <span class="eod-highlight">EOD Cover Sheet</span></div>
                                 <div class="item-description">
                                     <ul>
                                         <li>White box with blue lettering containing label strips</li>
@@ -878,13 +1143,15 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.1 Check In with PIC by 7:00 AM and Record Name <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <!-- UPDATED: EOD text -->
+                                <div class="item-title">2.1 Check In with PIC by 7:00 AM and Record Name <span class="eod-highlight">EOD Cover Sheet</span></div>
                                 <div class="item-description">
                                     Check in with the person in charge (PIC) by 7:00 AM and record their name
                                     
                                     <div class="eod-field">
                                         <label>Manager's name you checked in with:</label>
-                                        <input type="text" id="checkInManager" placeholder="Enter manager's name">
+                                        <!-- ADDED onchange handler -->
+                                        <input type="text" id="checkInManager" placeholder="Enter manager's name" onchange="autoSave()">
                                     </div>
                                 </div>
                             </div>
@@ -1190,7 +1457,8 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.19 Handle Issues and Contact Support if Needed <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <!-- UPDATED: EOD text -->
+                                <div class="item-title">2.19 Handle Issues and Contact Support if Needed <span class="eod-highlight">EOD Cover Sheet</span></div>
                                 <div class="item-description">
                                     If problems occur (incorrect planogram, wrong footage, fixture issues, store refusal):
                                     <ul>
@@ -1216,12 +1484,14 @@
                                     <div id="hotlineDetails" style="display: none;">
                                         <div class="eod-field">
                                             <label>If so, what commodities are involved?</label>
-                                            <input type="text" id="issueCommodities" placeholder="Enter commodities">
+                                            <!-- ADDED onchange handler -->
+                                            <input type="text" id="issueCommodities" placeholder="Enter commodities" onchange="autoSave()">
                                         </div>
 
                                         <div class="eod-field">
                                             <label>What is the issue?</label>
-                                            <textarea id="issueDescription" placeholder="Describe the issue"></textarea>
+                                            <!-- ADDED onchange handler -->
+                                            <textarea id="issueDescription" placeholder="Describe the issue" onchange="autoSave()"></textarea>
                                         </div>
 
                                         <div class="eod-field">
@@ -1244,7 +1514,8 @@
 
                                         <div class="eod-field" id="tempSolutionField" style="display: none;">
                                             <label>If not, what was the temporary solution?</label>
-                                            <textarea id="tempSolution" placeholder="Describe temporary solution"></textarea>
+                                            <!-- ADDED onchange handler -->
+                                            <textarea id="tempSolution" placeholder="Describe temporary solution" onchange="autoSave()"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1283,7 +1554,8 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">3.1 Walk Sets and Complete Sign-Offs <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <!-- UPDATED: EOD text -->
+                                <div class="item-title">3.1 Walk Sets and Complete Sign-Offs <span class="eod-highlight">EOD Cover Sheet</span></div>
                                 <div class="item-description">
                                     <ul>
                                         <li>Walk each set with store personnel to verify completion</li>
@@ -1297,7 +1569,8 @@
 
                                     <div class="eod-field">
                                         <label>Manager's name you checked out with:</label>
-                                        <input type="text" id="checkOutManager" placeholder="Enter manager's name">
+                                        <!-- ADDED onchange handler -->
+                                        <input type="text" id="checkOutManager" placeholder="Enter manager's name" onchange="autoSave()">
                                     </div>
                                 </div>
                             </div>
@@ -1310,7 +1583,8 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">3.2 Complete PROD and SI <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <!-- UPDATED: EOD text -->
+                                <div class="item-title">3.2 Complete PROD and SI <span class="eod-highlight">EOD Cover Sheet</span></div>
                                 <div class="item-description">
                                     Verify all sets are signed off in both systems
                                     
@@ -1352,7 +1626,8 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">3.3 Sign-Off Sheet Documentation <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <!-- UPDATED: EOD text -->
+                                <div class="item-title">3.3 Sign-Off Sheet Documentation <span class="eod-highlight">EOD Cover Sheet</span></div>
                                 <div class="item-description">
                                     Ensure proper documentation of sign-off sheets
 
@@ -1394,7 +1669,8 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">3.4 Kompass Cart "After" Photos <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <!-- UPDATED: EOD text -->
+                                <div class="item-title">3.4 Kompass Cart "After" Photos <span class="eod-highlight">EOD Cover Sheet</span></div>
                                 <div class="item-description">
                                     Take clear, in-focus photos of Kompass cart
 
@@ -1484,7 +1760,8 @@
             <!-- Notes Section -->
             <div class="notes-section">
                 <h3>NOTES & ISSUES:</h3>
-                <textarea id="notes" placeholder="Enter any notes, issues, or observations here..."></textarea>
+                <!-- ADDED onchange handler -->
+                <textarea id="notes" placeholder="Enter any notes, issues, or observations here..." onchange="autoSave()"></textarea>
             </div>
 
             <!-- Signature Section - Moved to the end -->
@@ -1496,9 +1773,9 @@
 
             <!-- Action Buttons -->
             <div class="button-group">
-                <button class="btn btn-success" onclick="generateEODCoverSheet()">Generate EOD Cover Sheet (PDF)</button>
-                <button class="btn btn-primary" onclick="generateEODImage()">Generate EOD Image (JPG)</button>
-                <button class="btn btn-primary" onclick="saveProgress(event)">Save to Device</button>
+                <button class="btn btn-success" onclick="generateEODAndEmail()">Generate & Open Email</button>
+                <button class="btn btn-primary" onclick="generateEODCoverSheet()">Generate PDF Only</button>
+                <button class="btn btn-primary" onclick="generateEODImage()">Generate Image Only</button>
                 <button class="btn btn-secondary" onclick="resetChecklist()">Reset Checklist</button>
             </div>
         </div>
@@ -1507,6 +1784,18 @@
     <!-- NEW LOADING OVERLAY HTML -->
     <div id="loadingOverlay" class="loading-overlay">
         <span>Generating Image, please wait...</span>
+    </div>
+
+    <!-- NEW CUSTOM ALERT/CONFIRM MODAL -->
+    <div id="customModal" class="custom-modal-overlay">
+        <div class="custom-modal-dialog">
+            <h2 id="customModalTitle">Modal Title</h2>
+            <p id="customModalMessage">Modal message goes here.</p>
+            <div class="custom-modal-buttons">
+                <button class="btn btn-secondary" id="customModalCancel">Cancel</button>
+                <button class="btn btn-primary" id="customModalConfirm">OK</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1521,7 +1810,7 @@
             // Setup PDF.js worker
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
             loadProgress();
-            updateProgress();
+            updateProgress(); // This was missing, causing an error
 
             // --- NEW LOGIC FROM USER'S UPLOADED FILE ---
             // Add a bottom-toggle ("Collapse") button to each section content
@@ -1535,8 +1824,9 @@
                 bottomWrap.style.display = 'flex';
                 bottomWrap.style.justifyContent = 'flex-end';
                 bottomWrap.style.marginTop = '12px';
-                bottomWrap.style.borderTop = '1px solid #eee';
+                bottomWrap.style.borderTop = '1px solid #4b5563'; /* gray-600 */
                 bottomWrap.style.paddingTop = '12px';
+                bottomWrap.className = 'section-footer-collapse'; // Added class for print styles
 
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -1571,6 +1861,18 @@
                 });
             }
             // --- END NEW LOGIC ---
+            
+            // --- NEW: Adjust container padding-top dynamically based on header height ---
+            function adjustBodyPadding() {
+                const header = document.querySelector('.header');
+                if (header) {
+                    const headerHeight = header.offsetHeight;
+                    document.body.style.paddingTop = `${headerHeight}px`;
+                }
+            }
+            adjustBodyPadding();
+            window.addEventListener('resize', adjustBodyPadding);
+            // --- END NEW ---
         };
 
         function toggleSection(header) {
@@ -1614,6 +1916,43 @@
             });
             
             autoSave();
+        }
+
+        // --- ADDED MISSING FUNCTIONS ---
+
+        function autoSave() {
+            const data = {
+                storeNumber: document.getElementById('storeNumber').value,
+                date: document.getElementById('workDate').value,
+                leadName: document.getElementById('leadName').value,
+                notes: document.getElementById('notes').value,
+                checkInManager: document.getElementById('checkInManager').value,
+                checkOutManager: document.getElementById('checkOutManager').value,
+                issueCommodities: document.getElementById('issueCommodities').value,
+                issueDescription: document.getElementById('issueDescription').value,
+                tempSolution: document.getElementById('tempSolution').value,
+                eodHotlineYes: document.getElementById('eodHotlineYes').checked,
+                eodHotlineNo: document.getElementById('eodHotlineNo').checked,
+                eodResolvedYes: document.getElementById('eodResolvedYes').checked,
+                eodResolvedNo: document.getElementById('eodResolvedNo').checked,
+                eodResolvedNA: document.getElementById('eodResolvedNA').checked,
+                eodProdYes: document.getElementById('eodProdYes').checked,
+                eodProdNo: document.getElementById('eodProdNo').checked,
+                eodSiYes: document.getElementById('eodSiYes').checked,
+                eodSiNo: document.getElementById('eodSiNo').checked,
+                eodEmailSheetYes: document.getElementById('eodEmailSheetYes').checked,
+                eodEmailSheetNo: document.getElementById('eodEmailSheetNo').checked,
+                eodProdSheetYes: document.getElementById('eodProdSheetYes').checked,
+                eodProdSheetNo: document.getElementById('eodProdSheetNo').checked,
+                eodBeforePhotoYes: document.getElementById('eodBeforePhotoYes').checked,
+                eodBeforePhotoNo: document.getElementById('eodBeforePhotoNo').checked,
+                eodAfterPhotoYes: document.getElementById('eodAfterPhotoYes').checked,
+                eodAfterPhotoNo: document.getElementById('eodAfterPhotoNo').checked,
+                signature: canvas.toDataURL('image/png'),
+                checkedItems: Array.from(document.querySelectorAll('.checklist-item input[type="checkbox"]:not([name])')).map(cb => cb.checked)
+            };
+            
+            localStorage.setItem('kompassChecklist', JSON.stringify(data));
         }
 
         function updateProgress() {
@@ -1678,7 +2017,7 @@
                 }
             }
 
-            const percentage = Math.round((completedItems / totalItems) * 100);
+            const percentage = (totalItems > 0) ? Math.round((completedItems / totalItems) * 100) : 0;
             
             const progressBar = document.getElementById('progressBar');
             progressBar.style.width = percentage + '%';
@@ -1742,48 +2081,8 @@
             updateProgress();
             autoSave();
         }
-
-        function autoSave() {
-            const data = {
-                storeNumber: document.getElementById('storeNumber').value,
-                date: document.getElementById('workDate').value,
-                leadName: document.getElementById('leadName').value,
-                notes: document.getElementById('notes').value,
-                checkInManager: document.getElementById('checkInManager').value,
-                checkOutManager: document.getElementById('checkOutManager').value,
-                issueCommodities: document.getElementById('issueCommodities').value,
-                issueDescription: document.getElementById('issueDescription').value,
-                tempSolution: document.getElementById('tempSolution').value,
-                eodHotlineYes: document.getElementById('eodHotlineYes').checked,
-                eodHotlineNo: document.getElementById('eodHotlineNo').checked,
-                eodResolvedYes: document.getElementById('eodResolvedYes').checked,
-                eodResolvedNo: document.getElementById('eodResolvedNo').checked,
-                eodResolvedNA: document.getElementById('eodResolvedNA').checked,
-                eodProdYes: document.getElementById('eodProdYes').checked,
-                eodProdNo: document.getElementById('eodProdNo').checked,
-                eodSiYes: document.getElementById('eodSiYes').checked,
-                eodSiNo: document.getElementById('eodSiNo').checked,
-                eodEmailSheetYes: document.getElementById('eodEmailSheetYes').checked,
-                eodEmailSheetNo: document.getElementById('eodEmailSheetNo').checked,
-                eodProdSheetYes: document.getElementById('eodProdSheetYes').checked,
-                eodProdSheetNo: document.getElementById('eodProdSheetNo').checked,
-                eodBeforePhotoYes: document.getElementById('eodBeforePhotoYes').checked,
-                eodBeforePhotoNo: document.getElementById('eodBeforePhotoNo').checked,
-                eodAfterPhotoYes: document.getElementById('eodAfterPhotoYes').checked,
-                eodAfterPhotoNo: document.getElementById('eodAfterPhotoNo').checked,
-                signature: canvas.toDataURL('image/png'),
-                checkedItems: Array.from(document.querySelectorAll('.checklist-item input[type="checkbox"]:not([name])')).map(cb => cb.checked)
-            };
-            
-            localStorage.setItem('kompassChecklist', JSON.stringify(data));
-        }
-
-        function saveProgress(event) {
-            if (event) event.preventDefault();
-            autoSave(); // autoSave already does the saving
-            // Re-using the custom modal for alerts
-            showCustomAlert('Progress Saved', 'Your checklist progress has been saved to this device.');
-        }
+        
+        // --- END ADDED MISSING FUNCTIONS ---
 
         function loadProgress() {
             const saved = localStorage.getItem('kompassChecklist');
@@ -1932,12 +2231,15 @@
             return isPng ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
         }
 
+        // REDUNDANT - will be removed
+        /*
         function isoDate(d) {
             if (!d) return '';
             if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
             const dt = new Date(d);
             return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
         }
+        */
 
         async function signatureDataURL() {
             const pad = document.getElementById('signaturePad');
@@ -1949,107 +2251,6 @@
             }
             return '';
         }
-
-        async function collectPayload() {
-            const v = sel => document.querySelector(sel)?.value ?? '';
-            const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
-            const yn = name => r(name).toLowerCase().startsWith('y');
-
-            return {
-                LeadName: v('#leadName'),
-                DateISO: isoDate(v('#workDate')),
-                StoreNumber: String(v('#storeNumber') || ''),
-                CheckInManager: v('#checkInManager'),
-                IssueCommodities: v('#issueCommodities'),
-                TempSolution: v('#tempSolution'),
-                CheckOutManager: v('#checkOutManager'),
-
-                BeforePicPosted: yn('beforePicPosted'),
-                CalledHotline: yn('calledHotline'),
-                IssueResolved: r('issueResolved') || 'NA',
-                SignedOutPROD: yn('signedOutPROD'),
-                SignedOutSI: yn('signedOutSI'),
-                SignoutSheetAttachedEmail: yn('signoutEmail'),
-                SignoutSheetAttachedPROD: yn('signoutPROD'),
-                AfterPicPosted: yn('afterPicPosted'),
-
-                signatureDataURL: await signatureDataURL()
-            };
-        }
-
-        async function fillPdf(data) {
-            const src = await fetch(pdfUrl).then(r => {
-                if (!r.ok) throw new Error('PDF not found. Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
-                return r.arrayBuffer();
-            });
-
-            const pdfDoc = await PDFLib.PDFDocument.load(src);
-            const form = pdfDoc.getForm();
-
-            // Text fields
-            form.getTextField('LeadName').setText(data.LeadName ?? '');
-            form.getTextField('DateISO').setText(data.DateISO ?? '');
-            form.getTextField('StoreNumber').setText(String(data.StoreNumber ?? ''));
-            form.getTextField('CheckInManager').setText(data.CheckInManager ?? '');
-            form.getTextField('IssueCommodities').setText(data.IssueCommodities ?? '');
-            form.getTextField('WhatIsIssue').setText(data.WhatIsIssue ?? ''); 
-            form.getTextField('TempSolution').setText(data.TempSolution ?? '');
-            form.getTextField('CheckOutManager').setText(data.CheckOutManager ?? '');
-
-            // Radio groups (Yes/No or Yes/No/NA)
-            form.getRadioGroup('BeforePicPosted').select(pickYN(data.BeforePicPosted));
-            form.getRadioGroup('CalledHotline').select(pickYN(data.CalledHotline));
-            form.getRadioGroup('IssueResolved').select(pickYNN(data.IssueResolved));
-            form.getRadioGroup('SignedOutPROD').select(pickYN(data.SignedOutPROD));
-            form.getRadioGroup('SignedOutSI').select(pickYN(data.SignedOutSI));
-            form.getRadioGroup('SignoutSheetAttachedEmail').select(pickYN(data.SignoutSheetAttachedEmail));
-            form.getRadioGroup('SignoutSheetAttachedPROD').select(pickYN(data.SignoutSheetAttachedPROD));
-            form.getRadioGroup('AfterPicPosted').select(pickYN(data.AfterPicPosted));
-
-            // Signature image (Push Button named LeadSignatureImage)
-            if (data.signatureDataURL) {
-                const img = await embedDataUrl(pdfDoc, data.signatureDataURL);
-                if (img) form.getButton('LeadSignatureImage').setImage(img);
-            }
-
-            form.flatten();
-
-            const out = await pdfDoc.save();
-            const blob = new Blob([out], { type: 'application/pdf' });
-            const url = URL.createObjectURL(blob);
-            const a = Object.assign(document.createElement('a'), {
-                href: url,
-                download: `EOD_FM${data.StoreNumber || 'store'}_${data.DateISO || 'date'}.pdf`
-            });
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        async function generateEODCoverSheet() {
-            try {
-                const payload = await collectPayload();
-                await fillPdf(payload);
-                showCustomAlert('PDF Generated', 'EOD Cover Sheet PDF generated and downloaded successfully!<br><br>Please review the file and attach it to your EOD email along with sign-off sheets and photos.');
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                showCustomAlert('Error Generating PDF', error.message + '<br><br>Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
-            }
-        }
-
-        // Auto-save form fields
-        const formFields = [
-            'storeNumber', 'workDate', 'leadName', 'notes',
-            'checkInManager', 'checkOutManager', 'issueCommodities', 
-            'issueDescription', 'tempSolution'
-        ];
-        
-        formFields.forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            if (field) {
-                field.addEventListener('change', autoSave);
-                field.addEventListener('blur', autoSave);
-            }
-        });
 
         // Signature Pad functionality
         const canvas = document.getElementById('signaturePad');
@@ -2139,125 +2340,49 @@
     </script>
     
     <script>
-    async function collectPayload() {
-    const v = sel => document.querySelector(sel)?.value ?? '';
-    const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
-    const yn = name => r(name).toLowerCase().startsWith('y');    // Yes/No → boolean
-    const ynn = name => (r(name) || 'NA');                      // Yes/No/NA → string
-    const isoDate = d => {
-        if (!d) return '';
-        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-        const dt = new Date(d);
-        return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
-    };
-    async function signatureDataURL() {
-        const pad = document.getElementById('signaturePad');
-        if (pad && pad.toDataURL) return pad.toDataURL('image/png');
-        const file = document.getElementById('signatureFile')?.files?.[0];
-        if (!file) return '';
-        const b64 = await file.arrayBuffer().then(b => {
-        let bin=''; new Uint8Array(b).forEach(x => bin += String.fromCharCode(x));
-        return btoa(bin);
-        });
-        return `data:${file.type || 'image/png'};base64,${b64}`;
+    // --- NEW CUSTOM MODAL SCRIPT ---
+    let confirmCallback = null;
+    const customModal = document.getElementById('customModal');
+    const modalTitle = document.getElementById('customModalTitle');
+    const modalMessage = document.getElementById('customModalMessage');
+    const modalConfirm = document.getElementById('customModalConfirm');
+    const modalCancel = document.getElementById('customModalCancel');
+
+    function showCustomAlert(title, message) {
+        modalTitle.textContent = title;
+        modalMessage.innerHTML = message; // Use innerHTML to allow <br>
+        modalConfirm.textContent = 'OK';
+        modalCancel.style.display = 'none';
+        customModal.classList.add('show');
+        confirmCallback = null;
     }
 
-    const called = yn('calledHotline'); // “Did you call the KOMPASS Hotline?”
-
-    const payload = {
-        // always-captured
-        LeadName: v('#leadName'),
-        DateISO: isoDate(v('#workDate')),
-        StoreNumber: String(v('#storeNumber') || ''),
-        CheckInManager: v('#checkInManager'),
-        CheckOutManager: v('#checkOutManager'),
-        BeforePicPosted: yn('beforePicPosted'),
-        CalledHotline: called,
-        SignedOutPROD: yn('signedOutPROD'),
-        SignedOutSI: yn('signedOutSI'),
-        SignoutSheetAttachedEmail: yn('signoutEmail'),
-        SignoutSheetAttachedPROD: yn('signoutPROD'),
-        AfterPicPosted: yn('afterPicPosted'),
-        signatureDataURL: await signatureDataURL()
-    };
-
-    if (called) {
-        // user selected Yes → take their entries
-        payload.IssueCommodities = v('#issueCommodities');
-        payload.WhatIsIssue = v('#issueDescription'); // Corrected this line
-        payload.IssueResolved = ynn('issueResolved'); // 'Yes' | 'No' | 'NA'
-        payload.TempSolution = v('#tempSolution');
-    } else {
-        // user selected No → cascade N/A everywhere
-        payload.IssueCommodities = 'N/A';
-        payload.WhatIsIssue = 'N/A';
-        payload.IssueResolved = 'NA';
-        payload.TempSolution = 'N/A';
+    function showCustomConfirm(title, message, onConfirm) {
+        modalTitle.textContent = title;
+        modalMessage.innerHTML = message;
+        modalConfirm.textContent = 'Yes';
+        modalCancel.style.display = 'inline-block';
+        modalCancel.textContent = 'No';
+        customModal.classList.add('show');
+        confirmCallback = onConfirm;
     }
 
-    return payload;
-    }
-</script>
-
-    <button id="selectAll">Select All & Fill "Test"</button>
-
-<script>
-    (function () {
-    const setVal = (sel, val) => {
-        const el = document.querySelector(sel);
-        if (!el) return;
-        el.value = val;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-    };
-    const pick = (name, val) => {
-        const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
-        if (!el) return;
-        el.checked = true;
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-    };
-
-    document.getElementById('selectAll').addEventListener('click', () => {
-        // Text fields → "Test" (date = today)
-        setVal('#leadName', 'Test');
-        setVal('#workDate', new Date().toISOString().slice(0,10));
-        setVal('#storeNumber', 'Test');
-        setVal('#checkInManager', 'Test');
-        setVal('#issueCommodities', 'Test');
-        setVal('#tempSolution', 'Test');
-        setVal('#checkOutManager', 'Test');
-        setVal('#issueDescription', 'Test issue'); // Added issueDescription
-
-        // Radios: force "Yes"
-        ['beforePicPosted','calledHotline','signedOutPROD','signedOutSI',
-        'signoutEmail','signoutPROD','afterPicPosted'].forEach(n => pick(n, 'Yes'));
-        pick('issueResolved','Yes'); // 3-state group
-
-        // Any loose checkboxes on the page
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        cb.checked = true;
-        cb.dispatchEvent(new Event('change', { bubbles: true }));
-        });
+    modalConfirm.addEventListener('click', () => {
+        customModal.classList.remove('show');
+        if (confirmCallback) {
+            confirmCallback();
+            confirmCallback = null;
+        }
     });
-    })();
-</script>
 
-    <button id="listFields">List PDF Fields</button>
-<script>
-    document.getElementById('listFields').addEventListener('click', async () => {
-    try {
-        const r = await fetch(pdfUrl);
-        if (!r.ok) throw new Error('PDF not found at pdfUrl: ' + pdfUrl);
-        const bytes = await r.arrayBuffer();
-        const pdfDoc = await PDFLib.PDFDocument.load(bytes);
-        const form = pdfDoc.getForm();
-        const names = form.getFields().map(f => f.getName());
-        showCustomAlert('PDF Form Fields Found', names.join('<br>'));
-    } catch (e) {
-        showCustomAlert('Load/List Error', e.message);
-    }
+    modalCancel.addEventListener('click', () => {
+        customModal.classList.remove('show');
+        confirmCallback = null;
     });
-</script>
+    // --- END CUSTOM MODAL SCRIPT ---
+    </script>
+
+
     <script>
 (() => {
     // Local helpers used by the overrides
@@ -2286,12 +2411,40 @@
     const isPng = dataUrl.startsWith('data:image/png');
     return isPng ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
     }
-    function isoDate(d) {
-    if (!d) return '';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-    const dt = new Date(d);
-    return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
+    
+    /* * REPLACED isoDate function with a more comprehensive date formatter
+     * and a new store number formatter.
+     */
+    function getFormattedDate(isoDate) {
+        if (!isoDate) {
+            const d = new Date();
+            isoDate = d.toISOString().split('T')[0]; // Use today if empty
+        }
+
+        const parts = isoDate.split('-'); // YYYY, MM, DD
+        if (parts.length === 3) {
+            const [y, m, d] = parts;
+            return {
+                mmddyyyy: `${m}/${d}/${y}`,
+                mm_dd_yyyy: `${m}_${d}_${y}`
+            };
+        }
+        
+        // Fallback for unexpected format
+        const today = new Date();
+        const m = String(today.getMonth() + 1).padStart(2, '0');
+        const d = String(today.getDate()).padStart(2, '0');
+        const y = today.getFullYear();
+        return {
+            mmddyyyy: `${m}/${d}/${y}`,
+            mm_dd_yyyy: `${m}_${d}_${y}`
+        };
     }
+
+    function getFormattedStoreNum(storeNum) {
+        return String(storeNum || '').padStart(3, '0');
+    }
+
     async function getSignatureDataURL() {
     const pad = document.getElementById('signaturePad');
     if (pad && pad.toDataURL) {
@@ -2314,8 +2467,9 @@
 
         // Text fields (includes WhatIsIssue)
         form.getTextField('LeadName').setText(data.LeadName ?? '');
-        form.getTextField('DateISO').setText(data.DateISO ?? '');
-        form.getTextField('StoreNumber').setText(String(data.StoreNumber ?? ''));
+        // UPDATED: Use the new MM/DD/YYYY date format in the PDF
+        form.getTextField('DateISO').setText(data.DateMMDDYYYY ?? '');
+        form.getTextField('StoreNumber').setText(String(data.StoreNumber ?? '')); // Use raw store number for PDF field
         form.getTextField('CheckInManager').setText(data.CheckInManager ?? '');
         form.getTextField('IssueCommodities').setText(data.IssueCommodities ?? '');
         form.getTextField('WhatIsIssue').setText(data.WhatIsIssue ?? '');
@@ -2350,10 +2504,20 @@
     const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
     const yn = name => r(name).toLowerCase().startsWith('y');
 
+    // NEW: Get formatted date and store number
+    const rawDate = v('#workDate');
+    const dates = getFormattedDate(rawDate);
+    const rawStoreNum = v('#storeNumber');
+    const storeNumPadded = getFormattedStoreNum(rawStoreNum);
+
     const payload = {
         LeadName: v('#leadName'),
-        DateISO: isoDate(v('#workDate')),
-        StoreNumber: String(v('#storeNumber') || ''),
+        // UPDATED: Add new date and store formats to payload
+        DateMMDDYYYY: dates.mmddyyyy,
+        DateForFilename: dates.mm_dd_yyyy,
+        StoreNumber: rawStoreNum, // The raw number
+        StoreNumberPadded: storeNumPadded, // The 3-digit padded number
+
         CheckInManager: v('#checkInManager'),
         IssueCommodities: v('#issueCommodities'),
         WhatIsIssue: v('#issueDescription'), // Corrected from issueDescription
@@ -2391,7 +2555,8 @@
         const url = URL.createObjectURL(blob);
         const a = Object.assign(document.createElement('a'), {
             href: url,
-            download: `EOD Cover Sheet FM${data.StoreNumber || 'store'} ${data.DateISO || 'date'}.pdf`
+            // UPDATED: Use new filename format
+            download: `EOD Cover Sheet FM${data.StoreNumberPadded || 'store'} ${data.DateForFilename || 'date'}.pdf`
         });
         a.click();
         URL.revokeObjectURL(url);
@@ -2445,7 +2610,8 @@
             const dataUrl = canvas.toDataURL('image/jpeg', 0.9); // 0.9 = 90% quality
             const a = document.createElement('a');
             a.href = dataUrl;
-            a.download = `EOD Cover Sheet FM${payload.StoreNumber || 'store'} ${payload.DateISO || 'date'}.jpg`;
+            // UPDATED: Use new filename format
+            a.download = `EOD Cover Sheet FM${payload.StoreNumberPadded || 'store'} ${payload.DateForFilename || 'date'}.jpg`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2461,236 +2627,70 @@
         }
     };
 
-})();
-</script>
+    // ---------- NEW EMAIL + IMAGE GENERATION FUNCTION ----------
+    window.generateEODAndEmail = async function generateEODAndEmail() {
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.classList.add('show');
 
-<style>
-    .kompass-modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,.6);
-    z-index: 9999;
-    padding: 20px;
-    }
-    .kompass-modal.show { display: flex; }
-    .kompass-card {
-    background: #fff;
-    max-width: 760px;
-    width: min(92vw,760px);
-    max-height: 88vh;
-    overflow-y: auto;
-    border-radius: 14px;
-    padding: 22px 26px 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    font-family: system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    }
-    .kompass-card h2 { margin: 0 0 .5rem 0; font-size: 1.35rem; color: #333; }
-    .kompass-card h3 { margin: 1rem 0 .25rem 0; font-size: 1.05rem; color: #111; }
-    .kompass-card p, .kompass-card li { color: #444; line-height: 1.6; }
-    .kompass-card p { margin-bottom: 0.75rem; }
-    .kompass-card ul { margin-left: 20px; margin-bottom: 1rem; }
-    .kompass-card li { margin-bottom: 0.25rem; }
+        let payload; // Define payload in the outer scope
+        
+        try {
+            // 1. Get data and create the filled PDF bytes
+            payload = await window.collectPayload(); // Assign to outer scope
+            const pdfBytes = await createFilledPdfBytes(payload);
 
-    .kompass-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; border-top: 1px solid #eee; padding-top: 1rem; }
-    .kompass-actions .btn { border: 0; border-radius: 8px; padding: .6rem 1.1rem; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
-    .kompass-actions .btn-primary { background: #667eea; color: #fff; }
-    .kompass-actions .btn-primary:hover { background: #764ba2; }
-    .kompass-actions .btn-secondary { background: #e0e0e0; color: #333; }
-    .kompass-actions .btn-secondary:hover { background: #d0d0d0; }
-    .kompass-actions .btn[disabled] { opacity: .6; cursor: not-allowed; }
-    
-    /* Custom Alert/Confirm Styles */
-    #kompassAlert .kompass-card { max-width: 480px; }
-    #kompassAlert p { font-size: 1.1rem; line-height: 1.6; color: #333; }
-    #kompassConfirm .kompass-actions { justify-content: space-between; }
-    #kompassConfirm #kcf-no { background: #e0e0e0; color: #333; }
-    #kompassConfirm #kcf-yes { background: #D9534F; color: #fff; }
-</style>
+            // 2. Load the PDF bytes into pdf.js
+            const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+            const pdfDoc = await loadingTask.promise;
+            const page = await pdfDoc.getPage(1); // Get the first page
 
-<!-- DISCLAIMER (first-visit only) -->
-<div id="kompassDisclaimer" class="kompass-modal" aria-hidden="true" role="dialog" aria-labelledby="kdc-title">
-    <div class="kompass-card" role="document">
-    <h2 id="kdc-title">⚠️ Important: Please Read Before Using This Checklist</h2>
-    <p><strong>Welcome to the KOMPASS Lead Daily Checklist!</strong></p>
-    <p>Before you begin, please understand and acknowledge the following:</p>
+            // 3. Create a canvas to render the PDF
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // 4. Set canvas size with high resolution
+            const scale = 2.0;
+            const viewport = page.getViewport({ scale: scale });
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
 
-    <h3>This is a Living Document</h3>
-    <p>Much like the dynamic nature of your role as a KOMPASS Lead, this checklist is fluid and ever-evolving. Don't expect it to stay the same—it will be updated as processes improve and new insights are gained.</p>
+            // 5. Render the PDF page to the canvas
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            await page.render(renderContext).promise;
 
-    <h3>It's a Guide, Not a Rulebook</h3>
-    <p>I've compiled what I believe are the primary steps and processes to help you navigate your day successfully. However, I know there are pieces missing, and I'm not perfect—nor do I expect you to be. Use this as a tool and a guide, not as an inflexible set of rules.</p>
+            // 6. Convert canvas to JPG and DOWNLOAD IT
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9); 
+            const a = document.createElement('a');
+            const jpgFilename = `EOD Cover Sheet FM${payload.StoreNumberPadded || 'store'} ${payload.DateForFilename || 'date'}.jpg`;
+            a.href = dataUrl;
+            a.download = jpgFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // 7. Create and open the mailto link
+            const cc = 'MAshabranner@retailodyssey.com,seth.newman@retailodyssey.com,KNix@retailodyssey.com';
+            const subject = `EOD FM${payload.StoreNumberPadded} ${payload.DateMMDDYYYY}`;
+            const body = `EOD Cover Sheet Image generated.\n\nPlease attach the JPG file named "${jpgFilename}" that was just downloaded to this email.`;
+            
+            // Use encodeURIComponent for safety
+            const mailtoUrl = `mailto:?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            // Open the email client
+            window.location.href = mailtoUrl;
 
-    <h3>Your Feedback Matters</h3>
-    <p>If you notice something missing, unclear, or out of order, please share that feedback. Your real-world experience is invaluable in making this resource better for everyone.</p>
+            showCustomAlert('Image Downloaded', `Your email client is opening.<br><br>Please attach the file named <b>${jpgFilename}</b> to the email.`);
 
-    <h3>Every Situation is Different</h3>
-    <p>Every store, every day, and every lead has a slightly different process. Don't get stuck on specific wording or the exact order of items. If a step doesn't fit your situation or doesn't apply, use your logic, common sense, and best practices to either:</p>
-    <ul>
-        <li>Ask questions of your supervisor or support team</li>
-        <li>Arrive at a solution independently based on your training and experience</li>
-    </ul>
-
-    <h3>Limitation of Liability</h3>
-    <p>By using this checklist, you acknowledge and agree that:</p>
-    <ul>
-        <li>This is an aid created to support your success</li>
-        <li>You will not hold me or anyone else responsible for the information contained within</li>
-        <li>You understand this is meant as a guide to help support official policy</li>
-        <li>You will use your professional judgment and company guidelines when making decisions</li>
-    </ul>
-
-    <p>If you can be understanding of these points and use the checklist as the helpful tool it's meant to be, it will serve you well in navigating your responsibilities and achieving success in your role.</p>
-
-    <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.75rem">
-        <input id="kdc-agree" type="checkbox" />
-        <span>I have read, understand, and agree to the above disclaimer</span>
-    </label>
-
-    <div class="kompass-actions">
-        <button id="kdc-cancel" class="btn btn-secondary">Cancel</button>
-        <button id="kdc-accept" class="btn btn-primary" disabled>Agree & Continue</button>
-    </div>
-    </div>
-</div>
-
-<!-- Custom Alert Modal -->
-<div id="kompassAlert" class="kompass-modal" aria-hidden="true" role="dialog" aria-labelledby="ka-title">
-    <div class="kompass-card" role="document">
-        <h2 id="ka-title">Alert</h2>
-        <p id="ka-message">This is an alert message.</p>
-        <div class="kompass-actions">
-            <button id="ka-ok" class="btn btn-primary">OK</button>
-        </div>
-    </div>
-</div>
-
-<!-- Custom Confirm Modal -->
-<div id="kompassConfirm" class="kompass-modal" aria-hidden="true" role="dialog" aria-labelledby="kcf-title">
-    <div class="kompass-card" role="document">
-        <h2 id="kcf-title">Confirm</h2>
-        <p id="kcf-message">Are you sure?</p>
-        <div class="kompass-actions">
-            <button id="kcf-no" class="btn btn-secondary">Cancel</button>
-            <button id="kcf-yes" class="btn btn-primary">Yes</button>
-        </div>
-    </div>
-</div>
-
-<script>
-(function(){
-    // --- Disclaimer Modal ---
-    const KEY = 'kompassDisclaimerAccepted.v1';
-    const modal = document.getElementById('kompassDisclaimer');
-    const agree = document.getElementById('kdc-agree');
-    const accept = document.getElementById('kdc-accept');
-    const cancel = document.getElementById('kdc-cancel');
-
-    function openModal(){
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden','false');
-    document.body.style.overflow = 'hidden';
-    accept.disabled = !agree.checked;
-    agree.focus();
-    }
-
-    function closeModal(){
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden','true');
-    document.body.style.overflow = '';
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-    try {
-        if (localStorage.getItem(KEY) !== 'true') {
-        openModal();
+        } catch (error) {
+            console.error('Error generating JPG and Email:', error);
+            showCustomAlert('Error Generating Email', error.message + (payload ? `<br><br>Debug Info: Store=${payload.StoreNumberPadded}, Date=${payload.DateMMDDYYYY}` : ''));
+        } finally {
+            // 8. Hide loading overlay
+            overlay.classList.remove('show');
         }
-    } catch (e) {
-        openModal();
-    }
-    });
-
-    agree.addEventListener('change', () => { accept.disabled = !agree.checked; });
-    
-    accept.addEventListener('click', () => {
-    try { localStorage.setItem(KEY,'true'); } catch (e) { /* ignore */ }
-    closeModal();
-    });
-    
-    cancel.addEventListener('click', () => { closeModal(); });
-
-    // --- Custom Alert & Confirm ---
-    const alertModal = document.getElementById('kompassAlert');
-    const alertTitle = document.getElementById('ka-title');
-    const alertMessage = document.getElementById('ka-message');
-    const alertOk = document.getElementById('ka-ok');
-
-    const confirmModal = document.getElementById('kompassConfirm');
-    const confirmTitle = document.getElementById('kcf-title');
-    const confirmMessage = document.getElementById('kcf-message');
-    const confirmYes = document.getElementById('kcf-yes');
-    const confirmNo = document.getElementById('kcf-no');
-
-    let confirmCallback = null;
-
-    window.showCustomAlert = (title, message) => {
-        alertTitle.innerHTML = title;
-        alertMessage.innerHTML = message;
-        alertModal.classList.add('show');
-        alertModal.setAttribute('aria-hidden', 'false');
-        alertOk.focus();
-    };
-
-    alertOk.addEventListener('click', () => {
-        alertModal.classList.remove('show');
-        alertModal.setAttribute('aria-hidden', 'true');
-    });
-
-    window.showCustomConfirm = (title, message, onConfirm) => {
-        confirmTitle.innerHTML = title;
-        confirmMessage.innerHTML = message;
-        confirmModal.classList.add('show');
-        confirmModal.setAttribute('aria-hidden', 'false');
-        confirmCallback = onConfirm;
-        confirmYes.focus();
-    };
-
-    confirmYes.addEventListener('click', () => {
-        confirmModal.classList.remove('show');
-        confirmModal.setAttribute('aria-hidden', 'true');
-        if (confirmCallback) {
-            confirmCallback();
-        }
-        confirmCallback = null;
-    });
-
-    confirmNo.addEventListener('click', () => {
-        confirmModal.classList.remove('show');
-        confirmModal.setAttribute('aria-hidden', 'true');
-        confirmCallback = null;
-    });
-
-    // Override default alert and confirm
-    window.alert = (message) => {
-        console.warn("window.alert() called. Using custom modal.");
-        showCustomAlert('Alert', message);
-    };
-
-    window.confirm = (message) => {
-        console.warn("window.confirm() called. Using custom modal. This will block execution, which may not be intended.");
-        // Note: This custom implementation doesn't block execution like native confirm()
-        // The resetChecklist function is now implemented with a callback, so it's fine.
-        showCustomConfirm('Confirm', message, () => {
-             // This is a basic override.
-             // For the resetChecklist function, it's already refactored to use the callback.
-             // For other potential window.confirm() calls, this will default to "true"
-             // which is a limitation of not being able to block the thread.
-        });
-        // Since we can't block, native 'confirm' behavior can't be perfectly replicated.
-        // We return false by default and rely on callbacks.
-        return false;
     };
 
 })();
