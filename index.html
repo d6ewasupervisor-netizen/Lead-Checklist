@@ -1892,10 +1892,12 @@
         window.onload = function() {
             // Setup PDF.js worker
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-            loadProgress();
-            updateProgress(); // This was missing, causing an error
             
-            // --- ADD ALL THE CODE BELOW ---
+            // Run all startup tasks
+            loadProgress();
+            updateProgress();
+            // This line was in your first, deleted function
+            document.getElementById('workDate').valueAsDate = new Date();
 
             // Disclaimer Logic
             const disclaimerModal = document.getElementById('disclaimerModal');
@@ -1922,15 +1924,6 @@
                 disclaimerModal.classList.remove('show');
             });
             
-            // --- END OF NEW CODE ---
-
-
-            // --- NEW LOGIC FROM USER'S UPLOADED FILE ---
-            // (This existing code should be right below your new code)
-            // Add a bottom-toggle ("Collapse") button to each section content
-            document.querySelectorAll('.section').forEach(section => {
-            // ... etc
-
             // --- NEW LOGIC FROM USER'S UPLOADED FILE ---
             // Add a bottom-toggle ("Collapse") button to each section content
             document.querySelectorAll('.section').forEach(section => {
