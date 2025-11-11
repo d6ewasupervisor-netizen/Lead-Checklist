@@ -2762,24 +2762,24 @@ Please double-check that the details below are accurate.
 Delete this entire block of text before sending.
 /\\-----------Delete this before sending------------/\\
 
-Lead Name: ${payload.LeadName || ''}
-Date: ${payload.DateMMDDYYYY || ''}
-Store Number: ${payload.StoreNumber || ''}
-Did you take a picture of the KOMPASS cart and load it to the KOMPASS Maintenance line in PROD at the start of the shift? ${pickYN(payload.BeforePicPosted)}
-Manager’s name - who you checked in with: ${payload.CheckInManager || ''}
-Did you call the KOMPASS Hotline? ${pickYN(payload.CalledHotline)}
-If so, what commodities? ${payload.IssueCommodities || 'N/A'}
-What is the issue? ${payload.WhatIsIssue || 'N/A'}
-Was the issue resolved before EOD? ${payload.IssueResolved || 'N/A'}
-If not, what was the temporary solution? ${payload.TempSolution || 'N/A'}
-Manager’s name - who checked out with? ${payload.CheckOutManager || ''}
-Did all sets get signed out in PROD? ${pickYN(payload.SignedOutPROD)}
-Did all sets get signed out in SI? ${pickYN(payload.SignedOutSI)}
-Sign-out sheet attached to the EOD email? ${pickYN(payload.SignoutSheetAttachedEmail)}
-Sign-out sheet attached to the KOMPASS Maintenance line in PROD? ${pickYN(payload.SignoutSheetAttachedPROD)}
-Did you take an after picture of the KOMAPSS cart and load it to the KOMPASS Maintenance line in PROD at the end of the shift? ${pickYN(payload.AfterPicPosted)}
+Lead Name: **${payload.LeadName || ''}**
+Date: **${payload.DateMMDDYYYY || ''}**
+Store Number: **${payload.StoreNumber || ''}**
+KOMPASS cart before photo loaded to maintenance line in PROD? **${pickYN(payload.BeforePicPosted)}**
+Manager’s name - who you checked in with: **${payload.CheckInManager || ''}**
+Did you call the KOMPASS Hotline? **${pickYN(payload.CalledHotline)}**
+If so, what commodities? **${payload.IssueCommodities || 'N/A'}**
+What is the issue? **${payload.WhatIsIssue || 'N/A'}**
+Was the issue resolved before EOD? **${payload.IssueResolved || 'N/A'}**
+If not, what was the temporary solution? **${payload.TempSolution || 'N/A'}**
+Manager’s name - who checked out with? **${payload.CheckOutManager || ''}**
+Did all sets get signed out in PROD? **${pickYN(payload.SignedOutPROD)}**
+Did all sets get signed out in SI? **${pickYN(payload.SignedOutSI)}**
+Sign-out sheet attached to the EOD email? **${pickYN(payload.SignoutSheetAttachedEmail)}**
+Sign-out sheet attached to the KOMPASS Maintenance line in PROD? **${pickYN(payload.SignoutSheetAttachedPROD)}**
+KOMAPSS cart after photo loaded maintenance line in PROD? **${pickYN(payload.AfterPicPosted)}**
 
-Notes: ${payload.Notes || ''}
+Notes: **${payload.Notes || ''}**
 `;
 
             const cc = 'MAshabranner@retailodyssey.com,seth.newman@retailodyssey.com,KNix@retailodyssey.com';
