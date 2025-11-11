@@ -172,26 +172,7 @@
         }
         
         /* --- NEW STYLE FOR BOTTOM COLLAPSE BUTTON --- */
-        .section-footer-collapse {
-            margin-top: 15px;
-            padding: 10px;
-            text-align: center;
-            font-weight: 600;
-            color: #667eea;
-            background: #f0f5ff;
-            border-radius: 8px;
-            border: 1px dashed #667eea;
-            cursor: pointer;
-            user-select: none;
-            transition: background 0.2s ease;
-        }
-        .section-footer-collapse:hover {
-            background: #e6edff;
-        }
-        .section-footer-collapse:active {
-            background: #dbe4ff;
-            transform: translateY(1px);
-        }
+        /* --- This style block has been removed as it's no longer needed --- */
         /* --- END NEW STYLE --- */
 
         .checklist-item {
@@ -866,10 +847,7 @@
                         </div>
                     </div>
                     
-                    <!-- New Collapse Button at the bottom -->
-                    <div class="section-footer-collapse" onclick="toggleSection(this.closest('.section').querySelector('.section-header'))">
-                        Collapse Section ▲
-                    </div>
+                    <!-- New Collapse Button at the bottom (This has been removed and will be added by JavaScript) -->
                 </div>
             </div>
 
@@ -1288,10 +1266,7 @@
                         </div>
                     </div>
                     
-                    <!-- New Collapse Button at the bottom -->
-                    <div class="section-footer-collapse" onclick="toggleSection(this.closest('.section').querySelector('.section-header'))">
-                        Collapse Section ▲
-                    </div>
+                    <!-- New Collapse Button at the bottom (This has been removed and will be added by JavaScript) -->
                 </div>
             </div>
 
@@ -1502,10 +1477,7 @@
                         </div>
                     </div>
                     
-                    <!-- New Collapse Button at the bottom -->
-                    <div class="section-footer-collapse" onclick="toggleSection(this.closest('.section').querySelector('.section-header'))">
-                        Collapse Section ▲
-                    </div>
+                    <!-- New Collapse Button at the bottom (This has been removed and will be added by JavaScript) -->
                 </div>
             </div>
 
@@ -1528,7 +1500,6 @@
                 <button class="btn btn-primary" onclick="generateEODImage()">Generate EOD Image (JPG)</button>
                 <button class="btn btn-primary" onclick="saveProgress(event)">Save to Device</button>
                 <button class="btn btn-secondary" onclick="resetChecklist()">Reset Checklist</button>
-                <button class="btn btn-secondary" onclick="window.print()">Print Checklist</button>
             </div>
         </div>
     </div>
@@ -1551,6 +1522,55 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
             loadProgress();
             updateProgress();
+
+            // --- NEW LOGIC FROM USER'S UPLOADED FILE ---
+            // Add a bottom-toggle ("Collapse") button to each section content
+            document.querySelectorAll('.section').forEach(section => {
+                const header = section.querySelector('.section-header');
+                const content = section.querySelector('.section-content');
+                if (!header || !content) return;
+
+                // Create container for bottom actions
+                const bottomWrap = document.createElement('div');
+                bottomWrap.style.display = 'flex';
+                bottomWrap.style.justifyContent = 'flex-end';
+                bottomWrap.style.marginTop = '12px';
+                bottomWrap.style.borderTop = '1px solid #eee';
+                bottomWrap.style.paddingTop = '12px';
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-secondary section-bottom-toggle';
+                btn.style.padding = '8px 16px'; // Make it smaller
+                btn.style.fontSize = '0.9em';
+                btn.textContent = 'Collapse Section';
+
+                // Add the click listener from user's file
+                btn.addEventListener('click', () => {
+                    // Call the global toggleSection function
+                    toggleSection(header);
+                    
+                    // Scroll header into view ONLY when collapsing
+                    if (section.classList.contains('collapsed')) {
+                        header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+
+                bottomWrap.appendChild(btn);
+                content.appendChild(bottomWrap);
+            });
+
+            // Improve visual alignment for checklist items in PRE-WORK section
+            const firstSection = document.querySelector('.content .section');
+            if (firstSection) {
+                firstSection.querySelectorAll('.item-header').forEach(itemHeader => {
+                    itemHeader.style.alignItems = 'center';
+                });
+                firstSection.querySelectorAll('.item-title').forEach(title => {
+                    title.style.display = 'block';
+                });
+            }
+            // --- END NEW LOGIC ---
         };
 
         function toggleSection(header) {
@@ -1565,18 +1585,22 @@
             }
         }
         
-        // --- NEW FUNCTIONS for Expand/Collapse All ---
-        function expandAllSections() {
-            document.querySelectorAll('.section.collapsed').forEach(section => {
-                toggleSection(section.querySelector('.section-header'));
+        // --- REPLACED FUNCTIONS for Expand/Collapse All (from user's file) ---
+        window.expandAllSections = function() {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('collapsed');
+                const content = section.querySelector('.section-content');
+                if (content) content.style.display = 'block';
             });
-        }
-        function collapseAllSections() {
-            document.querySelectorAll('.section:not(.collapsed)').forEach(section => {
-                toggleSection(section.querySelector('.section-header'));
+        };
+        window.collapseAllSections = function() {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('collapsed');
+                const content = section.querySelector('.section-content');
+                if (content) content.style.display = 'none';
             });
-        }
-        // --- END NEW FUNCTIONS ---
+        };
+        // --- END REPLACED FUNCTIONS ---
 
         // Radio button simulation - ensure only one checkbox per group is checked
         function toggleRadio(groupName) {
