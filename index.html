@@ -2577,10 +2577,58 @@ async function getSignatureDataURL() {
 
     // ---------- OVERRIDES ----------
     // Collect payload (adds WhatIsIssue + hotline "No" cascade to N/A)
-    window.collectPayload = async function collectPayload() {
-    const v = sel => document.querySelector(sel)?.value ?? '';
-    const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
-    const yn = name => r(name).toLowerCase().startsWith('y');
+        window.collectPayload = async function collectPayload() {
+        const v = sel => document.querySelector(sel)?.value ?? '';
+        const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
+        const yn = name => r(name).toLowerCase().startsWith('y');
+
+        // NEW: Get formatted date and store number
+        const rawDate = v('#workDate');
+        const dates = getFormattedDate(rawDate);
+        const rawStoreNum = v('#storeNumber');
+        const storeNumPadded = getFormattedStoreNum(rawStoreNum);
+
+        const payload = {
+            LeadName: v('#leadName'),
+            // UPDATED: Add new date and store formats to payload
+            DateMMDDYYYY: dates.mmddyyyy,
+            DateForFilename: dates.mm_dd_yyyy,
+            StoreNumber: rawStoreNum, // The raw number
+            StoreNumberPadded: storeNumPadded, // The 3-digit padded number
+
+            CheckInManager: v('#checkInManager'),
+            IssueCommodities: v('#issueCommodities'),
+            WhatIsIssue: v('#issueDescription'), // Corrected from issueDescription
+            TempSolution: v('#tempSolution'),
+            CheckOutManager: v('#checkOutManager'),
+
+            BeforePicPosted: yn('beforePicPosted'),
+            CalledHotline: yn('calledHotline'),
+            IssueResolved: r('issueResolved') || 'NA',
+            SignedOutPROD: yn('signedOutPROD'),
+            SignedOutSI: yn('signedOutSI'),
+            SignoutSheetAttachedEmail: yn('signoutEmail'),
+            SignoutSheetAttachedPROD: yn('signoutPROD'),
+            AfterPicPosted: yn('afterPicPosted'),
+
+            // --- THIS IS THE NEWLY ADDED LINE ---
+            Notes: v('#notes'), 
+            // ------------------------------------
+
+            signatureDataURL: await getSignatureDataURL()
+        };
+
+        // If hotline was NOT called, normalize related fields to N/A
+        if (!payload.CalledHotline) {
+            payload.IssueCommodities = 'N/A';
+            payload.WhatIsIssue = 'N/A';
+            payload.TempSolution = 'N/A';
+            payload.IssueResolved = 'NA';
+        }
+
+        return payload;
+    };
+
 
     // NEW: Get formatted date and store number
     const rawDate = v('#workDate');
@@ -2706,7 +2754,7 @@ async function getSignatureDataURL() {
     };
 
     // ---------- NEW EMAIL + IMAGE GENERATION FUNCTION ----------
-    window.generateEODAndEmail = async function generateEODAndEmail() {
+        window.generateEODAndEmail = async function generateEODAndEmail() {
         const overlay = document.getElementById('loadingOverlay');
         overlay.classList.add('show');
 
@@ -2746,28 +2794,64 @@ async function getSignatureDataURL() {
             a.href = dataUrl;
             a.download = jpgFilename;
             document.body.appendChild(a);
-            a.click();
+            a.click(); // This triggers the save
             document.body.removeChild(a);
             
-            // 7. Create and open the mailto link
+            // 7. --- START OF MODIFIED CODE ---
+            // Build the new email body (using plain text and \n for newlines)
+            const body = `\\/-----------Delete this before sending------------\\/
+Your EOD Cover Sheet ${jpgFilename} was created.
+Please attach the Cover sheet to this e-mail before sending.
+To do that, click the paperclip icon and locate the image in your device's gallery.
+Please don't forget to include quality pictures of each of your sign-off sheets as well.
+Please double-check that the details below are accurate.
+Delete this entire block of text before sending.
+/\\-----------Delete this before sending------------/\\
+
+Lead Name: ${payload.LeadName || ''}
+Date: ${payload.DateMMDDYYYY || ''}
+Store Number: ${payload.StoreNumber || ''}
+Did you take a picture of the KOMPASS cart and load it to the KOMPASS Maintenance line in PROD at the start of the shift? ${pickYN(payload.BeforePicPosted)}
+Manager’s name - who you checked in with: ${payload.CheckInManager || ''}
+Did you call the KOMPASS Hotline? ${pickYN(payload.CalledHotline)}
+If so, what commodities? ${payload.IssueCommodities || 'N/A'}
+What is the issue? ${payload.WhatIsIssue || 'N/A'}
+Was the issue resolved before EOD? ${payload.IssueResolved || 'N/A'}
+If not, what was the temporary solution? ${payload.TempSolution || 'N/A'}
+Manager’s name - who checked out with? ${payload.CheckOutManager || ''}
+Did all sets get signed out in PROD? ${pickYN(payload.SignedOutPROD)}
+Did all sets get signed out in SI? ${pickYN(payload.SignedOutSI)}
+Sign-out sheet attached to the EOD email? ${pickYN(payload.SignoutSheetAttachedEmail)}
+Sign-out sheet attached to the KOMPASS Maintenance line in PROD? ${pickYN(payload.SignoutSheetAttachedPROD)}
+Did you take an after picture of the KOMAPSS cart and load it to the KOMPASS Maintenance line in PROD at the end of the shift? ${pickYN(payload.AfterPicPosted)}
+
+Notes: ${payload.Notes || ''}
+`;
+
             const cc = 'MAshabranner@retailodyssey.com,seth.newman@retailodyssey.com,KNix@retailodyssey.com';
             const subject = `EOD FM${payload.StoreNumberPadded} ${payload.DateMMDDYYYY}`;
-            const body = `EOD Cover Sheet Image generated.\n\nPlease attach the JPG file named "${jpgFilename}" that was just downloaded to this email.`;
             
             // Use encodeURIComponent for safety
             const mailtoUrl = `mailto:?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             
-            // Open the email client
-            window.location.href = mailtoUrl;
+            // Hide overlay *before* showing confirm
+            overlay.classList.remove('show');
 
-            showCustomAlert('Image Downloaded', `Your email client is opening.<br><br>Please attach the file named <b>${jpgFilename}</b> to the email.`);
+            // Use showCustomConfirm to create the delay and wait for user action
+            showCustomConfirm(
+                'Image Saved!',
+                `Your image has been saved as <b>${jpgFilename}</b>.<br><br>Click 'Yes' to open your email client and attach the file.`,
+                () => {
+                    // This code runs ONLY when the user clicks "Yes"
+                    window.location.href = mailtoUrl;
+                }
+            );
+            // --- END OF MODIFIED CODE ---
 
         } catch (error) {
             console.error('Error generating JPG and Email:', error);
+            overlay.classList.remove('show'); // Hide overlay on error
             showCustomAlert('Error Generating Email', error.message + (payload ? `<br><br>Debug Info: Store=${payload.StoreNumberPadded}, Date=${payload.DateMMDDYYYY}` : ''));
-        } finally {
-            // 8. Hide loading overlay
-            overlay.classList.remove('show');
         }
     };
 
