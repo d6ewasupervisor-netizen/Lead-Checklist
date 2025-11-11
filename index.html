@@ -861,6 +861,49 @@
                 min-width: 24px;
             }
         }
+    /* --- NEW DISCLAIMER MODAL STYLES --- */
+        .disclaimer-content {
+            max-height: 40vh; /* Set max height for content */
+            overflow-y: auto; /* Add scrollbar if content overflows */
+            border-top: 1px solid #4b5563; /* gray-600 */
+            border-bottom: 1px solid #4b5563; /* gray-600 */
+            padding: 16px 5px;
+            margin-bottom: 16px;
+            color: #d1d5db; /* gray-300 */
+        }
+        .disclaimer-content h3 {
+            color: #f9fafb; /* gray-50 */
+            margin-top: 12px;
+            margin-bottom: 8px;
+        }
+        .disclaimer-content p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .disclaimer-content ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        .disclaimer-agree {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .disclaimer-agree label {
+            font-size: 0.9em;
+            color: #f9fafb; /* gray-50 */
+            cursor: pointer;
+        }
+        .disclaimer-agree input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+        #disclaimerConfirm:disabled {
+            background: #4b5563; /* gray-600 */
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -1793,7 +1836,51 @@
             </div>
         </div>
     </div>
+    <div id="disclaimerModal" class="custom-modal-overlay">
+        <div class="custom-modal-dialog" style="max-width: 600px;">
+            <h2 id="customModalTitle">⚠️ Important: Please Read Before Use!</h2>
+            
+            <div class="disclaimer-content">
+                <p>Welcome to the Retail Odyssey KOMPASS Lead Daily Checklist!<br>
+                Before you begin, please understand and acknowledge the following:</p>
 
+                <h3>This is a Living Document</h3>
+                <p>Much like the dynamic nature of your role as a KOMPASS Lead, this checklist is fluid and ever-evolving. Don't expect it to stay the same—it will be updated as processes improve and new insights are gained.</p>
+
+                <h3>It's a Guide, Not a Rulebook</h3>
+                <p>I've compiled a list of the primary steps and processes to help you navigate your day successfully. However, I know pieces are missing, and I'm not perfect—nor do I expect you to be. Use this as a tool and a guide, not as an inflexible set of rules.<br>
+                This is not an exhaustive list, and your supervisor or other management members may request tasks that seem to contradict this information. Every situation is unique, and I couldn't possibly cover every scenario.</p>
+
+                <h3>Your Feedback Matters</h3>
+                <p>If you notice something missing, unclear, or out of order, please share that feedback. Your real-world experience is invaluable in making this resource better for everyone.</p>
+
+                <h3>Every Situation is Different</h3>
+                <p>Every store, every day, and every lead has a slightly different process. Don't get stuck on specific wording or the exact order of items. If a step doesn't fit your situation or you need to do things in a different order, use your logic, common sense, and best practices to:</p>
+                <ul>
+                    <li>Ask questions of your supervisor first.</li>
+                    <li>Arrive at a solution independently based on your training and experience, and present your solution to your supervisor for approval.</li>
+                </ul>
+
+                <h3>Limitation of Liability</h3>
+                <p>By using this checklist, you acknowledge and agree that:</p>
+                <ul>
+                    <li>You understand that this is a tool that was created to support your successful and timely completion of your daily tasks and responsibilities.</li>
+                    <li>You will not hold me or anyone else responsible for the information contained within.</li>
+                    <li>You will use your professional judgment and follow your official training and company guidelines when making decisions that are not included in this guide.</li>
+                </ul>
+                <p>If you understand these points and use the checklist as the helpful tool it's meant to be, it will serve you well in navigating your responsibilities and new success in your role.</p>
+            </div>
+
+            <div class="disclaimer-agree">
+                <input type="checkbox" id="disclaimerCheckbox">
+                <label for="disclaimerCheckbox">I have read, understand, and agree to the above disclaimer</label>
+            </div>
+
+            <div class="custom-modal-buttons">
+                <button class="btn btn-primary" id="disclaimerConfirm" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
     <script>
         const PDF_FILE = 'End%20Of%20Day%20Cover%20Sheet%20Form%20Editable%20Template.pdf';
         const pdfUrl = `${PDF_FILE}?v=${(crypto?.randomUUID?.() || Date.now())}`;
@@ -1807,6 +1894,42 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
             loadProgress();
             updateProgress(); // This was missing, causing an error
+            
+            // --- ADD ALL THE CODE BELOW ---
+
+            // Disclaimer Logic
+            const disclaimerModal = document.getElementById('disclaimerModal');
+            const disclaimerCheckbox = document.getElementById('disclaimerCheckbox');
+            const disclaimerConfirm = document.getElementById('disclaimerConfirm');
+
+            // Check if user has seen the disclaimer
+            if (localStorage.getItem('hasSeenDisclaimer') !== 'true') {
+                disclaimerModal.classList.add('show');
+            }
+
+            // Enable/disable button based on checkbox
+            disclaimerCheckbox.addEventListener('change', () => {
+                if (disclaimerCheckbox.checked) {
+                    disclaimerConfirm.disabled = false;
+                } else {
+                    disclaimerConfirm.disabled = true;
+                }
+            });
+
+            // Save agreement and hide modal
+            disclaimerConfirm.addEventListener('click', () => {
+                localStorage.setItem('hasSeenDisclaimer', 'true');
+                disclaimerModal.classList.remove('show');
+            });
+            
+            // --- END OF NEW CODE ---
+
+
+            // --- NEW LOGIC FROM USER'S UPLOADED FILE ---
+            // (This existing code should be right below your new code)
+            // Add a bottom-toggle ("Collapse") button to each section content
+            document.querySelectorAll('.section').forEach(section => {
+            // ... etc
 
             // --- NEW LOGIC FROM USER'S UPLOADED FILE ---
             // Add a bottom-toggle ("Collapse") button to each section content
