@@ -2577,7 +2577,7 @@ async function getSignatureDataURL() {
 
     // ---------- OVERRIDES ----------
     // Collect payload (adds WhatIsIssue + hotline "No" cascade to N/A)
-        window.collectPayload = async function collectPayload() {
+   window.collectPayload = async function collectPayload() {
         const v = sel => document.querySelector(sel)?.value ?? '';
         const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
         const yn = name => r(name).toLowerCase().startsWith('y');
@@ -2611,9 +2611,8 @@ async function getSignatureDataURL() {
             SignoutSheetAttachedPROD: yn('signoutPROD'),
             AfterPicPosted: yn('afterPicPosted'),
 
-            // --- THIS IS THE NEWLY ADDED LINE ---
+            // This is the line we added
             Notes: v('#notes'), 
-            // ------------------------------------
 
             signatureDataURL: await getSignatureDataURL()
         };
@@ -2627,50 +2626,6 @@ async function getSignatureDataURL() {
         }
 
         return payload;
-    };
-
-
-    // NEW: Get formatted date and store number
-    const rawDate = v('#workDate');
-    const dates = getFormattedDate(rawDate);
-    const rawStoreNum = v('#storeNumber');
-    const storeNumPadded = getFormattedStoreNum(rawStoreNum);
-
-    const payload = {
-        LeadName: v('#leadName'),
-        // UPDATED: Add new date and store formats to payload
-        DateMMDDYYYY: dates.mmddyyyy,
-        DateForFilename: dates.mm_dd_yyyy,
-        StoreNumber: rawStoreNum, // The raw number
-        StoreNumberPadded: storeNumPadded, // The 3-digit padded number
-
-        CheckInManager: v('#checkInManager'),
-        IssueCommodities: v('#issueCommodities'),
-        WhatIsIssue: v('#issueDescription'), // Corrected from issueDescription
-        TempSolution: v('#tempSolution'),
-        CheckOutManager: v('#checkOutManager'),
-
-        BeforePicPosted: yn('beforePicPosted'),
-        CalledHotline: yn('calledHotline'),
-        IssueResolved: r('issueResolved') || 'NA',
-        SignedOutPROD: yn('signedOutPROD'),
-        SignedOutSI: yn('signedOutSI'),
-        SignoutSheetAttachedEmail: yn('signoutEmail'),
-        SignoutSheetAttachedPROD: yn('signoutPROD'),
-        AfterPicPosted: yn('afterPicPosted'),
-
-        signatureDataURL: await getSignatureDataURL()
-    };
-
-    // If hotline was NOT called, normalize related fields to N/A
-    if (!payload.CalledHotline) {
-        payload.IssueCommodities = 'N/A';
-        payload.WhatIsIssue = 'N/A';
-        payload.TempSolution = 'N/A';
-        payload.IssueResolved = 'NA';
-    }
-
-    return payload;
     };
 
     // Fill the PDF (adds WhatIsIssue and new filename)
@@ -2754,7 +2709,7 @@ async function getSignatureDataURL() {
     };
 
     // ---------- NEW EMAIL + IMAGE GENERATION FUNCTION ----------
-        window.generateEODAndEmail = async function generateEODAndEmail() {
+window.generateEODAndEmail = async function generateEODAndEmail() {
         const overlay = document.getElementById('loadingOverlay');
         overlay.classList.add('show');
 
@@ -2797,8 +2752,7 @@ async function getSignatureDataURL() {
             a.click(); // This triggers the save
             document.body.removeChild(a);
             
-            // 7. --- START OF MODIFIED CODE ---
-            // Build the new email body (using plain text and \n for newlines)
+            // 7. Build the new email body
             const body = `\\/-----------Delete this before sending------------\\/
 Your EOD Cover Sheet ${jpgFilename} was created.
 Please attach the Cover sheet to this e-mail before sending.
@@ -2846,7 +2800,6 @@ Notes: ${payload.Notes || ''}
                     window.location.href = mailtoUrl;
                 }
             );
-            // --- END OF MODIFIED CODE ---
 
         } catch (error) {
             console.error('Error generating JPG and Email:', error);
