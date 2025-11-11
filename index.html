@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Kompass Lead Daily Checklist</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,18 +12,22 @@
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+    html {
+        scroll-behavior: smooth;
+    }
+   
+</style>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 
         .container {
             max-width: 1000px;
@@ -60,58 +64,11 @@
             margin-bottom: 20px;
         }
 
-        .header-row-1,
-        .header-row-2,
-        .header-row-3 {
+        .header-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-bottom: 15px;
-        }
-
-        .header-row-3 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .header-signature {
-            margin: 20px auto;
-            max-width: 600px;
-            text-align: left;
-        }
-
-        .signature-label {
-            font-weight: 600;
-            font-size: 0.95em;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .signature-canvas {
-            border: 2px solid white;
-            border-radius: 8px;
-            background: white;
-            cursor: crosshair;
-            display: block;
-            width: 100%;
-            height: 120px;
-            touch-action: none;
-        }
-
-        .btn-clear-sig {
-            margin-top: 8px;
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background 0.3s;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .btn-clear-sig:hover {
-            background: white;
         }
 
         .input-group {
@@ -315,6 +272,50 @@
             cursor: pointer;
         }
 
+        .signature-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+
+        .signature-label {
+            font-weight: 600;
+            font-size: 1em;
+            display: block;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .signature-canvas {
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+            display: block;
+            width: 100%;
+            height: 150px;
+            touch-action: none;
+        }
+
+        .btn-clear-sig {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #667eea;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-clear-sig:hover {
+            background: #764ba2;
+        }
+
         .button-group {
             display: flex;
             gap: 10px;
@@ -434,25 +435,10 @@
                 margin-bottom: 12px;
             }
 
-            .header-row-1,
-            .header-row-2,
-            .header-row-3 {
+            .header-row {
                 grid-template-columns: 1fr;
                 gap: 10px;
                 margin-bottom: 12px;
-            }
-
-            .header-signature {
-                margin: 15px 0;
-            }
-
-            .signature-canvas {
-                height: 150px;
-            }
-
-            .btn-clear-sig {
-                width: 100%;
-                padding: 12px;
             }
 
             .input-group label {
@@ -472,16 +458,8 @@
                 height: 25px;
             }
 
-            .progress-bar {
-                font-size: 0.9em;
-            }
-
             .content {
                 padding: 15px 12px;
-            }
-
-            .section {
-                margin-bottom: 20px;
             }
 
             .section-header {
@@ -490,7 +468,7 @@
             }
 
             .section-content {
-                padding: 15px 12px;
+                padding: 12px;
             }
 
             .checklist-item {
@@ -502,102 +480,39 @@
                 gap: 12px;
             }
 
-            input[type="checkbox"] {
-                width: 22px;
-                height: 22px;
-                flex-shrink: 0;
-            }
-
             .item-title {
                 font-size: 1em;
-                margin-bottom: 8px;
-                line-height: 1.3;
             }
 
             .item-description {
                 font-size: 0.9em;
-                line-height: 1.5;
             }
 
-            .item-description ul {
-                margin-left: 18px;
-                margin-top: 8px;
+            .button-group {
+                flex-direction: column;
             }
 
-            .item-description li {
-                margin-bottom: 6px;
+            .btn {
+                width: 100%;
+                padding: 14px 20px;
             }
 
-            .notes-section {
-                padding: 15px;
-                margin-top: 20px;
-            }
-
-            .notes-section h3 {
-                font-size: 1em;
-                margin-bottom: 10px;
-            }
-
-            .notes-section textarea {
-                min-height: 120px;
-                padding: 12px;
-                font-size: 1em;
+            .checkbox-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
 
             .email-list {
                 padding: 12px;
             }
 
-            .email-list h4 {
-                font-size: 0.95em;
+            .notes-section {
+                padding: 15px;
             }
 
-            .email-list li {
-                font-size: 0.85em;
-                padding: 4px 0;
-            }
-
-            .button-group {
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .btn {
-                width: 100%;
-                padding: 15px 20px;
-                font-size: 1em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-
-            .header {
-                padding: 12px 10px;
-            }
-
-            .header h1 {
-                font-size: 1.1em;
-                margin-bottom: 10px;
-            }
-
-            .content {
-                padding: 12px 10px;
-            }
-
-            .section-header {
-                padding: 10px 12px;
-                font-size: 1em;
-            }
-
-            .item-title {
-                font-size: 0.95em;
-            }
-
-            .item-description {
-                font-size: 0.85em;
+            .signature-section {
+                padding: 15px;
             }
         }
 
@@ -605,193 +520,48 @@
             body {
                 background: white;
                 padding: 0;
-                margin: 0;
             }
-            
+
             .container {
                 box-shadow: none;
                 border-radius: 0;
                 max-width: 100%;
-                margin: 0;
             }
-            
+
             .header {
-                background: #667eea !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                page-break-after: avoid;
-                padding: 8px 10px;
-            }
-            
-            .header h1 {
-                font-size: 1em;
-                margin-bottom: 5px;
-            }
-            
-            .header-row-1,
-            .header-row-2,
-            .header-row-3 {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 4px;
-                margin-bottom: 5px;
+                background: white;
+                color: black;
+                border-bottom: 3px solid #667eea;
             }
 
-            .header-row-3 {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .header-signature {
-                margin: 6px auto;
-                max-width: 100%;
-            }
-
-            .signature-label {
-                font-size: 0.7em;
-                margin-bottom: 3px;
-            }
-
-            .signature-canvas {
-                height: 60px;
-                border: 2px solid white;
-            }
-
-            .btn-clear-sig {
-                display: none;
-            }
-            
-            .input-group {
-                gap: 1px;
-            }
-            
-            .input-group label {
-                font-size: 0.55em;
-                line-height: 1;
-            }
-            
-            .input-group input {
-                padding: 1px 3px;
-                font-size: 0.65em;
-            }
-            
-            .progress-bar-container {
-                height: 12px;
-                margin-top: 5px;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            
-            .progress-bar {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                font-size: 0.6em;
-            }
-            
-            .content {
-                padding: 6px 10px;
-            }
-            
-            .section {
-                page-break-inside: avoid;
-                break-inside: avoid;
-                margin-bottom: 5px;
-            }
-            
-            .section:first-of-type {
-                page-break-before: always;
-            }
-            
-            .section:nth-of-type(2) {
-                page-break-before: always;
-            }
-            
-            .section:nth-of-type(3) {
-                page-break-before: always;
-            }
-            
             .section-header {
-                background: #667eea !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                padding: 4px 6px;
-                font-size: 0.8em;
+                background: white;
+                color: #667eea;
+                border: 2px solid #667eea;
+                page-break-after: avoid;
             }
-            
+
             .section-content {
-                padding: 4px 6px;
+                page-break-inside: avoid;
             }
-            
+
             .checklist-item {
                 page-break-inside: avoid;
-                break-inside: avoid;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                margin-bottom: 3px;
-                padding: 3px;
+                box-shadow: none;
+                border: 1px solid #e0e0e0;
             }
-            
-            .item-title {
-                font-size: 0.7em;
-                margin-bottom: 1px;
-            }
-            
-            .item-description {
-                font-size: 0.6em;
-                line-height: 1.2;
-            }
-            
-            .item-description ul {
-                margin-top: 1px;
-                margin-bottom: 1px;
-                margin-left: 12px;
-            }
-            
-            .item-description li {
-                margin-bottom: 0px;
-            }
-            
-            .button-group {
+
+            .button-group,
+            .signature-section {
                 display: none;
             }
-            
+
+            .progress-bar-container {
+                border: 2px solid #667eea;
+            }
+
             .notes-section {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
                 page-break-inside: avoid;
-                padding: 4px 6px;
-                margin-top: 5px;
-            }
-            
-            .notes-section h3 {
-                font-size: 0.75em;
-                margin-bottom: 3px;
-            }
-            
-            .notes-section textarea {
-                min-height: 30px;
-                padding: 3px;
-                font-size: 0.65em;
-            }
-            
-            .email-list {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                padding: 4px;
-                margin-top: 3px;
-            }
-            
-            .email-list h4 {
-                font-size: 0.65em;
-                margin-bottom: 2px;
-            }
-            
-            .email-list li {
-                font-size: 0.6em;
-                padding: 0px;
-            }
-            
-            input[type="checkbox"] {
-                width: 10px;
-                height: 10px;
             }
             
             @page {
@@ -800,65 +570,10 @@
             }
         }
 
-
-        /* Disclaimer Modal Styles */
-        .kompass-modal {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, .6);
-            z-index: 9999;
-        }
-        
-        .kompass-card {
-            background: #fff;
-            max-width: 760px;
-            width: min(92vw, 760px);
-            max-height: 88vh;
-            overflow: auto;
-            border-radius: 14px;
-            padding: 22px 22px 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
-            font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-        }
-        
-        .kompass-card h2 {
-            margin: 0 0 .5rem 0;
-            font-size: 1.35rem;
-        }
-        
-        .kompass-card h3 {
-            margin: 1rem 0 .25rem 0;
-            font-size: 1.05rem;
-        }
-        
-        .kompass-card p {
-            margin-bottom: 0.5rem;
-        }
-        
-        .kompass-card ul {
-            margin-left: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .kompass-actions {
-            display: flex;
-            gap: .75rem;
-            justify-content: flex-end;
-            margin-top: 1rem;
-        }
-        
-        .kompass-card .btn[disabled] {
-            opacity: .6;
-            cursor: not-allowed;
-        }
-
         /* Ensure inputs are touch-friendly on mobile */
         @media (hover: none) and (pointer: coarse) {
             input, textarea, button {
-                font-size: 16px !important; /* Prevents zoom on iOS */
+                font-size: 16px !important;
             }
 
             input[type="checkbox"] {
@@ -870,145 +585,24 @@
     </style>
 </head>
 <body>
-    <!-- DISCLAIMER MODAL (first-visit only) -->
-    <div id="kompassDisclaimer" class="kompass-modal" hidden aria-modal="true" role="dialog" aria-labelledby="kdc-title">
-        <div class="kompass-card">
-            <h2 id="kdc-title">⚠️ Important: Please Read Before Using This Checklist</h2>
-            <p><strong>Welcome to the KOMPASS Lead Daily Checklist!</strong></p>
-            <p>Before you begin, please understand and acknowledge the following:</p>
-
-            <h3>This is a Living Document</h3>
-            <p>Much like the dynamic nature of your role as a KOMPASS Lead, this checklist is fluid and ever-evolving. Don't expect it to stay the same—it will be updated as processes improve and new insights are gained.</p>
-
-            <h3>It's a Guide, Not a Rulebook</h3>
-            <p>I've compiled what I believe are the primary steps and processes to help you navigate your day successfully. However, I know there are pieces missing, and I'm not perfect—nor do I expect you to be. Use this as a tool and a guide, not as an inflexible set of rules.</p>
-
-            <h3>Your Feedback Matters</h3>
-            <p>If you notice something missing, unclear, or out of order, please share that feedback. Your real-world experience is invaluable in making this resource better for everyone.</p>
-
-            <h3>Every Situation is Different</h3>
-            <p>Every store, every day, and every lead has a slightly different process. Don't get stuck on specific wording or the exact order of items. If a step doesn't fit your situation or doesn't apply, use your logic, common sense, and best practices to either:</p>
-            <ul>
-                <li>Ask questions of your supervisor or support team</li>
-                <li>Arrive at a solution independently based on your training and experience</li>
-            </ul>
-
-            <h3>Limitation of Liability</h3>
-            <p>By using this checklist, you acknowledge and agree that:</p>
-            <ul>
-                <li>This is an aid created to support your success</li>
-                <li>You will not hold me or anyone else responsible for the information contained within</li>
-                <li>You understand this is meant as a guide to help support official policy</li>
-                <li>You will use your professional judgment and company guidelines when making decisions</li>
-            </ul>
-
-            <p>If you can be understanding of these points and use the checklist as the helpful tool it's meant to be, it will serve you well in navigating your responsibilities and achieving success in your role.</p>
-
-            <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.75rem">
-                <input id="kdc-agree" type="checkbox" />
-                <span>I have read, understand, and agree to the above disclaimer</span>
-            </label>
-
-            <div class="kompass-actions">
-                <button id="kdc-cancel" class="btn btn-secondary">Cancel</button>
-                <button id="kdc-accept" class="btn btn-primary" disabled>Agree & Continue</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    // Disclaimer Modal Logic
-    (function() {
-        const KEY = 'kompassDisclaimerAccepted.v1';
-        const modal = document.getElementById('kompassDisclaimer');
-        const agree = document.getElementById('kdc-agree');
-        const accept = document.getElementById('kdc-accept');
-        const cancel = document.getElementById('kdc-cancel');
-
-        function openModal() { 
-            modal.hidden = false; 
-            document.body.style.overflow = 'hidden'; 
-            agree.focus(); 
-        }
-        
-        function closeModal() { 
-            modal.hidden = true; 
-            document.body.style.overflow = ''; 
-        }
-
-        if (localStorage.getItem(KEY) !== 'true') {
-            window.addEventListener('DOMContentLoaded', openModal);
-        }
-
-        agree.addEventListener('change', () => { 
-            accept.disabled = !agree.checked; 
-        });
-        
-        accept.addEventListener('click', () => { 
-            localStorage.setItem(KEY, 'true'); 
-            closeModal(); 
-        });
-        
-        cancel.addEventListener('click', () => { 
-            closeModal(); 
-        });
-    })();
-    </script>
-    <!-- /DISCLAIMER MODAL -->
-
     <div class="container">
         <div class="header">
             <h1>KOMPASS LEAD DAILY CHECKLIST</h1>
             
-            <!-- Row 1: Store, Date, Lead Name -->
-            <div class="header-row-1">
+            <!-- Single Row: Store, Date, Lead Name -->
+            <div class="header-row">
                 <div class="input-group">
                     <label>Store #:</label>
                     <input type="text" id="storeNumber" placeholder="Enter store number">
                 </div>
                 <div class="input-group">
                     <label>Date:</label>
-                    <input type="date" id="date">
+                    <input type="date" id="workDate">
                 </div>
                 <div class="input-group">
                     <label>Lead Name:</label>
                     <input type="text" id="leadName" placeholder="Enter your name">
                 </div>
-            </div>
-
-            <!-- Row 2: Times -->
-            <div class="header-row-2">
-                <div class="input-group">
-                    <label>Lead Arrived at Store:</label>
-                    <input type="time" id="arrivedTime">
-                </div>
-                <div class="input-group">
-                    <label>Team Arrival Time:</label>
-                    <input type="time" id="crewArrival">
-                </div>
-                <div class="input-group">
-                    <label>Check-Out Time:</label>
-                    <input type="time" id="checkoutTime">
-                </div>
-            </div>
-
-            <!-- Row 3: Managers -->
-            <div class="header-row-3">
-                <div class="input-group">
-                    <label>Manager Checked In With:</label>
-                    <input type="text" id="groceryManager" placeholder="Manager's name">
-                </div>
-                <div class="input-group">
-                    <label>Manager Checked Out With:</label>
-                    <input type="text" id="checkoutManager" placeholder="Manager's name">
-                </div>
-            </div>
-
-            <!-- Signature -->
-            <div class="header-signature">
-                <label class="signature-label">Lead Signature:</label>
-                <canvas id="signatureCanvas" class="signature-canvas"></canvas>
-                <button class="btn-clear-sig" onclick="clearSignature()">Clear Signature</button>
             </div>
 
             <div class="progress-bar-container">
@@ -1021,7 +615,7 @@
             <div class="section">
                 <div class="section-header" onclick="toggleSection(this)">
                     <span>PRE-WORK SETUP</span>
-                    <span class="collapse-icon">â–¼</span>
+                    <span class="collapse-icon">▼</span>
                 </div>
                 <div class="section-content">
                     <div class="checklist-item" data-id="item-0">
@@ -1030,14 +624,11 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">1.0 Download & "Fax" Print Weekly Materials</div>
+                                <div class="item-title">1.0 Review Communications</div>
                                 <div class="item-description">
                                     <ul>
-                                        <li>Download Kompass Notes, Sign-off Sheets, EOD Cover Sheet, and other materials</li>
-                                        <li>Email to: <strong>tyson.gauthier@retailodyssey.com</strong></li>
-                                        <li>Subject Line: <strong>#StoreNumber</strong> (e.g., #163)</li>
-                                        <li>Attach documents and hit send</li>
-                                        <li>You'll receive a confirmation email when it's time to pick them up at the customer service desk</li>
+                                        <li>Read and understand all emails from your supervisor</li>
+                                        <li>Review any store issue emails</li>
                                     </ul>
                                 </div>
                             </div>
@@ -1056,7 +647,7 @@
                                     <ul>
                                         <li>Navigate to your period/week folder</li>
                                         <li>Review "Considerations" and "Test Set Notes"</li>
-                                        <li>Review "Inventory Schedule" and "Strip Installation" dates for awareness</li>
+                                        <li>Review "Inventory Schedule" and "Strip Installation" dates</li>
                                         <li>Review "Final Kompass Notes" (deleted items, new items, UPC changes, set instructions)</li>
                                     </ul>
                                 </div>
@@ -1070,13 +661,12 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">1.3 Arrive Early</div>
-                                <div class="item-description">
-                                    <ul>
-                                        <li>Arrive at the store at least 1 hour before the team</li>
-                                        <li>Get organized and review the day's plan</li>
-                                        <li>Take a "before" photo of the Kompass cart (Maintenance section)</li>
-                                        <li>Check in with and record the grocery manager's name</li>
+<!-- DISCLAIMER moved to end of document to avoid layout reflow and flashing (single instance) -->
+
+                                        <li>Subject Line: <strong>#StoreNumber</strong> (e.g., #163) - nothing else</li>
+                                        <li>Attach documents and send</li>
+                                        <li>Wait for confirmation email to pick up at customer service desk</li>
+                                        <li>Alternative for other locations: Use subject line <strong>Fax#18885551234</strong> (include country code)</li>
                                     </ul>
                                 </div>
                             </div>
@@ -1089,12 +679,12 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">1.4 Locate the Kompass Box (Vestcom Box)</div>
+                                <div class="item-title">1.3 Review Schedule in PROD</div>
                                 <div class="item-description">
                                     <ul>
-                                        <li>White box with blue lettering containing label strips</li>
-                                        <li>Check: price change room, office, Kompass cart, receiver's desk</li>
-                                        <li>If missing: Use "Vestcom Box Tracking" file in dump bin</li>
+                                        <li>Review your schedule before leaving home</li>
+                                        <li>Confirm store addresses, directions, and start times</li>
+                                        <li>Ensure that you have all materials, notes, and tools required</li>
                                     </ul>
                                 </div>
                             </div>
@@ -1107,12 +697,11 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">1.5 Organize the Strips & Planograms</div>
+                                <div class="item-title">1.4 Professional Preparation</div>
                                 <div class="item-description">
                                     <ul>
-                                        <li>Arrange strips and planograms on check stand or preferred area</li>
-                                        <li>Speak with head cashier (red vest) about using the space and when you should be prepared to move</li>
-                                        <li>Separate and include the UPLs/price tags</li>
+                                        <li>Wear your name tag and Retail Odyssey work shirt</li>
+                                        <li>Park at least half a dozen spaces from the store entrance (leave prime parking for customers)</li>
                                     </ul>
                                 </div>
                             </div>
@@ -1125,37 +714,47 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">1.6 Sync Your Tablet Frequently</div>
+                                <div class="item-title">1.5 Arrive Early & Coordinate Entry</div>
                                 <div class="item-description">
-                                    Resync after completing major tasks, surveys, and uploading pictures
+                                    <ul>
+                                        <li>Arrive at least 1 hour before the team</li>
+                                        <li>Coordinate with store personnel for early entry</li>
+                                        <li>Typically, we use the grocery receiving door at the back of the building.</li>
+                                        <li>Get organized and review the day's plan</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Section 2: During Work -->
-            <div class="section">
-                <div class="section-header" onclick="toggleSection(this)">
-                    <span>DURING WORK</span>
-                    <span class="collapse-icon">â–¼</span>
-                </div>
-                <div class="section-content">
                     <div class="checklist-item" data-id="item-6">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.1 Plan the Day Strategically</div>
+                                <div class="item-title">1.6 Locate the Kompass Box & Take Kompass Cart Photo <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
                                 <div class="item-description">
                                     <ul>
-                                        <li>Identify large/time-intensive sets from Kompass Notes</li>
-                                        <li>Contact department heads for coordination</li>
-                                        <li>Ask about preferred days/timing (non-load days)</li>
-                                        <li><strong>Complete priority and fuel sets first and close them out by 9 AM</strong></li>
+                                        <li>White box with blue lettering containing label strips</li>
+                                        <li>Check: price change room, office, Kompass cart, receiver's desk</li>
+                                        <li>If missing: Use "Vestcom Box Tracking" file in dump bin</li>
+                                        <li>While at the cart, take a "before" photo in PROD (Maintenance category) of the Kompass cart, before work starts</li>
                                     </ul>
+
+                                    <div class="eod-field">
+                                        <label>Before picture of KOMPASS cart loaded to KOMPASS Maintenance line?</label>
+                                        <div class="checkbox-group">
+                                            <div class="checkbox-option">
+                                                <input type="checkbox" id="eodBeforePhotoYes" name="beforePicPosted" value="Yes" onchange="toggleRadio('beforePicPosted')">
+                                                <label for="eodBeforePhotoYes">Yes</label>
+                                            </div>
+                                            <div class="checkbox-option">
+                                                <input type="checkbox" id="eodBeforePhotoNo" name="beforePicPosted" value="No" onchange="toggleRadio('beforePicPosted')">
+                                                <label for="eodBeforePhotoNo">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1167,9 +766,15 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.2 Coordinate with Vendors</div>
+                                <div class="item-title">1.7 Organize Strips, Planograms & Materials</div>
                                 <div class="item-description">
-                                    Notify vendor reps in advance (Coke, Pepsi, Dr. Pepper, Columbia/Frito Lay, Tim's, Mission, etc.)
+                                    <ul>
+                                        <li>Arrange strips and planograms on check stand or preferred area</li>
+                                        <li>Speak with the head cashier (red vest) about using the space and when to move</li>
+                                        <li>Use the strip manifest to record the aisle number on the front of the planogram</li>
+                                        <li>Separate and organize POGs and strips, and include the UPLs/price tags</li>
+                                        <li>Confirm they are for the correct store number</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -1181,14 +786,9 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.3 Check In with PIC and Record Name <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <div class="item-title">1.8 Report No Shows by 7:00 AM</div>
                                 <div class="item-description">
-                                    Check in with the person in charge (PIC) and record their name
-                                    
-                                    <div class="eod-field">
-                                        <label>Manager's name you checked in with:</label>
-                                        <input type="text" id="eodCheckInManager" placeholder="Enter manager's name">
-                                    </div>
+                                    Report any no-calls/no-shows to your supervisor by 7:00 AM
                                 </div>
                             </div>
                         </div>
@@ -1200,27 +800,37 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.4 Maintain Professional Relationships</div>
+                                <div class="item-title">1.9 Report Missing COMs (Commodities) by 7:00 AM</div>
                                 <div class="item-description">
-                                    Adjust approach for each store, build positive relationships with staff
+                                    <ul>
+                                        <li>Report categories that are missing from PROD to your supervisor by 7:00 AM</li>
+                                        <li>Ensure you cross-reference any remodel projects or strip installations occurring at that store by accessing the folder in the dump bin</li>
+                                        <li>Your supervisor may have provided you with this information verbally or in an email.</li>
+                                        <li>Ensure you provide your supervisor with the category number, the category name, the version number, the footage, and the DBKey</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
+            <!-- Section 2: During Work -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>DURING WORK</span>
+                    <span class="collapse-icon">▼</span>
+                </div>
+                <div class="section-content">
                     <div class="checklist-item" data-id="item-10">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.5 Assign Sets Fairly</div>
+                                <div class="item-title">2.0 Complete Required Surveys First</div>
                                 <div class="item-description">
-                                    <ul>
-                                        <li>Consider experience level, aptitude, and strengths</li>
-                                        <li>Avoid favoritism - don't repeatedly assign difficult sets to same person</li>
-                                        <li>Assign based on ability, not preference</li>
-                                    </ul>
+                                    Complete all surveys that aren't directly linked to a set being reset on the first morning of each store visit
                                 </div>
                             </div>
                         </div>
@@ -1232,13 +842,14 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.6 Manage Crew Workflow</div>
+                                <div class="item-title">2.1 Check In with PIC by 7:00 AM and Record Name <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
                                 <div class="item-description">
-                                    <ul>
-                                        <li>Limit to 2 people per 12 feet of set</li>
-                                        <li>Track participation: Use 1st page of Kompass Notes</li>
-                                        <li>Have each person/group initial with start and finish times</li>
-                                    </ul>
+                                    Check in with the person in charge (PIC) by 7:00 AM and record their name
+                                    
+                                    <div class="eod-field">
+                                        <label>Manager's name you checked in with:</label>
+                                        <input type="text" id="checkInManager" placeholder="Enter manager's name">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1250,9 +861,9 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.7 Handle Surveys Early</div>
+                                <div class="item-title">2.2 Take "Before" Pictures of All Sets in PROD</div>
                                 <div class="item-description">
-                                    Complete required surveys on the first morning of each store visit
+                                    Take before pictures of all sets in PROD immediately after assigning first sets
                                 </div>
                             </div>
                         </div>
@@ -1264,13 +875,15 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.8 Take "Before" and "After" Photos in PROD</div>
+                                <div class="item-title">2.3 Plan the Day Strategically</div>
                                 <div class="item-description">
-                                    <strong>Before photos:</strong> Immediately after assigning first sets<br>
-                                    <strong>After photos:</strong> Immediately after each set is fully complete:
                                     <ul>
-                                        <li>All strips in, shelves adjusted, tags hung, new items placed</li>
-                                        <li>"Overstock" and "Not in Set" items labeled and organized</li>
+                                        <li>Assign and start priority sets in order: cut-ins, fresh/fuel sets, then largest backlog sets</li>
+                                        <li>Once priority and backlog sets are complete, begin current sets</li>
+                                        <li>Identify large/time-intensive sets from Kompass Notes</li>
+                                        <li>Contact department heads for coordination</li>
+                                        <li>Ask about preferred days/timing (non-load days)</li>
+                                        <li><strong>Complete priority and fuel sets first and close them out by 9:00 AM</strong></li>
                                     </ul>
                                 </div>
                             </div>
@@ -1283,15 +896,9 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.9 "After" Photos with Store Intelligence</div>
+                                <div class="item-title">2.4 Coordinate with Vendors</div>
                                 <div class="item-description">
-                                    After photos - Immediately after each set is fully complete:
-                                    <ul>
-                                        <li>Bay by bay for each set take a photo</li>
-                                        <li>Clear exceptions through the actions section</li>
-                                        <li>Ensure all sets completed in PROD are completed in Store Intelligence</li>
-                                        <li><strong>This needs to be done prior to your leaving the store</strong></li>
-                                    </ul>
+                                    Notify vendor reps in advance (Coke, Pepsi, Dr. Pepper, Columbia/Frito Lay, Tim's, Mission, etc.)
                                 </div>
                             </div>
                         </div>
@@ -1303,7 +910,251 @@
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">2.10 Handle Issues and Contact Support if Needed <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <div class="item-title">2.5 Maintain Professional Relationships</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Adjust approach for each store</li>
+                                        <li>Build positive relationships with staff</li>
+                                        <li>Communicate clearly and respectfully with all personnel</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-16">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.6 Assign Sets Fairly</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Consider experience level, aptitude, and strengths</li>
+                                        <li>Avoid favoritism - don't repeatedly assign difficult sets to same person</li>
+                                        <li>Assign based on ability, not preference</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-17">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.7 Verify Correct Planogram and Setup</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Verify correct planogram for that store's section and size</li>
+                                        <li>Confirm proper number of shelves and shelf heights</li>
+                                        <li>Limit to 2 people per 12 feet of set</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-18">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.8 Pull Discontinued Items</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Pull discontinued (DI) items as noted in Kompass Notes and planograms</li>
+                                        <li>Use banana boxes and label clearly with appropriate labels</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-19">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.9 Maintain Shopper-Friendly Aisles</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Keep all carts, ladders, and boxes to one side of the aisle</li>
+                                        <li>Work in 4-foot sections to maintain accessibility during store hours</li>
+                                        <li>Maintain a clean aisle at all times</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-20">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.10 Remove Old Strips and Install New Ones</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Remove old shelf strips and install new ones per planogram</li>
+                                        <li>Replace channel strips/data skins as needed</li>
+                                        <li>Set category according to updated planogram</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-21">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.11 Rotate Stock Properly</div>
+                                <div class="item-description">
+                                    Place older items at the front and newer items at the back
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-22">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.12 Track Time and Manage Workflow</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Keep track of time - monitor progress against schedule</li>
+                                        <li>Sets should be completed within time estimations</li>
+                                        <li>If set exceeds allotted time: Use comment bubble in PROD and report to supervisor</li>
+                                        <li>Explanation must be concise (5 words or less): training, lots of overstock, shelves needed cleaning, etc.</li>
+                                        <li>Track participation: Use 1st page of Kompass Notes with initials and times</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-23">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.13 Handle New Items from Kompass Cart</div>
+                                <div class="item-description">
+                                    Ensure new items are taken from the Kompass cart or other designated new item location
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-24">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.14 Clean Shelving and Hang Tags</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Clean shelving and tag moldings where movement occurs</li>
+                                        <li>Hang all tags provided or handwrite missing tags as needed</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-25">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.15 Organize Back Stock</div>
+                                <div class="item-description">
+                                    <ul>
+                                        <li>Back stock should be boxed in banana boxes</li>
+                                        <li>Palletize and label clearly</li>
+                                        <li>Label "Overstock" and "Not in Set" items with appropriate labels</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-26">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.16 Take "After" Pictures in PROD</div>
+                                <div class="item-description">
+                                    Take after pictures immediately after each set is fully complete:
+                                    <ul>
+                                        <li>All strips in, shelves adjusted, tags hung, new items placed</li>
+                                        <li>"Overstock" and "Not in Set" items labeled and organized</li>
+                                        <li>If a set cannot be completed, the exception needs to be the same in both PROD and SI and there needs to be a comment in the comment bubble in PROD and a mention in your EOD Email</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-27">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.17 Take "After" Photos in Store Intelligence</div>
+                                <div class="item-description">
+                                    After photos - Immediately after each set is fully complete:
+                                    <ul>
+                                        <li>Bay by bay for each set take a photo</li>
+                                        <li>Clear exceptions through the actions section</li>
+                                        <li>Ensure all sets completed in PROD are completed in Store Intelligence</li>
+                                        <li><strong>This needs to be done prior to leaving the store</strong></li>
+                                        <li>If a set cannot be completed, the exception needs to be the same in both PROD and SI and there needs to be a comment in the comment bubble in PROD and a mention in your EOD Email</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-28">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.18 Sync Tablet Frequently</div>
+                                <div class="item-description">
+                                    Resync after completing major tasks, surveys, and uploading pictures
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-29">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.19 Handle Issues and Contact Support if Needed <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
                                 <div class="item-description">
                                     If problems occur (incorrect planogram, wrong footage, fixture issues, store refusal):
                                     <ul>
@@ -1313,14 +1164,14 @@
                                     </ul>
                                     
                                     <div class="eod-field">
-                                        <label>Did you call the KOMPASS Hotline?</label>
+                                        <label>Did you call or e-mail the KOMPASS Hotline?</label>
                                         <div class="checkbox-group">
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodHotlineYes" onchange="toggleHotlineFields(this)">
+                                                <input type="checkbox" id="eodHotlineYes" name="calledHotline" value="Yes" onchange="toggleHotlineFields(this)">
                                                 <label for="eodHotlineYes">Yes</label>
                                             </div>
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodHotlineNo" onchange="toggleHotlineFields(this)">
+                                                <input type="checkbox" id="eodHotlineNo" name="calledHotline" value="No" onchange="toggleHotlineFields(this)">
                                                 <label for="eodHotlineNo">No</label>
                                             </div>
                                         </div>
@@ -1329,27 +1180,27 @@
                                     <div id="hotlineDetails" style="display: none;">
                                         <div class="eod-field">
                                             <label>If so, what commodities are involved?</label>
-                                            <input type="text" id="eodCommodities" placeholder="Enter commodities">
+                                            <input type="text" id="issueCommodities" placeholder="Enter commodities">
                                         </div>
 
                                         <div class="eod-field">
                                             <label>What is the issue?</label>
-                                            <textarea id="eodIssue" placeholder="Describe the issue"></textarea>
+                                            <textarea id="issueDescription" placeholder="Describe the issue"></textarea>
                                         </div>
 
                                         <div class="eod-field">
                                             <label>Was the issue resolved before EOD?</label>
                                             <div class="checkbox-group">
                                                 <div class="checkbox-option">
-                                                    <input type="checkbox" id="eodResolvedYes" onchange="toggleResolutionField(this)">
+                                                    <input type="checkbox" id="eodResolvedYes" name="issueResolved" value="Yes" onchange="toggleResolutionField(this)">
                                                     <label for="eodResolvedYes">Yes</label>
                                                 </div>
                                                 <div class="checkbox-option">
-                                                    <input type="checkbox" id="eodResolvedNo" onchange="toggleResolutionField(this)">
+                                                    <input type="checkbox" id="eodResolvedNo" name="issueResolved" value="No" onchange="toggleResolutionField(this)">
                                                     <label for="eodResolvedNo">No</label>
                                                 </div>
                                                 <div class="checkbox-option">
-                                                    <input type="checkbox" id="eodResolvedNA" onchange="toggleResolutionField(this)">
+                                                    <input type="checkbox" id="eodResolvedNA" name="issueResolved" value="NA" onchange="toggleResolutionField(this)">
                                                     <label for="eodResolvedNA">N/A</label>
                                                 </div>
                                             </div>
@@ -1357,9 +1208,23 @@
 
                                         <div class="eod-field" id="tempSolutionField" style="display: none;">
                                             <label>If not, what was the temporary solution?</label>
-                                            <textarea id="eodTempSolution" placeholder="Describe temporary solution"></textarea>
+                                            <textarea id="tempSolution" placeholder="Describe temporary solution"></textarea>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item" data-id="item-30">
+                        <div class="item-header">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" onchange="updateProgress()">
+                            </div>
+                            <div class="item-content">
+                                <div class="item-title">2.20 Final Set Verification</div>
+                                <div class="item-description">
+                                    Confirm the area is left clean, organized, and safe
                                 </div>
                             </div>
                         </div>
@@ -1371,10 +1236,10 @@
             <div class="section">
                 <div class="section-header" onclick="toggleSection(this)">
                     <span>END OF DAY</span>
-                    <span class="collapse-icon">â–¼</span>
+                    <span class="collapse-icon">▼</span>
                 </div>
                 <div class="section-content">
-                    <div class="checklist-item" data-id="item-16">
+                    <div class="checklist-item" data-id="item-31">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
@@ -1394,14 +1259,14 @@
 
                                     <div class="eod-field">
                                         <label>Manager's name you checked out with:</label>
-                                        <input type="text" id="eodCheckOutManager" placeholder="Enter manager's name">
+                                        <input type="text" id="checkOutManager" placeholder="Enter manager's name">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="checklist-item" data-id="item-17">
+                    <div class="checklist-item" data-id="item-32">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
@@ -1415,11 +1280,11 @@
                                         <label>Did all sets get signed out in PROD?</label>
                                         <div class="checkbox-group">
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodProdYes">
+                                                <input type="checkbox" id="eodProdYes" name="signedOutPROD" value="Yes" onchange="toggleRadio('signedOutPROD')">
                                                 <label for="eodProdYes">Yes</label>
                                             </div>
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodProdNo">
+                                                <input type="checkbox" id="eodProdNo" name="signedOutPROD" value="No" onchange="toggleRadio('signedOutPROD')">
                                                 <label for="eodProdNo">No</label>
                                             </div>
                                         </div>
@@ -1429,11 +1294,11 @@
                                         <label>Did all sets get signed out in SI?</label>
                                         <div class="checkbox-group">
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodSiYes">
+                                                <input type="checkbox" id="eodSiYes" name="signedOutSI" value="Yes" onchange="toggleRadio('signedOutSI')">
                                                 <label for="eodSiYes">Yes</label>
                                             </div>
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodSiNo">
+                                                <input type="checkbox" id="eodSiNo" name="signedOutSI" value="No" onchange="toggleRadio('signedOutSI')">
                                                 <label for="eodSiNo">No</label>
                                             </div>
                                         </div>
@@ -1443,7 +1308,7 @@
                         </div>
                     </div>
 
-                    <div class="checklist-item" data-id="item-18">
+                    <div class="checklist-item" data-id="item-33">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
@@ -1457,11 +1322,11 @@
                                         <label>Sign out sheet attached to EOD email?</label>
                                         <div class="checkbox-group">
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodEmailSheetYes">
+                                                <input type="checkbox" id="eodEmailSheetYes" name="signoutEmail" value="Yes" onchange="toggleRadio('signoutEmail')">
                                                 <label for="eodEmailSheetYes">Yes</label>
                                             </div>
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodEmailSheetNo">
+                                                <input type="checkbox" id="eodEmailSheetNo" name="signoutEmail" value="No" onchange="toggleRadio('signoutEmail')">
                                                 <label for="eodEmailSheetNo">No</label>
                                             </div>
                                         </div>
@@ -1471,11 +1336,11 @@
                                         <label>Sign out sheet attached to KOMPASS Maintenance line in PROD?</label>
                                         <div class="checkbox-group">
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodProdSheetYes">
+                                                <input type="checkbox" id="eodProdSheetYes" name="signoutPROD" value="Yes" onchange="toggleRadio('signoutPROD')">
                                                 <label for="eodProdSheetYes">Yes</label>
                                             </div>
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodProdSheetNo">
+                                                <input type="checkbox" id="eodProdSheetNo" name="signoutPROD" value="No" onchange="toggleRadio('signoutPROD')">
                                                 <label for="eodProdSheetNo">No</label>
                                             </div>
                                         </div>
@@ -1485,39 +1350,25 @@
                         </div>
                     </div>
 
-                    <div class="checklist-item" data-id="item-19">
+                    <div class="checklist-item" data-id="item-34">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
                             </div>
                             <div class="item-content">
-                                <div class="item-title">3.4 Kompass Cart Photos <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
+                                <div class="item-title">3.4 Kompass Cart "After" Photos <span style="color: #f39c12; font-weight: bold;">EOD</span></div>
                                 <div class="item-description">
                                     Take clear, in-focus photos of Kompass cart
-
-                                    <div class="eod-field">
-                                        <label>Before picture of KOMPASS cart loaded to KOMPASS Maintenance line?</label>
-                                        <div class="checkbox-group">
-                                            <div class="checkbox-option">
-                                                <input type="checkbox" id="eodBeforePhotoYes">
-                                                <label for="eodBeforePhotoYes">Yes</label>
-                                            </div>
-                                            <div class="checkbox-option">
-                                                <input type="checkbox" id="eodBeforePhotoNo">
-                                                <label for="eodBeforePhotoNo">No</label>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     <div class="eod-field">
                                         <label>After picture of KOMPASS cart loaded to KOMPASS Maintenance line?</label>
                                         <div class="checkbox-group">
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodAfterPhotoYes">
+                                                <input type="checkbox" id="eodAfterPhotoYes" name="afterPicPosted" value="Yes" onchange="toggleRadio('afterPicPosted')">
                                                 <label for="eodAfterPhotoYes">Yes</label>
                                             </div>
                                             <div class="checkbox-option">
-                                                <input type="checkbox" id="eodAfterPhotoNo">
+                                                <input type="checkbox" id="eodAfterPhotoNo" name="afterPicPosted" value="No" onchange="toggleRadio('afterPicPosted')">
                                                 <label for="eodAfterPhotoNo">No</label>
                                             </div>
                                         </div>
@@ -1527,7 +1378,7 @@
                         </div>
                     </div>
 
-                    <div class="checklist-item" data-id="item-20">
+                    <div class="checklist-item" data-id="item-35">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
@@ -1541,7 +1392,7 @@
                         </div>
                     </div>
 
-                    <div class="checklist-item" data-id="item-21">
+                    <div class="checklist-item" data-id="item-36">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
@@ -1552,8 +1403,8 @@
                                     <ul>
                                         <li><strong>To:</strong> Fred Meyer PIC + store management</li>
                                         <li><strong>CC:</strong> See email list below</li>
-                                        <li><strong>Subject:</strong> EOD FM#'## MM/DD/YYYY</li>
-                                        <li><strong>Attachments:</strong> Sign-off sheets, EOD Cover Sheet, photos</li>
+                                        <li><strong>Subject:</strong> EOD FM### MM/DD/YYYY</li>
+                                        <li><strong>Attachments:</strong> Quality photos of all Sign-off sheets and EOD Cover Sheet</li>
                                     </ul>
                                     <div class="email-list">
                                         <h4>EOD Email CC List:</h4>
@@ -1570,7 +1421,7 @@
                         </div>
                     </div>
 
-                    <div class="checklist-item" data-id="item-22">
+                    <div class="checklist-item" data-id="item-37">
                         <div class="item-header">
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" onchange="updateProgress()">
@@ -1596,6 +1447,13 @@
                 <textarea id="notes" placeholder="Enter any notes, issues, or observations here..."></textarea>
             </div>
 
+            <!-- Signature Section - Moved to the end -->
+            <div class="signature-section">
+                <label class="signature-label">Lead Signature:</label>
+                <canvas id="signaturePad" class="signature-canvas"></canvas>
+                <button class="btn-clear-sig" onclick="clearSignature()">Clear Signature</button>
+            </div>
+
             <!-- Action Buttons -->
             <div class="button-group">
                 <button class="btn btn-success" onclick="generateEODCoverSheet()">Generate EOD Cover Sheet</button>
@@ -1607,8 +1465,11 @@
     </div>
 
     <script>
+          const PDF_FILE = 'End%20Of%20Day%20Cover%20Sheet%20Form%20Editable%20Template.pdf';
+          const pdfUrl = `${PDF_FILE}?v=${(crypto?.randomUUID?.() || Date.now())}`;
+
         // Set today's date by default
-        document.getElementById('date').valueAsDate = new Date();
+        document.getElementById('workDate').valueAsDate = new Date();
 
         // Load saved data on page load
         window.onload = function() {
@@ -1628,17 +1489,90 @@
             }
         }
 
+        // Radio button simulation - ensure only one checkbox per group is checked
+        function toggleRadio(groupName) {
+            const checkboxes = document.querySelectorAll(`input[name="${groupName}"]`);
+            const clickedBox = event.target;
+            
+            checkboxes.forEach(box => {
+                if (box !== clickedBox) {
+                    box.checked = false;
+                }
+            });
+            
+            autoSave();
+        }
+
         function updateProgress() {
-            const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
-            const checked = document.querySelectorAll('.checklist-item input[type="checkbox"]:checked');
-            const percentage = Math.round((checked.length / checkboxes.length) * 100);
+            // Get all main checkboxes (not EOD field checkboxes)
+            const mainCheckboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]:not([name])');
+            let totalItems = mainCheckboxes.length;
+            let completedItems = 0;
+
+            mainCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    completedItems++;
+                }
+            });
+
+            // Add EOD-specific checkboxes/fields to the count
+            const eodFields = [
+                'beforePicPosted', 'checkInManager', 'calledHotline',
+                'checkOutManager', 'signedOutPROD', 'signedOutSI',
+                'signoutEmail', 'signoutPROD', 'afterPicPosted'
+            ];
+
+            eodFields.forEach(fieldName => {
+                if (fieldName === 'checkInManager' || fieldName === 'checkOutManager') {
+                    // Text input fields
+                    const field = document.getElementById(fieldName);
+                    if (field && field.value.trim() !== '') {
+                        completedItems++;
+                    }
+                    totalItems++;
+                } else {
+                    // Radio button groups
+                    const checked = document.querySelector(`input[name="${fieldName}"]:checked`);
+                    if (checked) {
+                        completedItems++;
+                    }
+                    totalItems++;
+                }
+            });
+
+            // Only count hotline details if hotline was called
+            const hotlineYes = document.getElementById('eodHotlineYes');
+            if (hotlineYes && hotlineYes.checked) {
+                const commoditiesField = document.getElementById('issueCommodities');
+                const issueField = document.getElementById('issueDescription');
+                const resolvedChecked = document.querySelector('input[name="issueResolved"]:checked');
+
+                if (commoditiesField && commoditiesField.value.trim() !== '') completedItems++;
+                totalItems++;
+
+                if (issueField && issueField.value.trim() !== '') completedItems++;
+                totalItems++;
+
+                if (resolvedChecked) completedItems++;
+                totalItems++;
+
+                // Only count temp solution if issue was not resolved
+                const resolvedNo = document.getElementById('eodResolvedNo');
+                if (resolvedNo && resolvedNo.checked) {
+                    const tempSol = document.getElementById('tempSolution');
+                    if (tempSol && tempSol.value.trim() !== '') completedItems++;
+                    totalItems++;
+                }
+            }
+
+            const percentage = Math.round((completedItems / totalItems) * 100);
             
             const progressBar = document.getElementById('progressBar');
             progressBar.style.width = percentage + '%';
             progressBar.textContent = percentage + '%';
 
             // Update completed styling
-            checkboxes.forEach(checkbox => {
+            mainCheckboxes.forEach(checkbox => {
                 const item = checkbox.closest('.checklist-item');
                 if (checkbox.checked) {
                     item.classList.add('completed');
@@ -1667,6 +1601,7 @@
                 detailsDiv.style.display = 'none';
             }
             
+            updateProgress();
             autoSave();
         }
 
@@ -1674,48 +1609,43 @@
             const yesBox = document.getElementById('eodResolvedYes');
             const noBox = document.getElementById('eodResolvedNo');
             const naBox = document.getElementById('eodResolvedNA');
-            const tempSolutionField = document.getElementById('tempSolutionField');
+            const tempField = document.getElementById('tempSolutionField');
             
             // Toggle mutual exclusivity
             if (checkbox.id === 'eodResolvedYes' && checkbox.checked) {
                 noBox.checked = false;
                 naBox.checked = false;
-                tempSolutionField.style.display = 'none';
+                tempField.style.display = 'none';
             } else if (checkbox.id === 'eodResolvedNo' && checkbox.checked) {
                 yesBox.checked = false;
                 naBox.checked = false;
-                tempSolutionField.style.display = 'block';
+                tempField.style.display = 'block';
             } else if (checkbox.id === 'eodResolvedNA' && checkbox.checked) {
                 yesBox.checked = false;
                 noBox.checked = false;
-                tempSolutionField.style.display = 'none';
+                tempField.style.display = 'none';
             }
             
+            updateProgress();
             autoSave();
         }
 
         function autoSave() {
             const data = {
                 storeNumber: document.getElementById('storeNumber').value,
-                date: document.getElementById('date').value,
+                date: document.getElementById('workDate').value,
                 leadName: document.getElementById('leadName').value,
-                arrivedTime: document.getElementById('arrivedTime').value,
-                groceryManager: document.getElementById('groceryManager').value,
-                crewArrival: document.getElementById('crewArrival').value,
                 notes: document.getElementById('notes').value,
-                checkoutManager: document.getElementById('checkoutManager').value,
-                checkoutTime: document.getElementById('checkoutTime').value,
-                signature: canvas.toDataURL(),
-                eodCheckInManager: document.getElementById('eodCheckInManager').value,
-                eodCheckOutManager: document.getElementById('eodCheckOutManager').value,
+                checkInManager: document.getElementById('checkInManager').value,
+                checkOutManager: document.getElementById('checkOutManager').value,
+                issueCommodities: document.getElementById('issueCommodities').value,
+                issueDescription: document.getElementById('issueDescription').value,
+                tempSolution: document.getElementById('tempSolution').value,
                 eodHotlineYes: document.getElementById('eodHotlineYes').checked,
                 eodHotlineNo: document.getElementById('eodHotlineNo').checked,
-                eodCommodities: document.getElementById('eodCommodities').value,
-                eodIssue: document.getElementById('eodIssue').value,
                 eodResolvedYes: document.getElementById('eodResolvedYes').checked,
                 eodResolvedNo: document.getElementById('eodResolvedNo').checked,
                 eodResolvedNA: document.getElementById('eodResolvedNA').checked,
-                eodTempSolution: document.getElementById('eodTempSolution').value,
                 eodProdYes: document.getElementById('eodProdYes').checked,
                 eodProdNo: document.getElementById('eodProdNo').checked,
                 eodSiYes: document.getElementById('eodSiYes').checked,
@@ -1728,31 +1658,17 @@
                 eodBeforePhotoNo: document.getElementById('eodBeforePhotoNo').checked,
                 eodAfterPhotoYes: document.getElementById('eodAfterPhotoYes').checked,
                 eodAfterPhotoNo: document.getElementById('eodAfterPhotoNo').checked,
-                checkedItems: []
+                signature: canvas.toDataURL('image/png'),
+                checkedItems: Array.from(document.querySelectorAll('.checklist-item input[type="checkbox"]:not([name])')).map(cb => cb.checked)
             };
-
-            // Save checkbox states
-            document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach((checkbox, index) => {
-                data.checkedItems.push(checkbox.checked);
-            });
-
+            
             localStorage.setItem('kompassChecklist', JSON.stringify(data));
         }
 
         function saveProgress(event) {
+            if (event) event.preventDefault();
+            alert('Progress saved to your device!');
             autoSave();
-            
-            // Show confirmation
-            if (event && event.target) {
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = 'Saved to Device Memory!';
-                btn.style.background = 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '';
-                }, 2000);
-            }
         }
 
         function loadProgress() {
@@ -1760,27 +1676,20 @@
             if (saved) {
                 const data = JSON.parse(saved);
                 
-                document.getElementById('storeNumber').value = data.storeNumber || '';
-                document.getElementById('date').value = data.date || new Date().toISOString().split('T')[0];
-                document.getElementById('leadName').value = data.leadName || '';
-                document.getElementById('arrivedTime').value = data.arrivedTime || '';
-                document.getElementById('groceryManager').value = data.groceryManager || '';
-                document.getElementById('crewArrival').value = data.crewArrival || '';
-                document.getElementById('notes').value = data.notes || '';
-                document.getElementById('checkoutManager').value = data.checkoutManager || '';
-                document.getElementById('checkoutTime').value = data.checkoutTime || '';
-                
-                // Load EOD fields
-                if (data.eodCheckInManager) document.getElementById('eodCheckInManager').value = data.eodCheckInManager;
-                if (data.eodCheckOutManager) document.getElementById('eodCheckOutManager').value = data.eodCheckOutManager;
+                if (data.storeNumber) document.getElementById('storeNumber').value = data.storeNumber;
+                if (data.date) document.getElementById('workDate').value = data.date;
+                if (data.leadName) document.getElementById('leadName').value = data.leadName;
+                if (data.notes) document.getElementById('notes').value = data.notes;
+                if (data.checkInManager) document.getElementById('checkInManager').value = data.checkInManager;
+                if (data.checkOutManager) document.getElementById('checkOutManager').value = data.checkOutManager;
                 if (data.eodHotlineYes) document.getElementById('eodHotlineYes').checked = true;
                 if (data.eodHotlineNo) document.getElementById('eodHotlineNo').checked = true;
-                if (data.eodCommodities) document.getElementById('eodCommodities').value = data.eodCommodities;
-                if (data.eodIssue) document.getElementById('eodIssue').value = data.eodIssue;
+                if (data.issueCommodities) document.getElementById('issueCommodities').value = data.issueCommodities;
+                if (data.issueDescription) document.getElementById('issueDescription').value = data.issueDescription;
                 if (data.eodResolvedYes) document.getElementById('eodResolvedYes').checked = true;
                 if (data.eodResolvedNo) document.getElementById('eodResolvedNo').checked = true;
                 if (data.eodResolvedNA) document.getElementById('eodResolvedNA').checked = true;
-                if (data.eodTempSolution) document.getElementById('eodTempSolution').value = data.eodTempSolution;
+                if (data.tempSolution) document.getElementById('tempSolution').value = data.tempSolution;
                 if (data.eodProdYes) document.getElementById('eodProdYes').checked = true;
                 if (data.eodProdNo) document.getElementById('eodProdNo').checked = true;
                 if (data.eodSiYes) document.getElementById('eodSiYes').checked = true;
@@ -1815,7 +1724,7 @@
 
                 // Restore checkbox states
                 if (data.checkedItems) {
-                    document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach((checkbox, index) => {
+                    document.querySelectorAll('.checklist-item input[type="checkbox"]:not([name])').forEach((checkbox, index) => {
                         if (data.checkedItems[index]) {
                             checkbox.checked = true;
                         }
@@ -1830,26 +1739,21 @@
                 
                 // Reset all fields
                 document.getElementById('storeNumber').value = '';
-                document.getElementById('date').valueAsDate = new Date();
+                document.getElementById('workDate').valueAsDate = new Date();
                 document.getElementById('leadName').value = '';
-                document.getElementById('arrivedTime').value = '';
-                document.getElementById('groceryManager').value = '';
-                document.getElementById('crewArrival').value = '';
                 document.getElementById('notes').value = '';
-                document.getElementById('checkoutManager').value = '';
-                document.getElementById('checkoutTime').value = '';
                 
                 // Reset EOD fields
-                document.getElementById('eodCheckInManager').value = '';
-                document.getElementById('eodCheckOutManager').value = '';
+                document.getElementById('checkInManager').value = '';
+                document.getElementById('checkOutManager').value = '';
                 document.getElementById('eodHotlineYes').checked = false;
                 document.getElementById('eodHotlineNo').checked = false;
-                document.getElementById('eodCommodities').value = '';
-                document.getElementById('eodIssue').value = '';
+                document.getElementById('issueCommodities').value = '';
+                document.getElementById('issueDescription').value = '';
                 document.getElementById('eodResolvedYes').checked = false;
                 document.getElementById('eodResolvedNo').checked = false;
                 document.getElementById('eodResolvedNA').checked = false;
-                document.getElementById('eodTempSolution').value = '';
+                document.getElementById('tempSolution').value = '';
                 document.getElementById('eodProdYes').checked = false;
                 document.getElementById('eodProdNo').checked = false;
                 document.getElementById('eodSiYes').checked = false;
@@ -1875,202 +1779,144 @@
             }
         }
 
-        function generateEODCoverSheet() {
-            // Collect all the data
-            const leadName = document.getElementById('leadName').value || '[Not Provided]';
-            const date = document.getElementById('date').value || '[Not Provided]';
-            const storeNumber = document.getElementById('storeNumber').value || '[Not Provided]';
-            
-            // Use EOD-specific fields, fall back to header fields
-            const checkInManager = document.getElementById('eodCheckInManager').value || 
-                                  document.getElementById('groceryManager').value || '[Not Provided]';
-            const checkOutManager = document.getElementById('eodCheckOutManager').value || 
-                                   document.getElementById('checkoutManager').value || '[Not Provided]';
-            
-            const hotlineYes = document.getElementById('eodHotlineYes').checked;
-            const hotlineNo = document.getElementById('eodHotlineNo').checked;
-            const commodities = document.getElementById('eodCommodities').value || '[Not Provided]';
-            const issue = document.getElementById('eodIssue').value || '[Not Provided]';
-            const resolvedYes = document.getElementById('eodResolvedYes').checked;
-            const resolvedNo = document.getElementById('eodResolvedNo').checked;
-            const resolvedNA = document.getElementById('eodResolvedNA').checked;
-            const tempSolution = document.getElementById('eodTempSolution').value || '[Not Provided]';
-            
-            const prodYes = document.getElementById('eodProdYes').checked;
-            const prodNo = document.getElementById('eodProdNo').checked;
-            const siYes = document.getElementById('eodSiYes').checked;
-            const siNo = document.getElementById('eodSiNo').checked;
-            const emailSheetYes = document.getElementById('eodEmailSheetYes').checked;
-            const emailSheetNo = document.getElementById('eodEmailSheetNo').checked;
-            const prodSheetYes = document.getElementById('eodProdSheetYes').checked;
-            const prodSheetNo = document.getElementById('eodProdSheetNo').checked;
-            const beforePhotoYes = document.getElementById('eodBeforePhotoYes').checked;
-            const beforePhotoNo = document.getElementById('eodBeforePhotoNo').checked;
-            const afterPhotoYes = document.getElementById('eodAfterPhotoYes').checked;
-            const afterPhotoNo = document.getElementById('eodAfterPhotoNo').checked;
+        // Helper functions for PDF generation
+        const pickYN = (v) => {
+            if (typeof v === 'string') {
+                const s = v.trim().toLowerCase();
+                if (s.startsWith('y')) return 'Yes';
+                if (s.startsWith('n')) return 'No';
+            }
+            return v ? 'Yes' : 'No';
+        };
 
-            // Create PDF using jsPDF
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            let yPos = 20;
-            const leftMargin = 20;
-            const lineHeight = 7;
-            
-            // Helper function to add text with word wrap
-            function addText(text, x, y, maxWidth = 170, bold = false) {
-                if (bold) {
-                    doc.setFont('helvetica', 'bold');
-                } else {
-                    doc.setFont('helvetica', 'normal');
-                }
-                const lines = doc.splitTextToSize(text, maxWidth);
-                doc.text(lines, x, y);
-                return y + (lines.length * lineHeight);
+        const pickYNN = (v) => {
+            if (typeof v === 'string') {
+                const s = v.trim().toLowerCase();
+                if (s === 'na' || s === 'n/a') return 'NA';
+                if (s.startsWith('y')) return 'Yes';
+                if (s.startsWith('n')) return 'No';
             }
-            
-            // Helper function to add checkbox
-            function addCheckbox(label, checked, x, y) {
-                doc.setFont('helvetica', 'normal');
-                doc.text(checked ? 'â˜‘' : 'â˜', x, y);
-                doc.text(label, x + 5, y);
-            }
-            
-            // Title
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.text('KOMPASS EOD COVER SHEET', 105, yPos, { align: 'center' });
-            yPos += 15;
-            
-            // Header info
-            doc.setFontSize(11);
-            yPos = addText(`Lead Name: ${leadName}`, leftMargin, yPos);
-            yPos = addText(`Date: ${date}`, leftMargin, yPos);
-            yPos = addText(`Store Number: ${storeNumber}`, leftMargin, yPos);
-            yPos += 5;
-            
-            // Before picture
-            doc.setFont('helvetica', 'bold');
-            doc.text('Before picture of KOMPASS cart loaded to KOMPASS Maintenance line?', leftMargin, yPos);
-            yPos += lineHeight;
-            addCheckbox('Yes', beforePhotoYes, leftMargin + 10, yPos);
-            addCheckbox('No', beforePhotoNo, leftMargin + 30, yPos);
-            yPos += 10;
-            
-            // Manager checked in with
-            yPos = addText(`Manager's name you checked in with: ${checkInManager}`, leftMargin, yPos);
-            yPos += 5;
-            
-            // Hotline
-            doc.setFont('helvetica', 'bold');
-            doc.text('Did you call the KOMPASS Hotline?', leftMargin, yPos);
-            yPos += lineHeight;
-            addCheckbox('Yes', hotlineYes, leftMargin + 10, yPos);
-            addCheckbox('No', hotlineNo, leftMargin + 30, yPos);
-            yPos += 10;
-            
-            // Commodities
-            yPos = addText('If so, what commodities are involved?', leftMargin, yPos, 170, true);
-            yPos = addText(hotlineYes ? commodities : 'N/A', leftMargin + 5, yPos);
-            yPos += 5;
-            
-            // Issue
-            yPos = addText('What is the issue?', leftMargin, yPos, 170, true);
-            yPos = addText(hotlineYes ? issue : 'N/A', leftMargin + 5, yPos);
-            yPos += 5;
-            
-            // Resolved
-            doc.setFont('helvetica', 'bold');
-            doc.text('Was the issue resolved before EOD?', leftMargin, yPos);
-            yPos += lineHeight;
-            addCheckbox('Yes', resolvedYes, leftMargin + 10, yPos);
-            addCheckbox('No', resolvedNo, leftMargin + 30, yPos);
-            addCheckbox('N/A', resolvedNA, leftMargin + 50, yPos);
-            yPos += 10;
-            
-            // Temp solution
-            yPos = addText('If not, what was the temporary solution?', leftMargin, yPos, 170, true);
-            yPos = addText(resolvedNo ? tempSolution : 'N/A', leftMargin + 5, yPos);
-            yPos += 5;
-            
-            // Manager checked out with
-            yPos = addText(`Manager's name you checked out with: ${checkOutManager}`, leftMargin, yPos);
-            yPos += 5;
-            
-            // PROD signout
-            doc.setFont('helvetica', 'bold');
-            doc.text('Did all sets get signed out in PROD?', leftMargin, yPos);
-            yPos += lineHeight;
-            addCheckbox('Yes', prodYes, leftMargin + 10, yPos);
-            addCheckbox('No', prodNo, leftMargin + 30, yPos);
-            yPos += 10;
-            
-            // SI signout
-            doc.setFont('helvetica', 'bold');
-            doc.text('Did all sets get signed out in SI?', leftMargin, yPos);
-            yPos += lineHeight;
-            addCheckbox('Yes', siYes, leftMargin + 10, yPos);
-            addCheckbox('No', siNo, leftMargin + 30, yPos);
-            yPos += 10;
-            
-            // Email sheet
-            doc.setFont('helvetica', 'bold');
-            doc.text('Sign out sheet attached to EOD email?', leftMargin, yPos);
-            yPos += lineHeight;
-            addCheckbox('Yes', emailSheetYes, leftMargin + 10, yPos);
-            addCheckbox('No', emailSheetNo, leftMargin + 30, yPos);
-            yPos += 10;
-            
-            // PROD sheet
-            doc.setFont('helvetica', 'bold');
-            doc.text('Sign out sheet attached to KOMPASS Maintenance line in PROD?', leftMargin, yPos);
-            yPos += lineHeight;
-            addCheckbox('Yes', prodSheetYes, leftMargin + 10, yPos);
-            addCheckbox('No', prodSheetNo, leftMargin + 30, yPos);
-            yPos += 10;
-            
-            // After picture
-            doc.setFont('helvetica', 'bold');
-            doc.text('After picture of KOMPASS cart loaded to KOMPASS Maintenance line?', leftMargin, yPos);
-            yPos += lineHeight;
-            addCheckbox('Yes', afterPhotoYes, leftMargin + 10, yPos);
-            addCheckbox('No', afterPhotoNo, leftMargin + 30, yPos);
-            yPos += 15;
-            
-            // Footer section
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            yPos = addText(`EOD Subject Line: EOD FM${storeNumber} ${formatDateForSubject(date)}`, leftMargin, yPos);
-            yPos += 5;
-            
-            doc.setFont('helvetica', 'normal');
-            yPos = addText('To: Fred Meyer PIC who signed you out (typically firstname.lastname@stores.fredmeyer.com) and other managers.', leftMargin, yPos);
-            yPos += 5;
-            
-            yPos = addText('CC: mashabranner@retailodyssey.com; seth.newman@retailodyssey.com; knix@retailodyssey.com; & your supervisor.', leftMargin, yPos);
-            
-            // Save the PDF
-            doc.save(`EOD_FM${storeNumber}_${date}.pdf`);
-            
-            // Show success message
-            alert('EOD Cover Sheet PDF generated and downloaded successfully!\n\nPlease review the file and attach it to your EOD email along with sign-off sheets and photos.');
+            if (v === null || v === undefined) return 'NA';
+            return v ? 'Yes' : 'No';
+        };
+
+        async function embedDataUrl(pdfDoc, dataUrl) {
+            if (!dataUrl) return null;
+            const res = await fetch(dataUrl);
+            const bytes = await res.arrayBuffer();
+            const isPng = dataUrl.startsWith('data:image/png');
+            return isPng ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
         }
 
-        function formatDateForSubject(dateStr) {
-            if (!dateStr) return '[Date]';
-            const date = new Date(dateStr);
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${month}/${day}/${year}`;
+        function isoDate(d) {
+            if (!d) return '';
+            if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+            const dt = new Date(d);
+            return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
+        }
+
+        async function signatureDataURL() {
+            const pad = document.getElementById('signaturePad');
+            if (pad && pad.toDataURL) {
+                const dataUrl = pad.toDataURL('image/png');
+                // Check if canvas is empty
+                if (dataUrl === 'data:,') return '';
+                return dataUrl;
+            }
+            return '';
+        }
+
+        async function collectPayload() {
+            const v = sel => document.querySelector(sel)?.value ?? '';
+            const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
+            const yn = name => r(name).toLowerCase().startsWith('y');
+
+            return {
+                LeadName: v('#leadName'),
+                DateISO: isoDate(v('#workDate')),
+                StoreNumber: String(v('#storeNumber') || ''),
+                CheckInManager: v('#checkInManager'),
+                IssueCommodities: v('#issueCommodities'),
+                TempSolution: v('#tempSolution'),
+                CheckOutManager: v('#checkOutManager'),
+
+                BeforePicPosted: yn('beforePicPosted'),
+                CalledHotline: yn('calledHotline'),
+                IssueResolved: r('issueResolved') || 'NA',
+                SignedOutPROD: yn('signedOutPROD'),
+                SignedOutSI: yn('signedOutSI'),
+                SignoutSheetAttachedEmail: yn('signoutEmail'),
+                SignoutSheetAttachedPROD: yn('signoutPROD'),
+                AfterPicPosted: yn('afterPicPosted'),
+
+                signatureDataURL: await signatureDataURL()
+            };
+        }
+
+        async function fillPdf(data) {
+            const src = await fetch(pdfUrl).then(r => {
+                if (!r.ok) throw new Error('PDF not found. Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+                return r.arrayBuffer();
+            });
+
+            const pdfDoc = await PDFLib.PDFDocument.load(src);
+            const form = pdfDoc.getForm();
+
+            // Text fields
+            form.getTextField('LeadName').setText(data.LeadName ?? '');
+            form.getTextField('DateISO').setText(data.DateISO ?? '');
+            form.getTextField('StoreNumber').setText(String(data.StoreNumber ?? ''));
+            form.getTextField('CheckInManager').setText(data.CheckInManager ?? '');
+            form.getTextField('IssueCommodities').setText(data.IssueCommodities ?? '');
+            form.getTextField('WhatIsIssue').setText(data.WhatIsIssue ?? ''); 
+            form.getTextField('TempSolution').setText(data.TempSolution ?? '');
+            form.getTextField('CheckOutManager').setText(data.CheckOutManager ?? '');
+
+            // Radio groups (Yes/No or Yes/No/NA)
+            form.getRadioGroup('BeforePicPosted').select(pickYN(data.BeforePicPosted));
+            form.getRadioGroup('CalledHotline').select(pickYN(data.CalledHotline));
+            form.getRadioGroup('IssueResolved').select(pickYNN(data.IssueResolved));
+            form.getRadioGroup('SignedOutPROD').select(pickYN(data.SignedOutPROD));
+            form.getRadioGroup('SignedOutSI').select(pickYN(data.SignedOutSI));
+            form.getRadioGroup('SignoutSheetAttachedEmail').select(pickYN(data.SignoutSheetAttachedEmail));
+            form.getRadioGroup('SignoutSheetAttachedPROD').select(pickYN(data.SignoutSheetAttachedPROD));
+            form.getRadioGroup('AfterPicPosted').select(pickYN(data.AfterPicPosted));
+
+            // Signature image (Push Button named LeadSignatureImage)
+            if (data.signatureDataURL) {
+                const img = await embedDataUrl(pdfDoc, data.signatureDataURL);
+                if (img) form.getButton('LeadSignatureImage').setImage(img);
+            }
+
+            form.flatten();
+
+            const out = await pdfDoc.save();
+            const blob = new Blob([out], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            const a = Object.assign(document.createElement('a'), {
+                href: url,
+                download: `EOD_FM${data.StoreNumber || 'store'}_${data.DateISO || 'date'}.pdf`
+            });
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function generateEODCoverSheet() {
+            try {
+                const payload = await collectPayload();
+                await fillPdf(payload);
+                alert('EOD Cover Sheet PDF generated and downloaded successfully!\n\nPlease review the file and attach it to your EOD email along with sign-off sheets and photos.');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Error generating PDF: ' + error.message + '\n\nPlease ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+            }
         }
 
         // Auto-save form fields
         const formFields = [
-            'storeNumber', 'date', 'leadName', 'arrivedTime', 'groceryManager', 
-            'crewArrival', 'notes', 'checkoutManager', 'checkoutTime',
-            'eodCheckInManager', 'eodCheckOutManager', 'eodCommodities', 
-            'eodIssue', 'eodTempSolution'
+            'storeNumber', 'workDate', 'leadName', 'notes',
+            'checkInManager', 'checkOutManager', 'issueCommodities', 
+            'issueDescription', 'tempSolution'
         ];
         
         formFields.forEach(fieldId => {
@@ -2082,7 +1928,7 @@
         });
 
         // Signature Pad functionality
-        const canvas = document.getElementById('signatureCanvas');
+        const canvas = document.getElementById('signaturePad');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
         let lastX = 0;
@@ -2165,6 +2011,393 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             autoSave();
         }
+        
     </script>
+    
+    <script>
+  async function collectPayload() {
+    const v = sel => document.querySelector(sel)?.value ?? '';
+    const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
+    const yn = name => r(name).toLowerCase().startsWith('y');        // Yes/No → boolean
+    const ynn = name => (r(name) || 'NA');                           // Yes/No/NA → string
+    const isoDate = d => {
+      if (!d) return '';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+      const dt = new Date(d);
+      return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
+    };
+    async function signatureDataURL() {
+      const pad = document.getElementById('signaturePad');
+      if (pad && pad.toDataURL) return pad.toDataURL('image/png');
+      const file = document.getElementById('signatureFile')?.files?.[0];
+      if (!file) return '';
+      const b64 = await file.arrayBuffer().then(b => {
+        let bin=''; new Uint8Array(b).forEach(x => bin += String.fromCharCode(x));
+        return btoa(bin);
+      });
+      return `data:${file.type || 'image/png'};base64,${b64}`;
+    }
+
+    const called = yn('calledHotline'); // “Did you call the KOMPASS Hotline?”
+
+    const payload = {
+      // always-captured
+      LeadName: v('#leadName'),
+      DateISO: isoDate(v('#workDate')),
+      StoreNumber: String(v('#storeNumber') || ''),
+      CheckInManager: v('#checkInManager'),
+      CheckOutManager: v('#checkOutManager'),
+      BeforePicPosted: yn('beforePicPosted'),
+      CalledHotline: called,
+      SignedOutPROD: yn('signedOutPROD'),
+      SignedOutSI: yn('signedOutSI'),
+      SignoutSheetAttachedEmail: yn('signoutEmail'),
+      SignoutSheetAttachedPROD: yn('signoutPROD'),
+      AfterPicPosted: yn('afterPicPosted'),
+      signatureDataURL: await signatureDataURL()
+    };
+
+    if (called) {
+      // user selected Yes → take their entries
+      payload.IssueCommodities = v('#issueCommodities');
+      payload.WhatIsIssue = v('#whatIsIssue');
+      payload.IssueResolved = ynn('issueResolved'); // 'Yes' | 'No' | 'NA'
+      payload.TempSolution = v('#tempSolution');
+    } else {
+      // user selected No → cascade N/A everywhere
+      payload.IssueCommodities = 'N/A';
+      payload.WhatIsIssue = 'N/A';
+      payload.IssueResolved = 'NA';
+      payload.TempSolution = 'N/A';
+    }
+
+    return payload;
+  }
+</script>
+
+    <button id="selectAll">Select All & Fill "Test"</button>
+
+<script>
+  (function () {
+    const setVal = (sel, val) => {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    const pick = (name, val) => {
+      const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+      if (!el) return;
+      el.checked = true;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    document.getElementById('selectAll').addEventListener('click', () => {
+      // Text fields → "Test" (date = today)
+      setVal('#leadName', 'Test');
+      setVal('#workDate', new Date().toISOString().slice(0,10));
+      setVal('#storeNumber', 'Test');
+      setVal('#checkInManager', 'Test');
+      setVal('#issueCommodities', 'Test');
+      setVal('#tempSolution', 'Test');
+      setVal('#checkOutManager', 'Test');
+
+      // Radios: force "Yes"
+      ['beforePicPosted','calledHotline','signedOutPROD','signedOutSI',
+       'signoutEmail','signoutPROD','afterPicPosted'].forEach(n => pick(n, 'Yes'));
+      pick('issueResolved','Yes'); // 3-state group
+
+      // Any loose checkboxes on the page
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = true;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    });
+  })();
+</script>
+
+    <button id="listFields">List PDF Fields</button>
+<script>
+  document.getElementById('listFields').addEventListener('click', async () => {
+    try {
+      const r = await fetch(pdfUrl);
+      if (!r.ok) throw new Error('PDF not found at pdfUrl: ' + pdfUrl);
+      const bytes = await r.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(bytes);
+      const form = pdfDoc.getForm();
+      const names = form.getFields().map(f => f.getName());
+      alert('Form fields found:\n\n' + names.join('\n'));
+    } catch (e) {
+      alert('Load/list error: ' + e.message);
+    }
+  });
+</script>
+    <script>
+(() => {
+  // Local helpers used by the overrides
+  const pickYN = (v) => {
+    if (typeof v === 'string') {
+      const s = v.trim().toLowerCase();
+      if (s.startsWith('y')) return 'Yes';
+      if (s.startsWith('n')) return 'No';
+    }
+    return v ? 'Yes' : 'No';
+  };
+  const pickYNN = (v) => {
+    if (typeof v === 'string') {
+      const s = v.trim().toLowerCase();
+      if (s === 'na' || s === 'n/a') return 'NA';
+      if (s.startsWith('y')) return 'Yes';
+      if (s.startsWith('n')) return 'No';
+    }
+    if (v === null || v === undefined) return 'NA';
+    return v ? 'Yes' : 'No';
+  };
+  async function embedDataUrl(pdfDoc, dataUrl) {
+    if (!dataUrl) return null;
+    const res = await fetch(dataUrl);
+    const bytes = await res.arrayBuffer();
+    const isPng = dataUrl.startsWith('data:image/png');
+    return isPng ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
+  }
+  function isoDate(d) {
+    if (!d) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+    const dt = new Date(d);
+    return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
+  }
+  async function getSignatureDataURL() {
+    const pad = document.getElementById('signaturePad');
+    if (pad && pad.toDataURL) {
+      const dataUrl = pad.toDataURL('image/png');
+      if (dataUrl === 'data:,') return '';
+      return dataUrl;
+    }
+    return '';
+  }
+
+  // ---------- OVERRIDES ----------
+  // Collect payload (adds WhatIsIssue + hotline "No" cascade to N/A)
+  window.collectPayload = async function collectPayload() {
+    const v = sel => document.querySelector(sel)?.value ?? '';
+    const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
+    const yn = name => r(name).toLowerCase().startsWith('y');
+
+    const payload = {
+      LeadName: v('#leadName'),
+      DateISO: isoDate(v('#workDate')),
+      StoreNumber: String(v('#storeNumber') || ''),
+      CheckInManager: v('#checkInManager'),
+      IssueCommodities: v('#issueCommodities'),
+      WhatIsIssue: v('#issueDescription'),
+      TempSolution: v('#tempSolution'),
+      CheckOutManager: v('#checkOutManager'),
+
+      BeforePicPosted: yn('beforePicPosted'),
+      CalledHotline: yn('calledHotline'),
+      IssueResolved: r('issueResolved') || 'NA',
+      SignedOutPROD: yn('signedOutPROD'),
+      SignedOutSI: yn('signedOutSI'),
+      SignoutSheetAttachedEmail: yn('signoutEmail'),
+      SignoutSheetAttachedPROD: yn('signoutPROD'),
+      AfterPicPosted: yn('afterPicPosted'),
+
+      signatureDataURL: await getSignatureDataURL()
+    };
+
+    // If hotline was NOT called, normalize related fields to N/A
+    if (!payload.CalledHotline) {
+      payload.IssueCommodities = 'N/A';
+      payload.WhatIsIssue = 'N/A';
+      payload.TempSolution = 'N/A';
+      payload.IssueResolved = 'NA';
+    }
+
+    return payload;
+  };
+
+  // Fill the PDF (adds WhatIsIssue and new filename)
+  window.fillPdf = async function fillPdf(data) {
+    const src = await fetch(pdfUrl).then(r => {
+      if (!r.ok) throw new Error('PDF not found. Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+      return r.arrayBuffer();
+    });
+
+    const pdfDoc = await PDFLib.PDFDocument.load(src);
+    const form = pdfDoc.getForm();
+
+    // Text fields (includes WhatIsIssue)
+    form.getTextField('LeadName').setText(data.LeadName ?? '');
+    form.getTextField('DateISO').setText(data.DateISO ?? '');
+    form.getTextField('StoreNumber').setText(String(data.StoreNumber ?? ''));
+    form.getTextField('CheckInManager').setText(data.CheckInManager ?? '');
+    form.getTextField('IssueCommodities').setText(data.IssueCommodities ?? '');
+    form.getTextField('WhatIsIssue').setText(data.WhatIsIssue ?? '');
+    form.getTextField('TempSolution').setText(data.TempSolution ?? '');
+    form.getTextField('CheckOutManager').setText(data.CheckOutManager ?? '');
+
+    // Radio groups
+    form.getRadioGroup('BeforePicPosted').select(pickYN(data.BeforePicPosted));
+    form.getRadioGroup('CalledHotline').select(pickYN(data.CalledHotline));
+    form.getRadioGroup('IssueResolved').select(pickYNN(data.IssueResolved));
+    form.getRadioGroup('SignedOutPROD').select(pickYN(data.SignedOutPROD));
+    form.getRadioGroup('SignedOutSI').select(pickYN(data.SignedOutSI));
+    form.getRadioGroup('SignoutSheetAttachedEmail').select(pickYN(data.SignoutSheetAttachedEmail));
+    form.getRadioGroup('SignoutSheetAttachedPROD').select(pickYN(data.SignoutSheetAttachedPROD));
+    form.getRadioGroup('AfterPicPosted').select(pickYN(data.AfterPicPosted));
+
+    // Signature image (Push Button named LeadSignatureImage)
+    if (data.signatureDataURL) {
+      const img = await embedDataUrl(pdfDoc, data.signatureDataURL);
+      if (img) form.getButton('LeadSignatureImage').setImage(img);
+    }
+
+    form.flatten();
+
+    const out = await pdfDoc.save();
+    const blob = new Blob([out], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url,
+      download: `EOD Cover Sheet FM${data.StoreNumber || 'store'} ${data.DateISO || 'date'}.pdf`
+    });
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Rebind generator to use the overrides (name unchanged)
+  window.generateEODCoverSheet = async function generateEODCoverSheet() {
+    try {
+      const payload = await window.collectPayload();
+      await window.fillPdf(payload);
+      alert('EOD Cover Sheet PDF generated and downloaded successfully!\n\nPlease review the file and attach it to your EOD email along with sign-off sheets and photos.');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF: ' + error.message + '\n\nPlease ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+    }
+  };
+})();
+</script>
+
+<style>
+  .kompass-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.6);
+    z-index: 9999;
+  }
+  .kompass-modal.show { display: flex; }
+  .kompass-card {
+    background: #fff;
+    max-width: 760px;
+    width: min(92vw,760px);
+    max-height: 88vh;
+    overflow: auto;
+    border-radius: 14px;
+    padding: 22px 22px 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    font-family: system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+  .kompass-card h2 { margin: 0 0 .5rem 0; font-size: 1.35rem; }
+  .kompass-card h3 { margin: 1rem 0 .25rem 0; font-size: 1.05rem; }
+  .kompass-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1rem; }
+  .kompass-actions .btn { border: 0; border-radius: 10px; padding: .6rem .9rem; cursor: pointer; }
+  .kompass-actions .btn-primary { background: #2563eb; color: #fff; }
+  .kompass-actions .btn[disabled] { opacity: .6; cursor: not-allowed; }
+</style>
+
+<!-- DISCLAIMER (first-visit only) -->
+<div id="kompassDisclaimer" class="kompass-modal" aria-hidden="true" role="dialog" aria-labelledby="kdc-title">
+  <div class="kompass-card" role="document">
+    <h2 id="kdc-title">⚠️ Important: Please Read Before Using This Checklist</h2>
+    <p><strong>Welcome to the KOMPASS Lead Daily Checklist!</strong></p>
+    <p>Before you begin, please understand and acknowledge the following:</p>
+
+    <h3>This is a Living Document</h3>
+    <p>Much like the dynamic nature of your role as a KOMPASS Lead, this checklist is fluid and ever-evolving. Don't expect it to stay the same—it will be updated as processes improve and new insights are gained.</p>
+
+    <h3>It's a Guide, Not a Rulebook</h3>
+    <p>I've compiled what I believe are the primary steps and processes to help you navigate your day successfully. However, I know there are pieces missing, and I'm not perfect—nor do I expect you to be. Use this as a tool and a guide, not as an inflexible set of rules.</p>
+
+    <h3>Your Feedback Matters</h3>
+    <p>If you notice something missing, unclear, or out of order, please share that feedback. Your real-world experience is invaluable in making this resource better for everyone.</p>
+
+    <h3>Every Situation is Different</h3>
+    <p>Every store, every day, and every lead has a slightly different process. Don't get stuck on specific wording or the exact order of items. If a step doesn't fit your situation or doesn't apply, use your logic, common sense, and best practices to either:</p>
+    <ul>
+      <li>Ask questions of your supervisor or support team</li>
+      <li>Arrive at a solution independently based on your training and experience</li>
+    </ul>
+
+    <h3>Limitation of Liability</h3>
+    <p>By using this checklist, you acknowledge and agree that:</p>
+    <ul>
+      <li>This is an aid created to support your success</li>
+      <li>You will not hold me or anyone else responsible for the information contained within</li>
+      <li>You understand this is meant as a guide to help support official policy</li>
+      <li>You will use your professional judgment and company guidelines when making decisions</li>
+    </ul>
+
+    <p>If you can be understanding of these points and use the checklist as the helpful tool it's meant to be, it will serve you well in navigating your responsibilities and achieving success in your role.</p>
+
+    <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.75rem">
+      <input id="kdc-agree" type="checkbox" />
+      <span>I have read, understand, and agree to the above disclaimer</span>
+    </label>
+
+    <div class="kompass-actions">
+      <button id="kdc-cancel" class="btn">Cancel</button>
+      <button id="kdc-accept" class="btn btn-primary" disabled>Agree & Continue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KEY = 'kompassDisclaimerAccepted.v1';
+  const modal = document.getElementById('kompassDisclaimer');
+  const agree = document.getElementById('kdc-agree');
+  const accept = document.getElementById('kdc-accept');
+  const cancel = document.getElementById('kdc-cancel');
+
+  function openModal(){
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    accept.disabled = !agree.checked;
+    agree.focus();
+  }
+
+  function closeModal(){
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      if (localStorage.getItem(KEY) !== 'true') {
+        openModal();
+      }
+    } catch (e) {
+      openModal();
+    }
+  });
+
+  agree.addEventListener('change', () => { accept.disabled = !agree.checked; });
+  
+  accept.addEventListener('click', () => {
+    try { localStorage.setItem(KEY,'true'); } catch (e) { /* ignore */ }
+    closeModal();
+  });
+  
+  cancel.addEventListener('click', () => { closeModal(); });
+})();
+</script>
+
 </body>
 </html>
