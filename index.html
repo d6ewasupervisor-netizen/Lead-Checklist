@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Kompass Lead Daily Checklist</title>
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -28,6 +27,25 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
+
+        /* --- NEW LOADING OVERLAY STYLE --- */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 10000;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            backdrop-filter: blur(5px);
+        }
+        .loading-overlay.show {
+            display: flex;
+        }
+        /* --- END NEW STYLE --- */
 
         .container {
             max-width: 1000px;
@@ -1507,11 +1525,17 @@
             <!-- Action Buttons -->
             <div class="button-group">
                 <button class="btn btn-success" onclick="generateEODCoverSheet()">Generate EOD Cover Sheet</button>
+                <button class="btn btn-primary" onclick="generateEODImage()">Generate EOD Image (JPG)</button>
                 <button class="btn btn-primary" onclick="saveProgress(event)">Save to Device</button>
                 <button class="btn btn-secondary" onclick="resetChecklist()">Reset Checklist</button>
                 <button class="btn btn-secondary" onclick="window.print()">Print Checklist</button>
             </div>
         </div>
+    </div>
+
+    <!-- NEW LOADING OVERLAY HTML -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <span>Generating Image, please wait...</span>
     </div>
 
     <script>
@@ -1523,6 +1547,8 @@
 
         // Load saved data on page load
         window.onload = function() {
+            // Setup PDF.js worker
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
             loadProgress();
             updateProgress();
         };
@@ -2134,8 +2160,7 @@
     if (called) {
         // user selected Yes → take their entries
         payload.IssueCommodities = v('#issueCommodities');
-        payload.WhatIsIssue = v('#whatIsIssue');
-// This should be issueDescription
+        payload.WhatIsIssue = v('#issueDescription'); // Corrected this line
         payload.IssueResolved = ynn('issueResolved'); // 'Yes' | 'No' | 'NA'
         payload.TempSolution = v('#tempSolution');
     } else {
@@ -2253,6 +2278,47 @@
     return '';
     }
 
+    // ---------- NEW HELPER FUNCTION (Extracted from fillPdf) ----------
+    async function createFilledPdfBytes(data) {
+        const src = await fetch(pdfUrl).then(r => {
+            if (!r.ok) throw new Error('PDF not found. Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+            return r.arrayBuffer();
+        });
+
+        const pdfDoc = await PDFLib.PDFDocument.load(src);
+        const form = pdfDoc.getForm();
+
+        // Text fields (includes WhatIsIssue)
+        form.getTextField('LeadName').setText(data.LeadName ?? '');
+        form.getTextField('DateISO').setText(data.DateISO ?? '');
+        form.getTextField('StoreNumber').setText(String(data.StoreNumber ?? ''));
+        form.getTextField('CheckInManager').setText(data.CheckInManager ?? '');
+        form.getTextField('IssueCommodities').setText(data.IssueCommodities ?? '');
+        form.getTextField('WhatIsIssue').setText(data.WhatIsIssue ?? '');
+        form.getTextField('TempSolution').setText(data.TempSolution ?? '');
+        form.getTextField('CheckOutManager').setText(data.CheckOutManager ?? '');
+
+        // Radio groups
+        form.getRadioGroup('BeforePicPosted').select(pickYN(data.BeforePicPosted));
+        form.getRadioGroup('CalledHotline').select(pickYN(data.CalledHotline));
+        form.getRadioGroup('IssueResolved').select(pickYNN(data.IssueResolved));
+        form.getRadioGroup('SignedOutPROD').select(pickYN(data.SignedOutPROD));
+        form.getRadioGroup('SignedOutSI').select(pickYN(data.SignedOutSI));
+        form.getRadioGroup('SignoutSheetAttachedEmail').select(pickYN(data.SignoutSheetAttachedEmail));
+        form.getRadioGroup('SignoutSheetAttachedPROD').select(pickYN(data.SignoutSheetAttachedPROD));
+        form.getRadioGroup('AfterPicPosted').select(pickYN(data.AfterPicPosted));
+
+        // Signature image (Push Button named LeadSignatureImage)
+        if (data.signatureDataURL) {
+            const img = await embedDataUrl(pdfDoc, data.signatureDataURL);
+            if (img) form.getButton('LeadSignatureImage').setImage(img);
+        }
+
+        form.flatten();
+        return await pdfDoc.save();
+    }
+
+
     // ---------- OVERRIDES ----------
     // Collect payload (adds WhatIsIssue + hotline "No" cascade to N/A)
     window.collectPayload = async function collectPayload() {
@@ -2294,52 +2360,17 @@
     };
 
     // Fill the PDF (adds WhatIsIssue and new filename)
+    // MODIFIED to use the new helper function
     window.fillPdf = async function fillPdf(data) {
-    const src = await fetch(pdfUrl).then(r => {
-        if (!r.ok) throw new Error('PDF not found. Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
-        return r.arrayBuffer();
-    });
-
-    const pdfDoc = await PDFLib.PDFDocument.load(src);
-    const form = pdfDoc.getForm();
-
-    // Text fields (includes WhatIsIssue)
-    form.getTextField('LeadName').setText(data.LeadName ?? '');
-    form.getTextField('DateISO').setText(data.DateISO ?? '');
-    form.getTextField('StoreNumber').setText(String(data.StoreNumber ?? ''));
-    form.getTextField('CheckInManager').setText(data.CheckInManager ?? '');
-    form.getTextField('IssueCommodities').setText(data.IssueCommodities ?? '');
-    form.getTextField('WhatIsIssue').setText(data.WhatIsIssue ?? '');
-    form.getTextField('TempSolution').setText(data.TempSolution ?? '');
-    form.getTextField('CheckOutManager').setText(data.CheckOutManager ?? '');
-
-    // Radio groups
-    form.getRadioGroup('BeforePicPosted').select(pickYN(data.BeforePicPosted));
-    form.getRadioGroup('CalledHotline').select(pickYN(data.CalledHotline));
-    form.getRadioGroup('IssueResolved').select(pickYNN(data.IssueResolved));
-    form.getRadioGroup('SignedOutPROD').select(pickYN(data.SignedOutPROD));
-    form.getRadioGroup('SignedOutSI').select(pickYN(data.SignedOutSI));
-    form.getRadioGroup('SignoutSheetAttachedEmail').select(pickYN(data.SignoutSheetAttachedEmail));
-    form.getRadioGroup('SignoutSheetAttachedPROD').select(pickYN(data.SignoutSheetAttachedPROD));
-    form.getRadioGroup('AfterPicPosted').select(pickYN(data.AfterPicPosted));
-
-    // Signature image (Push Button named LeadSignatureImage)
-    if (data.signatureDataURL) {
-        const img = await embedDataUrl(pdfDoc, data.signatureDataURL);
-        if (img) form.getButton('LeadSignatureImage').setImage(img);
-    }
-
-    form.flatten();
-
-    const out = await pdfDoc.save();
-    const blob = new Blob([out], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement('a'), {
-        href: url,
-        download: `EOD Cover Sheet FM${data.StoreNumber || 'store'} ${data.DateISO || 'date'}.pdf`
-    });
-    a.click();
-    URL.revokeObjectURL(url);
+        const out = await createFilledPdfBytes(data); // Use helper
+        const blob = new Blob([out], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = Object.assign(document.createElement('a'), {
+            href: url,
+            download: `EOD Cover Sheet FM${data.StoreNumber || 'store'} ${data.DateISO || 'date'}.pdf`
+        });
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     // Rebind generator to use the overrides (name unchanged)
@@ -2353,6 +2384,59 @@
         showCustomAlert('Error Generating PDF', error.message + '<br><br>Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
     }
     };
+
+    // ---------- NEW IMAGE GENERATION FUNCTION ----------
+    window.generateEODImage = async function generateEODImage() {
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.classList.add('show');
+        
+        try {
+            // 1. Get data and create the filled PDF bytes
+            const payload = await window.collectPayload();
+            const pdfBytes = await createFilledPdfBytes(payload);
+
+            // 2. Load the PDF bytes into pdf.js
+            const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+            const pdfDoc = await loadingTask.promise;
+            const page = await pdfDoc.getPage(1); // Get the first page
+
+            // 3. Create a canvas to render the PDF
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // 4. Set canvas size with high resolution (e.g., 2x scale)
+            const scale = 2.0;
+            const viewport = page.getViewport({ scale: scale });
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            // 5. Render the PDF page to the canvas
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            await page.render(renderContext).promise;
+
+            // 6. Convert canvas to JPG and trigger download
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9); // 0.9 = 90% quality
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `EOD Cover Sheet FM${payload.StoreNumber || 'store'} ${payload.DateISO || 'date'}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            showCustomAlert('Image Generated', 'EOD Cover Sheet JPG generated and downloaded successfully!');
+
+        } catch (error) {
+            console.error('Error generating JPG:', error);
+            showCustomAlert('Error Generating Image', error.message);
+        } finally {
+            // 7. Hide loading overlay
+            overlay.classList.remove('show');
+        }
+    };
+
 })();
 </script>
 
