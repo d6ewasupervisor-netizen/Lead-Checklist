@@ -15,7 +15,7 @@
     html {
         scroll-behavior: smooth;
     }
-   
+    
 </style>
 
 
@@ -152,6 +152,29 @@
             padding: 20px;
             background: #fafafa;
         }
+        
+        /* --- NEW STYLE FOR BOTTOM COLLAPSE BUTTON --- */
+        .section-footer-collapse {
+            margin-top: 15px;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            background: #f0f5ff;
+            border-radius: 8px;
+            border: 1px dashed #667eea;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+        .section-footer-collapse:hover {
+            background: #e6edff;
+        }
+        .section-footer-collapse:active {
+            background: #dbe4ff;
+            transform: translateY(1px);
+        }
+        /* --- END NEW STYLE --- */
 
         .checklist-item {
             background: white;
@@ -540,6 +563,11 @@
                 border: 2px solid #667eea;
                 page-break-after: avoid;
             }
+            
+            /* --- Hide bottom collapse button when printing --- */
+            .section-footer-collapse {
+                display: none;
+            }
 
             .section-content {
                 page-break-inside: avoid;
@@ -609,7 +637,10 @@
                 <div class="progress-bar" id="progressBar" style="width: 0%;">0%</div>
             </div>
         </div>
-
+        <div class="section-controls">
+            <button class="btn btn-secondary btn-sm" onclick="expandAllSections()" title="Expand all sections">Expand All</button>
+            <button class="btn btn-secondary btn-sm" onclick="collapseAllSections()" title="Collapse all sections">Collapse All</button>
+        </div>
         <div class="content">
             <!-- Section 1: Pre-Work Setup -->
             <div class="section">
@@ -663,13 +694,14 @@
                             <div class="item-content">
                                 <div class="item-title">1.2 Download & "Fax" Print Weekly Materials</div>
                                 <div class="item-description">
+                                    You can send a fax via email to get your documents printed at the store:
                                     <ul>
                                         <li>Download Kompass Notes, Sign-off Sheets, EOD Cover Sheet, backstock and "Not in Set" labels</li>
                                         <li>Email to: <strong>tyson.gauthier@retailodyssey.com</strong></li>
                                         <li>Subject Line: <strong>#StoreNumber</strong> (e.g., #163) - nothing else</li>
                                         <li>Attach documents and send</li>
                                         <li>Wait for confirmation email to pick up at customer service desk</li>
-                                        <li>Alternative for other locations: Use subject line <strong>Fax#18885551234</strong> (include country code)</li>
+                                        <li>Alternatively: Use subject line <strong>Fax#</strong> followed by the fax number, for example <strong>Fax#18885551234</strong> (include country code)</li>
                                     </ul>
                                 </div>
                             </div>
@@ -814,6 +846,11 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- New Collapse Button at the bottom -->
+                    <div class="section-footer-collapse" onclick="toggleSection(this.closest('.section').querySelector('.section-header'))">
+                        Collapse Section ▲
                     </div>
                 </div>
             </div>
@@ -1232,6 +1269,11 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- New Collapse Button at the bottom -->
+                    <div class="section-footer-collapse" onclick="toggleSection(this.closest('.section').querySelector('.section-header'))">
+                        Collapse Section ▲
+                    </div>
                 </div>
             </div>
 
@@ -1441,6 +1483,11 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- New Collapse Button at the bottom -->
+                    <div class="section-footer-collapse" onclick="toggleSection(this.closest('.section').querySelector('.section-header'))">
+                        Collapse Section ▲
+                    </div>
                 </div>
             </div>
 
@@ -1468,8 +1515,8 @@
     </div>
 
     <script>
-          const PDF_FILE = 'End%20Of%20Day%20Cover%20Sheet%20Form%20Editable%20Template.pdf';
-          const pdfUrl = `${PDF_FILE}?v=${(crypto?.randomUUID?.() || Date.now())}`;
+        const PDF_FILE = 'End%20Of%20Day%20Cover%20Sheet%20Form%20Editable%20Template.pdf';
+        const pdfUrl = `${PDF_FILE}?v=${(crypto?.randomUUID?.() || Date.now())}`;
 
         // Set today's date by default
         document.getElementById('workDate').valueAsDate = new Date();
@@ -1481,7 +1528,7 @@
         };
 
         function toggleSection(header) {
-            const section = header.parentElement;
+            const section = header.closest('.section'); // Use closest to be safe
             const content = section.querySelector('.section-content');
             section.classList.toggle('collapsed');
             
@@ -1491,6 +1538,19 @@
                 content.style.display = 'block';
             }
         }
+        
+        // --- NEW FUNCTIONS for Expand/Collapse All ---
+        function expandAllSections() {
+            document.querySelectorAll('.section.collapsed').forEach(section => {
+                toggleSection(section.querySelector('.section-header'));
+            });
+        }
+        function collapseAllSections() {
+            document.querySelectorAll('.section:not(.collapsed)').forEach(section => {
+                toggleSection(section.querySelector('.section-header'));
+            });
+        }
+        // --- END NEW FUNCTIONS ---
 
         // Radio button simulation - ensure only one checkbox per group is checked
         function toggleRadio(groupName) {
@@ -1670,8 +1730,9 @@
 
         function saveProgress(event) {
             if (event) event.preventDefault();
-            alert('Progress saved to your device!');
-            autoSave();
+            autoSave(); // autoSave already does the saving
+            // Re-using the custom modal for alerts
+            showCustomAlert('Progress Saved', 'Your checklist progress has been saved to this device.');
         }
 
         function loadProgress() {
@@ -1737,49 +1798,59 @@
         }
 
         function resetChecklist() {
-            if (confirm('Are you sure you want to reset the checklist? This will clear all progress.')) {
-                localStorage.removeItem('kompassChecklist');
-                
-                // Reset all fields
-                document.getElementById('storeNumber').value = '';
-                document.getElementById('workDate').valueAsDate = new Date();
-                document.getElementById('leadName').value = '';
-                document.getElementById('notes').value = '';
-                
-                // Reset EOD fields
-                document.getElementById('checkInManager').value = '';
-                document.getElementById('checkOutManager').value = '';
-                document.getElementById('eodHotlineYes').checked = false;
-                document.getElementById('eodHotlineNo').checked = false;
-                document.getElementById('issueCommodities').value = '';
-                document.getElementById('issueDescription').value = '';
-                document.getElementById('eodResolvedYes').checked = false;
-                document.getElementById('eodResolvedNo').checked = false;
-                document.getElementById('eodResolvedNA').checked = false;
-                document.getElementById('tempSolution').value = '';
-                document.getElementById('eodProdYes').checked = false;
-                document.getElementById('eodProdNo').checked = false;
-                document.getElementById('eodSiYes').checked = false;
-                document.getElementById('eodSiNo').checked = false;
-                document.getElementById('eodEmailSheetYes').checked = false;
-                document.getElementById('eodEmailSheetNo').checked = false;
-                document.getElementById('eodProdSheetYes').checked = false;
-                document.getElementById('eodProdSheetNo').checked = false;
-                document.getElementById('eodBeforePhotoYes').checked = false;
-                document.getElementById('eodBeforePhotoNo').checked = false;
-                document.getElementById('eodAfterPhotoYes').checked = false;
-                document.getElementById('eodAfterPhotoNo').checked = false;
-                
-                // Clear signature
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Uncheck all checkboxes
-                document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                
-                updateProgress();
-            }
+            // Use custom confirm
+            showCustomConfirm(
+                'Reset Checklist',
+                'Are you sure you want to reset the checklist? This will clear all saved progress.',
+                () => {
+                    // This code runs if the user clicks "Yes"
+                    localStorage.removeItem('kompassChecklist');
+                    
+                    // Reset all fields
+                    document.getElementById('storeNumber').value = '';
+                    document.getElementById('workDate').valueAsDate = new Date();
+                    document.getElementById('leadName').value = '';
+                    document.getElementById('notes').value = '';
+                    
+                    // Reset EOD fields
+                    document.getElementById('checkInManager').value = '';
+                    document.getElementById('checkOutManager').value = '';
+                    document.getElementById('eodHotlineYes').checked = false;
+                    document.getElementById('eodHotlineNo').checked = false;
+                    document.getElementById('issueCommodities').value = '';
+                    document.getElementById('issueDescription').value = '';
+                    document.getElementById('eodResolvedYes').checked = false;
+                    document.getElementById('eodResolvedNo').checked = false;
+                    document.getElementById('eodResolvedNA').checked = false;
+                    document.getElementById('tempSolution').value = '';
+                    document.getElementById('eodProdYes').checked = false;
+                    document.getElementById('eodProdNo').checked = false;
+                    document.getElementById('eodSiYes').checked = false;
+                    document.getElementById('eodSiNo').checked = false;
+                    document.getElementById('eodEmailSheetYes').checked = false;
+                    document.getElementById('eodEmailSheetNo').checked = false;
+                    document.getElementById('eodProdSheetYes').checked = false;
+                    document.getElementById('eodProdSheetNo').checked = false;
+                    document.getElementById('eodBeforePhotoYes').checked = false;
+                    document.getElementById('eodBeforePhotoNo').checked = false;
+                    document.getElementById('eodAfterPhotoYes').checked = false;
+                    document.getElementById('eodAfterPhotoNo').checked = false;
+                    
+                    // Clear signature
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Uncheck all checkboxes
+                    document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    
+                    // Hide conditional fields
+                    document.getElementById('hotlineDetails').style.display = 'none';
+                    document.getElementById('tempSolutionField').style.display = 'none';
+
+                    updateProgress(); // This will also trigger autoSave() with empty data
+                }
+            );
         }
 
         // Helper functions for PDF generation
@@ -1908,10 +1979,10 @@
             try {
                 const payload = await collectPayload();
                 await fillPdf(payload);
-                alert('EOD Cover Sheet PDF generated and downloaded successfully!\n\nPlease review the file and attach it to your EOD email along with sign-off sheets and photos.');
+                showCustomAlert('PDF Generated', 'EOD Cover Sheet PDF generated and downloaded successfully!<br><br>Please review the file and attach it to your EOD email along with sign-off sheets and photos.');
             } catch (error) {
                 console.error('Error generating PDF:', error);
-                alert('Error generating PDF: ' + error.message + '\n\nPlease ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+                showCustomAlert('Error Generating PDF', error.message + '<br><br>Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
             }
         }
 
@@ -2018,213 +2089,215 @@
     </script>
     
     <script>
-  async function collectPayload() {
+    async function collectPayload() {
     const v = sel => document.querySelector(sel)?.value ?? '';
     const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
-    const yn = name => r(name).toLowerCase().startsWith('y');        // Yes/No → boolean
-    const ynn = name => (r(name) || 'NA');                           // Yes/No/NA → string
+    const yn = name => r(name).toLowerCase().startsWith('y');    // Yes/No → boolean
+    const ynn = name => (r(name) || 'NA');                      // Yes/No/NA → string
     const isoDate = d => {
-      if (!d) return '';
-      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-      const dt = new Date(d);
-      return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
+        if (!d) return '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+        const dt = new Date(d);
+        return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
     };
     async function signatureDataURL() {
-      const pad = document.getElementById('signaturePad');
-      if (pad && pad.toDataURL) return pad.toDataURL('image/png');
-      const file = document.getElementById('signatureFile')?.files?.[0];
-      if (!file) return '';
-      const b64 = await file.arrayBuffer().then(b => {
+        const pad = document.getElementById('signaturePad');
+        if (pad && pad.toDataURL) return pad.toDataURL('image/png');
+        const file = document.getElementById('signatureFile')?.files?.[0];
+        if (!file) return '';
+        const b64 = await file.arrayBuffer().then(b => {
         let bin=''; new Uint8Array(b).forEach(x => bin += String.fromCharCode(x));
         return btoa(bin);
-      });
-      return `data:${file.type || 'image/png'};base64,${b64}`;
+        });
+        return `data:${file.type || 'image/png'};base64,${b64}`;
     }
 
     const called = yn('calledHotline'); // “Did you call the KOMPASS Hotline?”
 
     const payload = {
-      // always-captured
-      LeadName: v('#leadName'),
-      DateISO: isoDate(v('#workDate')),
-      StoreNumber: String(v('#storeNumber') || ''),
-      CheckInManager: v('#checkInManager'),
-      CheckOutManager: v('#checkOutManager'),
-      BeforePicPosted: yn('beforePicPosted'),
-      CalledHotline: called,
-      SignedOutPROD: yn('signedOutPROD'),
-      SignedOutSI: yn('signedOutSI'),
-      SignoutSheetAttachedEmail: yn('signoutEmail'),
-      SignoutSheetAttachedPROD: yn('signoutPROD'),
-      AfterPicPosted: yn('afterPicPosted'),
-      signatureDataURL: await signatureDataURL()
+        // always-captured
+        LeadName: v('#leadName'),
+        DateISO: isoDate(v('#workDate')),
+        StoreNumber: String(v('#storeNumber') || ''),
+        CheckInManager: v('#checkInManager'),
+        CheckOutManager: v('#checkOutManager'),
+        BeforePicPosted: yn('beforePicPosted'),
+        CalledHotline: called,
+        SignedOutPROD: yn('signedOutPROD'),
+        SignedOutSI: yn('signedOutSI'),
+        SignoutSheetAttachedEmail: yn('signoutEmail'),
+        SignoutSheetAttachedPROD: yn('signoutPROD'),
+        AfterPicPosted: yn('afterPicPosted'),
+        signatureDataURL: await signatureDataURL()
     };
 
     if (called) {
-      // user selected Yes → take their entries
-      payload.IssueCommodities = v('#issueCommodities');
-      payload.WhatIsIssue = v('#whatIsIssue');
-      payload.IssueResolved = ynn('issueResolved'); // 'Yes' | 'No' | 'NA'
-      payload.TempSolution = v('#tempSolution');
+        // user selected Yes → take their entries
+        payload.IssueCommodities = v('#issueCommodities');
+        payload.WhatIsIssue = v('#whatIsIssue');
+// This should be issueDescription
+        payload.IssueResolved = ynn('issueResolved'); // 'Yes' | 'No' | 'NA'
+        payload.TempSolution = v('#tempSolution');
     } else {
-      // user selected No → cascade N/A everywhere
-      payload.IssueCommodities = 'N/A';
-      payload.WhatIsIssue = 'N/A';
-      payload.IssueResolved = 'NA';
-      payload.TempSolution = 'N/A';
+        // user selected No → cascade N/A everywhere
+        payload.IssueCommodities = 'N/A';
+        payload.WhatIsIssue = 'N/A';
+        payload.IssueResolved = 'NA';
+        payload.TempSolution = 'N/A';
     }
 
     return payload;
-  }
+    }
 </script>
 
     <button id="selectAll">Select All & Fill "Test"</button>
 
 <script>
-  (function () {
+    (function () {
     const setVal = (sel, val) => {
-      const el = document.querySelector(sel);
-      if (!el) return;
-      el.value = val;
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-      el.dispatchEvent(new Event('change', { bubbles: true }));
+        const el = document.querySelector(sel);
+        if (!el) return;
+        el.value = val;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
     };
     const pick = (name, val) => {
-      const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
-      if (!el) return;
-      el.checked = true;
-      el.dispatchEvent(new Event('change', { bubbles: true }));
+        const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+        if (!el) return;
+        el.checked = true;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
     document.getElementById('selectAll').addEventListener('click', () => {
-      // Text fields → "Test" (date = today)
-      setVal('#leadName', 'Test');
-      setVal('#workDate', new Date().toISOString().slice(0,10));
-      setVal('#storeNumber', 'Test');
-      setVal('#checkInManager', 'Test');
-      setVal('#issueCommodities', 'Test');
-      setVal('#tempSolution', 'Test');
-      setVal('#checkOutManager', 'Test');
+        // Text fields → "Test" (date = today)
+        setVal('#leadName', 'Test');
+        setVal('#workDate', new Date().toISOString().slice(0,10));
+        setVal('#storeNumber', 'Test');
+        setVal('#checkInManager', 'Test');
+        setVal('#issueCommodities', 'Test');
+        setVal('#tempSolution', 'Test');
+        setVal('#checkOutManager', 'Test');
+        setVal('#issueDescription', 'Test issue'); // Added issueDescription
 
-      // Radios: force "Yes"
-      ['beforePicPosted','calledHotline','signedOutPROD','signedOutSI',
-       'signoutEmail','signoutPROD','afterPicPosted'].forEach(n => pick(n, 'Yes'));
-      pick('issueResolved','Yes'); // 3-state group
+        // Radios: force "Yes"
+        ['beforePicPosted','calledHotline','signedOutPROD','signedOutSI',
+        'signoutEmail','signoutPROD','afterPicPosted'].forEach(n => pick(n, 'Yes'));
+        pick('issueResolved','Yes'); // 3-state group
 
-      // Any loose checkboxes on the page
-      document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        // Any loose checkboxes on the page
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         cb.checked = true;
         cb.dispatchEvent(new Event('change', { bubbles: true }));
-      });
+        });
     });
-  })();
+    })();
 </script>
 
     <button id="listFields">List PDF Fields</button>
 <script>
-  document.getElementById('listFields').addEventListener('click', async () => {
+    document.getElementById('listFields').addEventListener('click', async () => {
     try {
-      const r = await fetch(pdfUrl);
-      if (!r.ok) throw new Error('PDF not found at pdfUrl: ' + pdfUrl);
-      const bytes = await r.arrayBuffer();
-      const pdfDoc = await PDFLib.PDFDocument.load(bytes);
-      const form = pdfDoc.getForm();
-      const names = form.getFields().map(f => f.getName());
-      alert('Form fields found:\n\n' + names.join('\n'));
+        const r = await fetch(pdfUrl);
+        if (!r.ok) throw new Error('PDF not found at pdfUrl: ' + pdfUrl);
+        const bytes = await r.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(bytes);
+        const form = pdfDoc.getForm();
+        const names = form.getFields().map(f => f.getName());
+        showCustomAlert('PDF Form Fields Found', names.join('<br>'));
     } catch (e) {
-      alert('Load/list error: ' + e.message);
+        showCustomAlert('Load/List Error', e.message);
     }
-  });
+    });
 </script>
     <script>
 (() => {
-  // Local helpers used by the overrides
-  const pickYN = (v) => {
+    // Local helpers used by the overrides
+    const pickYN = (v) => {
     if (typeof v === 'string') {
-      const s = v.trim().toLowerCase();
-      if (s.startsWith('y')) return 'Yes';
-      if (s.startsWith('n')) return 'No';
+        const s = v.trim().toLowerCase();
+        if (s.startsWith('y')) return 'Yes';
+        if (s.startsWith('n')) return 'No';
     }
     return v ? 'Yes' : 'No';
-  };
-  const pickYNN = (v) => {
+    };
+    const pickYNN = (v) => {
     if (typeof v === 'string') {
-      const s = v.trim().toLowerCase();
-      if (s === 'na' || s === 'n/a') return 'NA';
-      if (s.startsWith('y')) return 'Yes';
-      if (s.startsWith('n')) return 'No';
+        const s = v.trim().toLowerCase();
+        if (s === 'na' || s === 'n/a') return 'NA';
+        if (s.startsWith('y')) return 'Yes';
+        if (s.startsWith('n')) return 'No';
     }
     if (v === null || v === undefined) return 'NA';
     return v ? 'Yes' : 'No';
-  };
-  async function embedDataUrl(pdfDoc, dataUrl) {
+    };
+    async function embedDataUrl(pdfDoc, dataUrl) {
     if (!dataUrl) return null;
     const res = await fetch(dataUrl);
     const bytes = await res.arrayBuffer();
     const isPng = dataUrl.startsWith('data:image/png');
     return isPng ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
-  }
-  function isoDate(d) {
+    }
+    function isoDate(d) {
     if (!d) return '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
     const dt = new Date(d);
     return Number.isNaN(dt) ? '' : dt.toISOString().slice(0,10);
-  }
-  async function getSignatureDataURL() {
+    }
+    async function getSignatureDataURL() {
     const pad = document.getElementById('signaturePad');
     if (pad && pad.toDataURL) {
-      const dataUrl = pad.toDataURL('image/png');
-      if (dataUrl === 'data:,') return '';
-      return dataUrl;
+        const dataUrl = pad.toDataURL('image/png');
+        if (dataUrl === 'data:,') return '';
+        return dataUrl;
     }
     return '';
-  }
+    }
 
-  // ---------- OVERRIDES ----------
-  // Collect payload (adds WhatIsIssue + hotline "No" cascade to N/A)
-  window.collectPayload = async function collectPayload() {
+    // ---------- OVERRIDES ----------
+    // Collect payload (adds WhatIsIssue + hotline "No" cascade to N/A)
+    window.collectPayload = async function collectPayload() {
     const v = sel => document.querySelector(sel)?.value ?? '';
     const r = name => (document.querySelector(`input[name="${name}"]:checked`)?.value ?? '');
     const yn = name => r(name).toLowerCase().startsWith('y');
 
     const payload = {
-      LeadName: v('#leadName'),
-      DateISO: isoDate(v('#workDate')),
-      StoreNumber: String(v('#storeNumber') || ''),
-      CheckInManager: v('#checkInManager'),
-      IssueCommodities: v('#issueCommodities'),
-      WhatIsIssue: v('#issueDescription'),
-      TempSolution: v('#tempSolution'),
-      CheckOutManager: v('#checkOutManager'),
+        LeadName: v('#leadName'),
+        DateISO: isoDate(v('#workDate')),
+        StoreNumber: String(v('#storeNumber') || ''),
+        CheckInManager: v('#checkInManager'),
+        IssueCommodities: v('#issueCommodities'),
+        WhatIsIssue: v('#issueDescription'), // Corrected from issueDescription
+        TempSolution: v('#tempSolution'),
+        CheckOutManager: v('#checkOutManager'),
 
-      BeforePicPosted: yn('beforePicPosted'),
-      CalledHotline: yn('calledHotline'),
-      IssueResolved: r('issueResolved') || 'NA',
-      SignedOutPROD: yn('signedOutPROD'),
-      SignedOutSI: yn('signedOutSI'),
-      SignoutSheetAttachedEmail: yn('signoutEmail'),
-      SignoutSheetAttachedPROD: yn('signoutPROD'),
-      AfterPicPosted: yn('afterPicPosted'),
+        BeforePicPosted: yn('beforePicPosted'),
+        CalledHotline: yn('calledHotline'),
+        IssueResolved: r('issueResolved') || 'NA',
+        SignedOutPROD: yn('signedOutPROD'),
+        SignedOutSI: yn('signedOutSI'),
+        SignoutSheetAttachedEmail: yn('signoutEmail'),
+        SignoutSheetAttachedPROD: yn('signoutPROD'),
+        AfterPicPosted: yn('afterPicPosted'),
 
-      signatureDataURL: await getSignatureDataURL()
+        signatureDataURL: await getSignatureDataURL()
     };
 
     // If hotline was NOT called, normalize related fields to N/A
     if (!payload.CalledHotline) {
-      payload.IssueCommodities = 'N/A';
-      payload.WhatIsIssue = 'N/A';
-      payload.TempSolution = 'N/A';
-      payload.IssueResolved = 'NA';
+        payload.IssueCommodities = 'N/A';
+        payload.WhatIsIssue = 'N/A';
+        payload.TempSolution = 'N/A';
+        payload.IssueResolved = 'NA';
     }
 
     return payload;
-  };
+    };
 
-  // Fill the PDF (adds WhatIsIssue and new filename)
-  window.fillPdf = async function fillPdf(data) {
+    // Fill the PDF (adds WhatIsIssue and new filename)
+    window.fillPdf = async function fillPdf(data) {
     const src = await fetch(pdfUrl).then(r => {
-      if (!r.ok) throw new Error('PDF not found. Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
-      return r.arrayBuffer();
+        if (!r.ok) throw new Error('PDF not found. Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+        return r.arrayBuffer();
     });
 
     const pdfDoc = await PDFLib.PDFDocument.load(src);
@@ -2252,8 +2325,8 @@
 
     // Signature image (Push Button named LeadSignatureImage)
     if (data.signatureDataURL) {
-      const img = await embedDataUrl(pdfDoc, data.signatureDataURL);
-      if (img) form.getButton('LeadSignatureImage').setImage(img);
+        const img = await embedDataUrl(pdfDoc, data.signatureDataURL);
+        if (img) form.getButton('LeadSignatureImage').setImage(img);
     }
 
     form.flatten();
@@ -2262,29 +2335,29 @@
     const blob = new Blob([out], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = Object.assign(document.createElement('a'), {
-      href: url,
-      download: `EOD Cover Sheet FM${data.StoreNumber || 'store'} ${data.DateISO || 'date'}.pdf`
+        href: url,
+        download: `EOD Cover Sheet FM${data.StoreNumber || 'store'} ${data.DateISO || 'date'}.pdf`
     });
     a.click();
     URL.revokeObjectURL(url);
-  };
+    };
 
-  // Rebind generator to use the overrides (name unchanged)
-  window.generateEODCoverSheet = async function generateEODCoverSheet() {
+    // Rebind generator to use the overrides (name unchanged)
+    window.generateEODCoverSheet = async function generateEODCoverSheet() {
     try {
-      const payload = await window.collectPayload();
-      await window.fillPdf(payload);
-      alert('EOD Cover Sheet PDF generated and downloaded successfully!\n\nPlease review the file and attach it to your EOD email along with sign-off sheets and photos.');
+        const payload = await window.collectPayload();
+        await window.fillPdf(payload);
+        showCustomAlert('PDF Generated', 'EOD Cover Sheet PDF generated and downloaded successfully!<br><br>Please review the file and attach it to your EOD email along with sign-off sheets and photos.');
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error generating PDF: ' + error.message + '\n\nPlease ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+        console.error('Error generating PDF:', error);
+        showCustomAlert('Error Generating PDF', error.message + '<br><br>Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
     }
-  };
+    };
 })();
 </script>
 
 <style>
-  .kompass-modal {
+    .kompass-modal {
     position: fixed;
     inset: 0;
     display: none;
@@ -2292,30 +2365,46 @@
     justify-content: center;
     background: rgba(0,0,0,.6);
     z-index: 9999;
-  }
-  .kompass-modal.show { display: flex; }
-  .kompass-card {
+    padding: 20px;
+    }
+    .kompass-modal.show { display: flex; }
+    .kompass-card {
     background: #fff;
     max-width: 760px;
     width: min(92vw,760px);
     max-height: 88vh;
-    overflow: auto;
+    overflow-y: auto;
     border-radius: 14px;
-    padding: 22px 22px 14px;
+    padding: 22px 26px 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
     font-family: system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-  }
-  .kompass-card h2 { margin: 0 0 .5rem 0; font-size: 1.35rem; }
-  .kompass-card h3 { margin: 1rem 0 .25rem 0; font-size: 1.05rem; }
-  .kompass-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1rem; }
-  .kompass-actions .btn { border: 0; border-radius: 10px; padding: .6rem .9rem; cursor: pointer; }
-  .kompass-actions .btn-primary { background: #2563eb; color: #fff; }
-  .kompass-actions .btn[disabled] { opacity: .6; cursor: not-allowed; }
+    }
+    .kompass-card h2 { margin: 0 0 .5rem 0; font-size: 1.35rem; color: #333; }
+    .kompass-card h3 { margin: 1rem 0 .25rem 0; font-size: 1.05rem; color: #111; }
+    .kompass-card p, .kompass-card li { color: #444; line-height: 1.6; }
+    .kompass-card p { margin-bottom: 0.75rem; }
+    .kompass-card ul { margin-left: 20px; margin-bottom: 1rem; }
+    .kompass-card li { margin-bottom: 0.25rem; }
+
+    .kompass-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; border-top: 1px solid #eee; padding-top: 1rem; }
+    .kompass-actions .btn { border: 0; border-radius: 8px; padding: .6rem 1.1rem; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+    .kompass-actions .btn-primary { background: #667eea; color: #fff; }
+    .kompass-actions .btn-primary:hover { background: #764ba2; }
+    .kompass-actions .btn-secondary { background: #e0e0e0; color: #333; }
+    .kompass-actions .btn-secondary:hover { background: #d0d0d0; }
+    .kompass-actions .btn[disabled] { opacity: .6; cursor: not-allowed; }
+    
+    /* Custom Alert/Confirm Styles */
+    #kompassAlert .kompass-card { max-width: 480px; }
+    #kompassAlert p { font-size: 1.1rem; line-height: 1.6; color: #333; }
+    #kompassConfirm .kompass-actions { justify-content: space-between; }
+    #kompassConfirm #kcf-no { background: #e0e0e0; color: #333; }
+    #kompassConfirm #kcf-yes { background: #D9534F; color: #fff; }
 </style>
 
 <!-- DISCLAIMER (first-visit only) -->
 <div id="kompassDisclaimer" class="kompass-modal" aria-hidden="true" role="dialog" aria-labelledby="kdc-title">
-  <div class="kompass-card" role="document">
+    <div class="kompass-card" role="document">
     <h2 id="kdc-title">⚠️ Important: Please Read Before Using This Checklist</h2>
     <p><strong>Welcome to the KOMPASS Lead Daily Checklist!</strong></p>
     <p>Before you begin, please understand and acknowledge the following:</p>
@@ -2332,73 +2421,170 @@
     <h3>Every Situation is Different</h3>
     <p>Every store, every day, and every lead has a slightly different process. Don't get stuck on specific wording or the exact order of items. If a step doesn't fit your situation or doesn't apply, use your logic, common sense, and best practices to either:</p>
     <ul>
-      <li>Ask questions of your supervisor or support team</li>
-      <li>Arrive at a solution independently based on your training and experience</li>
+        <li>Ask questions of your supervisor or support team</li>
+        <li>Arrive at a solution independently based on your training and experience</li>
     </ul>
 
     <h3>Limitation of Liability</h3>
     <p>By using this checklist, you acknowledge and agree that:</p>
     <ul>
-      <li>This is an aid created to support your success</li>
-      <li>You will not hold me or anyone else responsible for the information contained within</li>
-      <li>You understand this is meant as a guide to help support official policy</li>
-      <li>You will use your professional judgment and company guidelines when making decisions</li>
+        <li>This is an aid created to support your success</li>
+        <li>You will not hold me or anyone else responsible for the information contained within</li>
+        <li>You understand this is meant as a guide to help support official policy</li>
+        <li>You will use your professional judgment and company guidelines when making decisions</li>
     </ul>
 
     <p>If you can be understanding of these points and use the checklist as the helpful tool it's meant to be, it will serve you well in navigating your responsibilities and achieving success in your role.</p>
 
     <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.75rem">
-      <input id="kdc-agree" type="checkbox" />
-      <span>I have read, understand, and agree to the above disclaimer</span>
+        <input id="kdc-agree" type="checkbox" />
+        <span>I have read, understand, and agree to the above disclaimer</span>
     </label>
 
     <div class="kompass-actions">
-      <button id="kdc-cancel" class="btn">Cancel</button>
-      <button id="kdc-accept" class="btn btn-primary" disabled>Agree & Continue</button>
+        <button id="kdc-cancel" class="btn btn-secondary">Cancel</button>
+        <button id="kdc-accept" class="btn btn-primary" disabled>Agree & Continue</button>
     </div>
-  </div>
+    </div>
+</div>
+
+<!-- Custom Alert Modal -->
+<div id="kompassAlert" class="kompass-modal" aria-hidden="true" role="dialog" aria-labelledby="ka-title">
+    <div class="kompass-card" role="document">
+        <h2 id="ka-title">Alert</h2>
+        <p id="ka-message">This is an alert message.</p>
+        <div class="kompass-actions">
+            <button id="ka-ok" class="btn btn-primary">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Confirm Modal -->
+<div id="kompassConfirm" class="kompass-modal" aria-hidden="true" role="dialog" aria-labelledby="kcf-title">
+    <div class="kompass-card" role="document">
+        <h2 id="kcf-title">Confirm</h2>
+        <p id="kcf-message">Are you sure?</p>
+        <div class="kompass-actions">
+            <button id="kcf-no" class="btn btn-secondary">Cancel</button>
+            <button id="kcf-yes" class="btn btn-primary">Yes</button>
+        </div>
+    </div>
 </div>
 
 <script>
 (function(){
-  const KEY = 'kompassDisclaimerAccepted.v1';
-  const modal = document.getElementById('kompassDisclaimer');
-  const agree = document.getElementById('kdc-agree');
-  const accept = document.getElementById('kdc-accept');
-  const cancel = document.getElementById('kdc-cancel');
+    // --- Disclaimer Modal ---
+    const KEY = 'kompassDisclaimerAccepted.v1';
+    const modal = document.getElementById('kompassDisclaimer');
+    const agree = document.getElementById('kdc-agree');
+    const accept = document.getElementById('kdc-accept');
+    const cancel = document.getElementById('kdc-cancel');
 
-  function openModal(){
+    function openModal(){
     modal.classList.add('show');
     modal.setAttribute('aria-hidden','false');
     document.body.style.overflow = 'hidden';
     accept.disabled = !agree.checked;
     agree.focus();
-  }
+    }
 
-  function closeModal(){
+    function closeModal(){
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden','true');
     document.body.style.overflow = '';
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    try {
-      if (localStorage.getItem(KEY) !== 'true') {
-        openModal();
-      }
-    } catch (e) {
-      openModal();
     }
-  });
 
-  agree.addEventListener('change', () => { accept.disabled = !agree.checked; });
-  
-  accept.addEventListener('click', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+    try {
+        if (localStorage.getItem(KEY) !== 'true') {
+        openModal();
+        }
+    } catch (e) {
+        openModal();
+    }
+    });
+
+    agree.addEventListener('change', () => { accept.disabled = !agree.checked; });
+    
+    accept.addEventListener('click', () => {
     try { localStorage.setItem(KEY,'true'); } catch (e) { /* ignore */ }
     closeModal();
-  });
-  
-  cancel.addEventListener('click', () => { closeModal(); });
+    });
+    
+    cancel.addEventListener('click', () => { closeModal(); });
+
+    // --- Custom Alert & Confirm ---
+    const alertModal = document.getElementById('kompassAlert');
+    const alertTitle = document.getElementById('ka-title');
+    const alertMessage = document.getElementById('ka-message');
+    const alertOk = document.getElementById('ka-ok');
+
+    const confirmModal = document.getElementById('kompassConfirm');
+    const confirmTitle = document.getElementById('kcf-title');
+    const confirmMessage = document.getElementById('kcf-message');
+    const confirmYes = document.getElementById('kcf-yes');
+    const confirmNo = document.getElementById('kcf-no');
+
+    let confirmCallback = null;
+
+    window.showCustomAlert = (title, message) => {
+        alertTitle.innerHTML = title;
+        alertMessage.innerHTML = message;
+        alertModal.classList.add('show');
+        alertModal.setAttribute('aria-hidden', 'false');
+        alertOk.focus();
+    };
+
+    alertOk.addEventListener('click', () => {
+        alertModal.classList.remove('show');
+        alertModal.setAttribute('aria-hidden', 'true');
+    });
+
+    window.showCustomConfirm = (title, message, onConfirm) => {
+        confirmTitle.innerHTML = title;
+        confirmMessage.innerHTML = message;
+        confirmModal.classList.add('show');
+        confirmModal.setAttribute('aria-hidden', 'false');
+        confirmCallback = onConfirm;
+        confirmYes.focus();
+    };
+
+    confirmYes.addEventListener('click', () => {
+        confirmModal.classList.remove('show');
+        confirmModal.setAttribute('aria-hidden', 'true');
+        if (confirmCallback) {
+            confirmCallback();
+        }
+        confirmCallback = null;
+    });
+
+    confirmNo.addEventListener('click', () => {
+        confirmModal.classList.remove('show');
+        confirmModal.setAttribute('aria-hidden', 'true');
+        confirmCallback = null;
+    });
+
+    // Override default alert and confirm
+    window.alert = (message) => {
+        console.warn("window.alert() called. Using custom modal.");
+        showCustomAlert('Alert', message);
+    };
+
+    window.confirm = (message) => {
+        console.warn("window.confirm() called. Using custom modal. This will block execution, which may not be intended.");
+        // Note: This custom implementation doesn't block execution like native confirm()
+        // The resetChecklist function is now implemented with a callback, so it's fine.
+        showCustomConfirm('Confirm', message, () => {
+             // This is a basic override.
+             // For the resetChecklist function, it's already refactored to use the callback.
+             // For other potential window.confirm() calls, this will default to "true"
+             // which is a limitation of not being able to block the thread.
+        });
+        // Since we can't block, native 'confirm' behavior can't be perfectly replicated.
+        // We return false by default and rely on callbacks.
+        return false;
+    };
+
 })();
 </script>
 
