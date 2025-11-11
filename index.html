@@ -1763,6 +1763,8 @@
                 <label class="signature-label">Lead Signature:</label>
                 <canvas id="signaturePad" class="signature-canvas"></canvas>
                 <button class="btn-clear-sig" onclick="clearSignature()">Clear Signature</button>
+                <button class="btn-clear-sig" onclick="document.getElementById('sigUpload').click()" style="margin-left: 10px;">Upload Signature</button>
+                <input type="file" id="sigUpload" accept="image/png, image/jpeg" style="display: none;" onchange="loadSignature(event)">
             </div>
 
             <!-- Action Buttons -->
