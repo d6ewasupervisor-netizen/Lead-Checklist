@@ -1975,8 +1975,6 @@
             </div>
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
                 <button class="btn btn-secondary" id="easterEggClose">Close</button>
-                <button class="btn btn-success" id="easterEggImage">Generate Image</button>
-                <button class="btn btn-primary" id="easterEggPdf">Generate PDF</button>
             </div>
         </div>
     </div>
@@ -2639,8 +2637,6 @@
         const overlay = document.getElementById('easterEggOverlay');
         const content = document.getElementById('easterEggContent');
         const btnClose = document.getElementById('easterEggClose');
-        const btnPdf = document.getElementById('easterEggPdf');
-        const btnImage = document.getElementById('easterEggImage');
 
         if (!logo || !overlay || !content) return;
 
@@ -2932,15 +2928,6 @@
 
         logo.addEventListener('click', openEasterEgg);
         btnClose?.addEventListener('click', closeEasterEgg);
-
-        // Wire generation buttons to existing functions but keep overlay open/closed behavior
-        btnPdf?.addEventListener('click', async () => {
-            try{ await window.generateEODCoverSheet(); } catch(e){ console.error(e); }
-        });
-
-        btnImage?.addEventListener('click', async () => {
-            try{ await window.generateEODAndEmail(); } catch(e){ console.error(e); }
-        });
     }
 
     // Call initEasterEgg after all DOM is loaded
