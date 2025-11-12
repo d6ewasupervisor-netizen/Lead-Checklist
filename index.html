@@ -2669,6 +2669,15 @@
             const wrapper = document.createElement('div');
             wrapper.style.marginBottom = '10px';
 
+            // Add label
+            const label = document.createElement('label');
+            label.textContent = f.label;
+            label.style.display = 'block';
+            label.style.marginBottom = '5px';
+            label.style.fontWeight = 'bold';
+            label.style.color = '#f9fafb';
+            wrapper.appendChild(label);
+
             // Text or date input
             if (f.type === 'text' || f.type === 'date') {
                 const el = document.createElement('input');
@@ -3273,7 +3282,7 @@ Date:
 Store Number:
   ${payload.StoreNumber || ''}
 
-Before photo of the KOMPASS cart loaded to maintenance in PROD? 
+Did you take a picture of the KOMPASS cart and load it to the KOMPASS Maintenance line in PROD at the start of the shift?
   ${pickYN(payload.BeforePicPosted)}
 
 Manager’s name - who you checked in with:
@@ -3306,10 +3315,10 @@ Did all sets get signed out in SI?
 Sign-out sheet attached to the EOD email?
   ${pickYN(payload.SignoutSheetAttachedEmail)}
 
-Sign-out sheet attached to the maintenance line in PROD?
+Sign-out sheet attached to the KOMPASS Maintenance line in PROD?
   ${pickYN(payload.SignoutSheetAttachedPROD)}
 
-After photo of the KOMPASS cart loaded to maintenance in PROD? 
+Did you take an after picture of the KOMAPSS cart and load it to the KOMPASS Maintenance line in PROD at the end of the shift?
   ${pickYN(payload.AfterPicPosted)}
 
 Notes:
