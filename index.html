@@ -963,13 +963,16 @@
     </style>
 </head>
 <body>
+    <!-- Full-width top banner logo -->
+    <div class="top-banner">
+        <img id="headerLogo" src="rologo.png" alt="Retail Odyssey Logo" class="banner-logo" title="Click for EOD Quick View" onerror="this.style.display='none'">
+    </div>
     <div class="container">
         <div class="header" style="display:none;"></div>
         <div class="content">
             <!-- Compact top info bar (logo + key fields) -->
             <div class="top-info" style="margin-bottom:12px;">
                 <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                    <img id="headerLogo" src="rologo.png" alt="Retail Odyssey Logo" onerror="this.style.display='none'" style="height:40px; cursor: pointer;" title="Click for EOD Quick View">
                     <div class="top-info-row" style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; flex: 1 1 600px;">
                         <div class="input-group">
                             <label>Store #:</label>
@@ -1894,6 +1897,10 @@
     
     <!-- Full-screen Signature Overlay -->
     <style>
+        /* Full-width banner logo */
+        .top-banner { width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); }
+        .banner-logo { width: 100%; height: auto; display: block; cursor: pointer; }
+
         .signature-preview-box {
             border: 2px solid #0d4f8b;
             border-radius: 8px;
@@ -1917,8 +1924,14 @@
         #sigFsCanvas { flex: 1; background: #fff; touch-action: none; display: block; width: 100%; height: 100%; }
 
         /* Make Easter Egg dialog fit safely on mobile */
-        #easterEggOverlay .custom-modal-dialog { max-width: 96vw !important; width: 96vw !important; margin: 2vw !important; padding: 16px !important; }
+        #easterEggOverlay .custom-modal-dialog { max-width: 92vw !important; width: 92vw !important; margin: 4vw auto !important; padding: 12px !important; max-height: 92vh; overflow: hidden; box-sizing: border-box; }
         #easterEggContent { overflow-wrap: anywhere; word-break: break-word; }
+        #easterEggOverlay h2 { font-size: 1.05em; margin-bottom: 6px; }
+        #easterEggOverlay .signature-preview-box { min-height: 140px; }
+        /* 3-column grid for first row in overlay */
+        #easterEggContent .egg-top-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+        @media (max-width: 480px) { #easterEggContent .egg-top-row { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 360px) { #easterEggContent .egg-top-row { grid-template-columns: 1fr; } }
         /* Remove large padding reserved for old sticky header */
         body { padding-top: 20px !important; }
         .header { display: none !important; }
@@ -3018,7 +3031,16 @@
 
         function openEasterEgg(){
             content.innerHTML = '';
-            fields.forEach(f => content.appendChild(makeRow(f)));
+            // Place first three fields (Store, Date, Lead) into a single 3-column row
+            const topRow = document.createElement('div');
+            topRow.className = 'egg-top-row';
+            topRow.appendChild(makeRow(fields[0]));
+            topRow.appendChild(makeRow(fields[1]));
+            topRow.appendChild(makeRow(fields[2]));
+            content.appendChild(topRow);
+
+            // Add remaining fields as usual in stacked layout
+            fields.slice(3).forEach(f => content.appendChild(makeRow(f)));
 
             // Update overlay signature preview and wire Sign button
             updateSignaturePreviews();
