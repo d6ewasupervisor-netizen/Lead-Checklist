@@ -964,36 +964,28 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <!-- NEW: Added Retail Odyssey Logo (click to open quick EOD view) -->
-            <img id="headerLogo" src="rologo.png" alt="Retail Odyssey Logo" class="header-logo" onerror="this.style.display='none'" style="cursor: pointer;" title="Click for EOD Quick View">
-            <h1>KOMPASS LEAD DAILY CHECKLIST</h1>
-            
-            <!-- Single Row: Store, Date, Lead Name -->
-            <div class="header-row">
-                <div class="input-group">
-                    <label>Store #:</label>
-                    <!-- ADDED onchange handler -->
-                    <input type="text" id="storeNumber" placeholder="Enter store number" onchange="autoSave()">
-                </div>
-                <div class="input-group">
-                    <label>Date:</label>
-                    <!-- ADDED onchange handler -->
-                    <input type="date" id="workDate" onchange="autoSave()">
-                </div>
-                <div class="input-group">
-                    <label>Lead Name:</label>
-                    <!-- ADDED onchange handler -->
-                    <input type="text" id="leadName" placeholder="Enter your name" onchange="autoSave()">
-                </div>
-            </div>
-
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progressBar" style="width: 0%;">0%</div>
-            </div>
-        </div>
-        <!-- This content div is now a sibling of the header, not a parent -->
+        <div class="header" style="display:none;"></div>
         <div class="content">
+            <!-- Compact top info bar (logo + key fields) -->
+            <div class="top-info" style="margin-bottom:12px;">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <img id="headerLogo" src="rologo.png" alt="Retail Odyssey Logo" onerror="this.style.display='none'" style="height:40px; cursor: pointer;" title="Click for EOD Quick View">
+                    <div class="top-info-row" style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; flex: 1 1 600px;">
+                        <div class="input-group">
+                            <label>Store #:</label>
+                            <input type="text" id="storeNumber" placeholder="Enter store number" onchange="autoSave()">
+                        </div>
+                        <div class="input-group">
+                            <label>Date:</label>
+                            <input type="date" id="workDate" onchange="autoSave()">
+                        </div>
+                        <div class="input-group">
+                            <label>Lead Name:</label>
+                            <input type="text" id="leadName" placeholder="Enter your name" onchange="autoSave()">
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="section-controls" style="padding-bottom: 20px; display: flex; gap: 10px; justify-content: center;">
                 <button class="btn btn-secondary btn-sm" onclick="expandAllSections()" title="Expand all sections" style="padding: 8px 12px; font-size: 0.9em;">Expand All</button>
                 <button class="btn btn-secondary btn-sm" onclick="collapseAllSections()" title="Collapse all sections" style="padding: 8px 12px; font-size: 0.9em;">Collapse All</button>
@@ -1927,6 +1919,9 @@
         /* Make Easter Egg dialog fit safely on mobile */
         #easterEggOverlay .custom-modal-dialog { max-width: 96vw !important; width: 96vw !important; margin: 2vw !important; padding: 16px !important; }
         #easterEggContent { overflow-wrap: anywhere; word-break: break-word; }
+        /* Remove large padding reserved for old sticky header */
+        body { padding-top: 20px !important; }
+        .header { display: none !important; }
     </style>
     <div id="signatureFullOverlay" class="signature-fullscreen-overlay">
         <div class="sig-toolbar">
@@ -2273,8 +2268,10 @@
             const percentage = (totalItems > 0) ? Math.round((completedItems / totalItems) * 100) : 0;
             
             const progressBar = document.getElementById('progressBar');
-            progressBar.style.width = percentage + '%';
-            progressBar.textContent = percentage + '%';
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = percentage + '%';
+            }
 
             // Update completed styling
             mainCheckboxes.forEach(checkbox => {
