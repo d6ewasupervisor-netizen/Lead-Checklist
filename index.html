@@ -2402,7 +2402,11 @@
                 if (data.signature) {
                     const img = new Image();
                     img.onload = function() {
+                        // Restore canvas dimensions to match the saved signature
+                        canvas.width = img.width;
+                        canvas.height = img.height;
                         ctx.drawImage(img, 0, 0);
+                        updateSignaturePreviews();
                     };
                     img.src = data.signature;
                 }
@@ -2531,28 +2535,8 @@
         let lastX = 0;
         let lastY = 0;
 
-        // Set canvas size
-        function resizeCanvas() {
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            
-            // Redraw signature if it exists
-            const saved = localStorage.getItem('kompassChecklist');
-            if (saved) {
-                const data = JSON.parse(saved);
-                if (data.signature) {
-                    const img = new Image();
-                    img.onload = function() {
-                        ctx.drawImage(img, 0, 0);
-                    };
-                    img.src = data.signature;
-                }
-            }
-        }
-
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        // Note: No resizeCanvas() needed for hidden storage canvas.
+        // It maintains fixed dimensions set by ensureStorageCanvasSize() below.
 
         // Drawing functions
         function startDrawing(e) {
