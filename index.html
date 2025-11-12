@@ -723,9 +723,8 @@
         /* Recalculate sticky header for smaller mobile */
         @media (max-width: 380px) {
             body {
-            }
-            .header {
-            }
+                padding-top: 280px; /* Adjust based on smaller mobile header height */
+            }   
             .input-group input {
                 font-size: 1.1em;
             }
@@ -904,13 +903,70 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        /* --- NEW TOGGLE SWITCH STYLES --- */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%; /* Make it take full width in the column layout */
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #4b5563; /* gray-600 */
+            border-radius: 8px;
+        }
+        .toggle-switch-label { /* The text label */
+            color: #f9fafb; /* gray-50 */
+            font-weight: 600;
+            margin-left: 12px;
+            cursor: pointer;
+        }
+        .toggle-switch-wrapper { /* The switch itself */
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            cursor: pointer;
+        }
+        .toggle-switch-wrapper input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider { /* The track */
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #374151; /* gray-700 */
+            border-radius: 28px;
+            transition: .3s;
+        }
+        .toggle-slider:before { /* The circle */
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .3s;
+        }
+        input:checked + .toggle-slider {
+            background-color: #0d4f8b; /* RO Dark Blue */
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <!-- NEW: Added Retail Odyssey Logo -->
-            <img src="rologo.png" alt="Retail Odyssey Logo" class="header-logo" onerror="this.style.display='none'">
+            <!-- NEW: Added Retail Odyssey Logo (click to open quick EOD view) -->
+            <img id="headerLogo" src="rologo.png" alt="Retail Odyssey Logo" class="header-logo" onerror="this.style.display='none'" style="cursor: pointer;" title="Click for EOD Quick View">
             <h1>KOMPASS LEAD DAILY CHECKLIST</h1>
             
             <!-- Single Row: Store, Date, Lead Name -->
@@ -1812,13 +1868,19 @@
 
             <!-- Action Buttons -->
             <div class="button-group">
+
+                <div class="toggle-switch">
+                    <label class="toggle-switch-wrapper">
+                        <input type="checkbox" id="notesOnlyToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label class="toggle-switch-label" for="notesOnlyToggle">Send "Notes Only" Report</label>
+                </div>
                 <button class="btn btn-success" onclick="generateEODAndEmail()">Generate & Open Email</button>
                 <button class="btn btn-primary" onclick="generateEODCoverSheet()">Generate PDF Only</button>
                 <button class="btn btn-primary" onclick="generateEODImage()">Generate Image Only</button>
                 <button class="btn btn-secondary" onclick="resetChecklist()">Reset Checklist</button>
             </div>
-        </div>
-    </div>
 
     <!-- NEW LOADING OVERLAY HTML -->
     <div id="loadingOverlay" class="loading-overlay">
@@ -1878,6 +1940,20 @@
 
             <div class="custom-modal-buttons">
                 <button class="btn btn-primary" id="disclaimerConfirm" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+    <!-- EASTER EGG: Quick EOD modal (revealed by clicking header logo) -->
+    <div id="easterEggOverlay" class="custom-modal-overlay">
+        <div class="custom-modal-dialog" style="max-width:700px; width: 95%;">
+            <h2>Quick EOD — Cover Sheet Fields</h2>
+            <div id="easterEggContent" style="max-height:60vh; overflow:auto; padding-top:8px;">
+                <!-- Content populated dynamically to mirror EOD fields -->
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+                <button class="btn btn-secondary" id="easterEggClose">Close</button>
+                <button class="btn btn-primary" id="easterEggPdf">Generate PDF</button>
+                <button class="btn btn-success" id="easterEggImage">Generate & Open Email</button>
             </div>
         </div>
     </div>
@@ -2019,14 +2095,17 @@
         // Radio button simulation - ensure only one checkbox per group is checked
         function toggleRadio(groupName) {
             const checkboxes = document.querySelectorAll(`input[name="${groupName}"]`);
-            const clickedBox = event.target;
-            
-            checkboxes.forEach(box => {
-                if (box !== clickedBox) {
-                    box.checked = false;
-                }
-            });
-            
+            // Find the checkbox in this group that is currently checked (the one that changed)
+            const clickedBox = document.querySelector(`input[name="${groupName}"]:checked`);
+
+            if (clickedBox) {
+                checkboxes.forEach(box => {
+                    if (box !== clickedBox) {
+                        box.checked = false;
+                    }
+                });
+            }
+
             autoSave();
         }
 
@@ -2531,6 +2610,189 @@
 
 
     <script>
+    // --- EASTER EGG: Quick EOD view logic ---
+    (function(){
+        const logo = document.getElementById('headerLogo');
+        const overlay = document.getElementById('easterEggOverlay');
+        const content = document.getElementById('easterEggContent');
+        const btnClose = document.getElementById('easterEggClose');
+        const btnPdf = document.getElementById('easterEggPdf');
+        const btnImage = document.getElementById('easterEggImage');
+
+        if (!logo || !overlay || !content) return;
+
+        // Fields to include in the quick view. Each object maps a label and the id of the main input.
+        const fields = [
+            {label: 'Store #', id: 'storeNumber', type: 'text'},
+            {label: 'Date', id: 'workDate', type: 'date'},
+            {label: 'Lead Name', id: 'leadName', type: 'text'},
+            {label: 'Before picture of KOMPASS cart?', id: 'beforePicPosted', type: 'yn-checkbox'},
+            {label: 'Manager checked in with', id: 'checkInManager', type: 'text'},
+            {label: 'Called KOMPASS Hotline?', id: 'calledHotline', type: 'yn-checkbox'},
+            {label: 'Commodities (if hotline)', id: 'issueCommodities', type: 'text'},
+            {label: 'What is the issue?', id: 'issueDescription', type: 'textarea'},
+            {label: 'Was the issue resolved?', id: 'issueResolved', type: 'yna-checkbox'},
+            {label: 'Temporary solution (if not resolved)', id: 'tempSolution', type: 'textarea'},
+            {label: 'Manager checked out with', id: 'checkOutManager', type: 'text'},
+            {label: 'Signed out in PROD?', id: 'signedOutPROD', type: 'yn-checkbox'},
+            {label: 'Signed out in SI?', id: 'signedOutSI', type: 'yn-checkbox'},
+            {label: 'Sign-out sheet attached to EOD email?', id: 'signoutEmail', type: 'yn-checkbox'},
+            {label: 'Sign-out sheet attached to PROD?', id: 'signoutPROD', type: 'yn-checkbox'},
+            {label: 'After picture of KOMPASS cart?', id: 'afterPicPosted', type: 'yn-checkbox'},
+            {label: 'Notes', id: 'notes', type: 'textarea'},
+        ];
+
+        function makeRow(f){
+            const wrapper = document.createElement('div');
+            wrapper.style.marginBottom = '10px';
+            const label = document.createElement('label');
+            label.style.display = 'block';
+            label.style.fontWeight = '600';
+            label.style.color = '#f9fafb';
+            label.textContent = f.label;
+            wrapper.appendChild(label);
+
+            if (f.type === 'text' || f.type === 'date'){
+                const el = document.createElement('input');
+                el.type = f.type === 'date' ? 'date' : 'text';
+                el.value = document.getElementById(f.id)?.value ?? '';
+                el.style.width = '100%';
+                el.style.padding = '8px';
+                el.style.borderRadius = '4px';
+                el.style.background = '#4b5563';
+                el.style.color = '#f9fafb';
+                el.addEventListener('input', e => {
+                    const main = document.getElementById(f.id);
+                    if (main) main.value = e.target.value;
+                    autoSave();
+                });
+                wrapper.appendChild(el);
+            } else if (f.type === 'textarea'){
+                const ta = document.createElement('textarea');
+                ta.value = document.getElementById(f.id)?.value ?? '';
+                ta.style.width = '100%';
+                ta.style.minHeight = '60px';
+                ta.style.padding = '8px';
+                ta.style.borderRadius = '4px';
+                ta.style.background = '#4b5563';
+                ta.style.color = '#f9fafb';
+                ta.addEventListener('input', e => {
+                    const main = document.getElementById(f.id);
+                    if (main) main.value = e.target.value;
+                    autoSave();
+                });
+                wrapper.appendChild(ta);
+            } else if (f.type === 'yn-checkbox' || f.type === 'yna-checkbox'){
+                const yesId = f.id + 'Yes_egg';
+                const noId = f.id + 'No_egg';
+                const naId = f.id + 'NA_egg';
+
+                const grp = document.createElement('div');
+                grp.style.display = 'flex';
+                grp.style.gap = '12px';
+                const yes = document.createElement('label');
+                yes.style.cursor = 'pointer';
+                yes.innerHTML = `<input type='checkbox' id='${yesId}'> Yes`;
+                const no = document.createElement('label');
+                no.style.cursor = 'pointer';
+                no.innerHTML = `<input type='checkbox' id='${noId}'> No`;
+                grp.appendChild(yes);
+                grp.appendChild(no);
+
+                if (f.type === 'yna-checkbox'){
+                    const na = document.createElement('label');
+                    na.style.cursor = 'pointer';
+                    na.innerHTML = `<input type='checkbox' id='${naId}'> N/A`;
+                    grp.appendChild(na);
+                }
+
+                // Initialize states from main inputs (use name/value so we don't rely on specific id conventions)
+                const mainCheckedYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`)?.checked || false;
+                const mainCheckedNo = document.querySelector(`input[name="${f.id}"][value="No"]`)?.checked || false;
+                const mainCheckedNA = document.querySelector(`input[name="${f.id}"][value="NA"]`)?.checked || false;
+
+                if (mainCheckedYes) document.getElementById(yesId).checked = true;
+                if (mainCheckedNo) document.getElementById(noId).checked = true;
+                if (f.type === 'yna-checkbox' && mainCheckedNA) document.getElementById(naId).checked = true;
+
+                // Wire change to sync with main inputs
+                grp.addEventListener('change', () => {
+                    // Sync yes/no/na to the main checkboxes/radio-like groups
+                    const mainYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`);
+                    const mainNo = document.querySelector(`input[name="${f.id}"][value="No"]`);
+                    const mainNA = document.querySelector(`input[name="${f.id}"][value="NA"]`);
+
+                    const y = document.getElementById(yesId).checked;
+                    const n = document.getElementById(noId).checked;
+                    const na = f.type === 'yna-checkbox' ? document.getElementById(naId).checked : false;
+
+                    if (mainYes) mainYes.checked = y;
+                    if (mainNo) mainNo.checked = n;
+                    if (mainNA) mainNA.checked = na;
+
+                    // Toggle related conditional UI if needed
+                    if (f.id === 'calledHotline') toggleHotlineFields(mainYes || {id:'eodHotlineYes',checked:y});
+                    if (f.id === 'issueResolved') toggleResolutionField(mainNA || {id:'eodResolvedNA',checked:na});
+
+                    // For other radio-like groups, call toggleRadio by name
+                    toggleRadio(f.id);
+                    autoSave();
+                    updateProgress();
+                });
+
+                wrapper.appendChild(grp);
+            }
+
+            return wrapper;
+        }
+
+        function openEasterEgg(){
+            content.innerHTML = '';
+            fields.forEach(f => content.appendChild(makeRow(f)));
+
+            // Signature preview
+            const sigWrap = document.createElement('div');
+            sigWrap.style.marginTop = '8px';
+            const sigLabel = document.createElement('label');
+            sigLabel.style.color = '#f9fafb';
+            sigLabel.style.fontWeight = '600';
+            sigLabel.textContent = 'Signature Preview';
+            sigWrap.appendChild(sigLabel);
+            const sigImg = document.createElement('img');
+            sigImg.id = 'sigPreviewEasterEgg';
+            sigImg.style.display = 'block';
+            sigImg.style.width = '100%';
+            sigImg.style.height = 'auto';
+            sigImg.style.background = '#fff';
+            sigImg.style.border = '1px solid #0d4f8b';
+            sigImg.style.borderRadius = '6px';
+            const canvas = document.getElementById('signaturePad');
+            try{
+                const data = canvas.toDataURL('image/png');
+                if (data && data !== 'data:,') sigImg.src = data;
+                else sigImg.alt = 'No signature yet';
+            }catch(e){ sigImg.alt = 'No signature yet'; }
+            sigWrap.appendChild(sigImg);
+            content.appendChild(sigWrap);
+
+            overlay.classList.add('show');
+        }
+
+        function closeEasterEgg(){ overlay.classList.remove('show'); }
+
+        logo.addEventListener('click', openEasterEgg);
+        btnClose?.addEventListener('click', closeEasterEgg);
+
+        // Wire generation buttons to existing functions but keep overlay open/closed behavior
+        btnPdf?.addEventListener('click', async () => {
+            try{ await window.generateEODCoverSheet(); } catch(e){ console.error(e); }
+        });
+
+        btnImage?.addEventListener('click', async () => {
+            try{ await window.generateEODAndEmail(); } catch(e){ console.error(e); }
+        });
+    })();
+    // --- END EASTER EGG ---
 (() => {
     // Local helpers used by the overrides
     const pickYN = (v) => {
@@ -2868,35 +3130,78 @@ window.generateEODAndEmail = async function generateEODAndEmail() {
             a.click(); // This triggers the save
             document.body.removeChild(a);
             
-            // 7. Build the new email body
-            const body = `\\/-----------Delete this before sending------------\\/
-Your EOD Cover Sheet ${jpgFilename} was created.
-Please attach the Cover sheet to this e-mail before sending.
-To do that, click the paperclip icon and locate the image in your device's gallery.
-Please don't forget to include quality pictures of each of your sign-off sheets as well.
-Please double-check that the details below are accurate.
-Delete this entire block of text before sending.
-/\\-----------Delete this before sending------------/\\
+            // 7. --- START OF MODIFIED CODE ---
+            
+            // Check the state of the new toggle
+            const notesOnly = document.getElementById('notesOnlyToggle').checked;
 
-Lead Name: **${payload.LeadName || ''}**
-Date: **${payload.DateMMDDYYYY || ''}**
-Store Number: **${payload.StoreNumber || ''}**
-KOMPASS cart before photo loaded to maintenance line in PROD? **${pickYN(payload.BeforePicPosted)}**
-Manager’s name - who you checked in with: **${payload.CheckInManager || ''}**
-Did you call the KOMPASS Hotline? **${pickYN(payload.CalledHotline)}**
-If so, what commodities? **${payload.IssueCommodities || 'N/A'}**
-What is the issue? **${payload.WhatIsIssue || 'N/A'}**
-Was the issue resolved before EOD? **${payload.IssueResolved || 'N/A'}**
-If not, what was the temporary solution? **${payload.TempSolution || 'N/A'}**
-Manager’s name - who checked out with? **${payload.CheckOutManager || ''}**
-Did all sets get signed out in PROD? **${pickYN(payload.SignedOutPROD)}**
-Did all sets get signed out in SI? **${pickYN(payload.SignedOutSI)}**
-Sign-out sheet attached to the EOD email? **${pickYN(payload.SignoutSheetAttachedEmail)}**
-Sign-out sheet attached to the KOMPASS Maintenance line in PROD? **${pickYN(payload.SignoutSheetAttachedPROD)}**
-KOMAPSS cart after photo loaded maintenance line in PROD? **${pickYN(payload.AfterPicPosted)}**
+            // Define the email body based on the toggle
+            let body = '';
 
-Notes: **${payload.Notes || ''}**
+            if (notesOnly) {
+                // If toggle is ON, just add the notes
+                body += `
+
+Notes:
+  ${payload.Notes || ''}
 `;
+            } else {
+                // If toggle is OFF, add the full report
+                body += `
+
+Lead Name:
+  ${payload.LeadName || ''}
+
+Date:
+  ${payload.DateMMDDYYYY || ''}
+
+Store Number:
+  ${payload.StoreNumber || ''}
+
+Did you take a picture of the KOMPASS cart and load it to the KOMPASS Maintenance line in PROD at the start of the shift?
+  ${pickYN(payload.BeforePicPosted)}
+
+Manager’s name - who you checked in with:
+  ${payload.CheckInManager || ''}
+
+Did you call the KOMPASS Hotline?
+  ${pickYN(payload.CalledHotline)}
+
+If so, what commodities?
+  ${payload.IssueCommodities || 'N/A'}
+
+What is the issue?
+  ${payload.WhatIsIssue || 'N/A'}
+
+Was the issue resolved before EOD?
+  ${payload.IssueResolved || 'N/A'}
+
+If not, what was the temporary solution?
+  ${payload.TempSolution || 'N/A'}
+
+Manager’s name - who checked out with?
+  ${payload.CheckOutManager || ''}
+
+Did all sets get signed out in PROD?
+  ${pickYN(payload.SignedOutPROD)}
+
+Did all sets get signed out in SI?
+  ${pickYN(payload.SignedOutSI)}
+
+Sign-out sheet attached to the EOD email?
+  ${pickYN(payload.SignoutSheetAttachedEmail)}
+
+Sign-out sheet attached to the KOMPASS Maintenance line in PROD?
+  ${pickYN(payload.SignoutSheetAttachedPROD)}
+
+Did you take an after picture of the KOMAPSS cart and load it to the KOMPASS Maintenance line in PROD at the end of the shift?
+  ${pickYN(payload.AfterPicPosted)}
+
+Notes:
+  **${payload.Notes || ''}**
+`;
+            }
+            // --- END OF MODIFIED CODE ---
 
             const cc = 'MAshabranner@retailodyssey.com,seth.newman@retailodyssey.com,KNix@retailodyssey.com';
             const subject = `EOD FM${payload.StoreNumberPadded} ${payload.DateMMDDYYYY}`;
