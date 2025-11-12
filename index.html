@@ -1926,10 +1926,8 @@
         #sigFsCanvas { flex: 1; background: #fff; touch-action: none; display: block; width: 100%; height: 100%; }
 
         /* Make Easter Egg dialog fit safely on mobile */
-        #easterEggOverlay .custom-modal-dialog { max-width: 92vw !important; width: 92vw !important; margin: 4vw auto !important; padding: 12px !important; max-height: 92vh; overflow: hidden; box-sizing: border-box; }
-        #easterEggContent { overflow-wrap: anywhere; word-break: break-word; }
-        #easterEggOverlay h2 { font-size: 1.05em; margin-bottom: 6px; }
-        #easterEggOverlay .signature-preview-box { min-height: 140px; }
+        #easterEggOverlay .custom-modal-dialog { max-width: 92vw !important; width: 92vw !important; margin: 4vw auto !important; padding: 12px !important; max-height: 85vh; /* <-- Reduced height */ /* overflow: hidden; was removed */ box-sizing: border-box; }
+
         /* 3-column grid for first row in overlay */
         #easterEggContent .egg-top-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
         @media (max-width: 480px) { #easterEggContent .egg-top-row { grid-template-columns: 1fr 1fr; } }
