@@ -963,9 +963,10 @@
     </style>
 </head>
 <body>
-    <!-- Full-width top banner logo -->
+    <!-- Top banner: centered logo (80% width) and title -->
     <div class="top-banner">
         <img id="headerLogo" src="rologo.png" alt="Retail Odyssey Logo" class="banner-logo" title="Click for EOD Quick View" onerror="this.style.display='none'">
+        <h1 class="app-title">Kompass Lead Daily Checklist</h1>
     </div>
     <div class="container">
         <div class="header" style="display:none;"></div>
@@ -1872,9 +1873,9 @@
                     </label>
                     <label class="toggle-switch-label" for="notesOnlyToggle">Send "Notes Only" Report</label>
                 </div>
-                <button class="btn btn-success" onclick="generateEODAndEmail()">Generate & Open Email</button>
-                <button class="btn btn-primary" onclick="generateEODCoverSheet()">Generate PDF Only</button>
-                <button class="btn btn-primary" onclick="generateEODImage()">Generate Image Only</button>
+                <button id="btnGenerateEmail" class="btn btn-success" onclick="return false;">Generate & Open Email</button>
+                <button id="btnGeneratePdf" class="btn btn-primary" onclick="return false;">Generate PDF Only</button>
+                <button id="btnGenerateImage" class="btn btn-primary" onclick="return false;">Generate Image Only</button>
                 <button class="btn btn-secondary" onclick="resetChecklist()">Reset Checklist</button>
             </div>
 
@@ -1897,9 +1898,10 @@
     
     <!-- Full-screen Signature Overlay -->
     <style>
-        /* Full-width banner logo */
-        .top-banner { width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); }
-        .banner-logo { width: 100%; height: auto; display: block; cursor: pointer; }
+    /* Top banner: center logo at 80% width with padding */
+    .top-banner { width: 100%; padding: 12px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .banner-logo { width: 80%; max-width: 1000px; height: auto; display: block; cursor: pointer; }
+    .app-title { margin-top: 8px; color: #f9fafb; text-align: center; font-size: 1.6em; font-weight: 700; }
 
         .signature-preview-box {
             border: 2px solid #0d4f8b;
@@ -2131,6 +2133,20 @@
             adjustBodyPadding();
             window.addEventListener('resize', adjustBodyPadding);
             // --- END NEW ---
+
+            // --- NEW: Bind bottom action buttons safely ---
+            document.getElementById('btnGenerateEmail')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                try { window.generateEODAndEmail(); } catch (err) { console.error(err); showCustomAlert('Error', err.message || String(err)); }
+            });
+            document.getElementById('btnGeneratePdf')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                try { window.generateEODCoverSheet(); } catch (err) { console.error(err); showCustomAlert('Error', err.message || String(err)); }
+            });
+            document.getElementById('btnGenerateImage')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                try { window.generateEODImage(); } catch (err) { console.error(err); showCustomAlert('Error', err.message || String(err)); }
+            });
         };
 
         function toggleSection(header) {
@@ -3280,6 +3296,10 @@ async function getSignatureDataURL() {
         overlay.classList.add('show');
         
         try {
+            // Ensure pdf.js worker is configured in case onload hasn't run yet
+            if (!pdfjsLib?.GlobalWorkerOptions?.workerSrc) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            }
             // 1. Get data and create the filled PDF bytes
             const payload = await window.collectPayload();
             const pdfBytes = await createFilledPdfBytes(payload);
@@ -3335,6 +3355,10 @@ window.generateEODAndEmail = async function generateEODAndEmail() {
         let payload; // Define payload in the outer scope
         
         try {
+            // Ensure pdf.js worker is configured in case onload hasn't run yet
+            if (!pdfjsLib?.GlobalWorkerOptions?.workerSrc) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            }
             // 1. Get data and create the filled PDF bytes
             payload = await window.collectPayload(); // Assign to outer scope
             const pdfBytes = await createFilledPdfBytes(payload);
