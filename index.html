@@ -2820,8 +2820,9 @@
 
         // Ensure storage canvas has a valid size even if hidden
         (function ensureStorageCanvasSize(){
-            const rect = canvas.getBoundingClientRect();
-            if (rect.width < 10 || rect.height < 10) {
+            // For hidden elements, getBoundingClientRect returns 0
+            // So check canvas.width directly instead
+            if (!canvas.width || canvas.width < 10 || !canvas.height || canvas.height < 10) {
                 canvas.width = 800;
                 canvas.height = 300;
             }
@@ -3117,6 +3118,11 @@ async function getSignatureDataURL() {
         const width = canvas.width;
         const height = canvas.height;
 
+        // If canvas has no dimensions (e.g., display:none), return empty
+        if (width === 0 || height === 0) {
+            return ''; // No signature
+        }
+
         // Get all pixel data
         const imageData = ctx.getImageData(0, 0, width, height);
         const data = imageData.data;
@@ -3280,14 +3286,14 @@ async function getSignatureDataURL() {
 
     // Rebind generator to use the overrides (name unchanged)
     window.generateEODCoverSheet = async function generateEODCoverSheet() {
-    try {
-        const payload = await window.collectPayload();
-        await window.fillPdf(payload);
-        showCustomAlert('PDF Generated', 'EOD Cover Sheet PDF generated and downloaded successfully!<br><br>Please review the file and attach it to your EOD email along with sign-off sheets and photos.');
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        showCustomAlert('Error Generating PDF', error.message + '<br><br>Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
-    }
+        try {
+            const payload = await window.collectPayload();
+            await window.fillPdf(payload);
+            showCustomAlert('PDF Generated', 'EOD Cover Sheet PDF generated and downloaded successfully!<br><br>Please review the file and attach it to your EOD email along with sign-off sheets and photos.');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showCustomAlert('Error Generating PDF', error.message + '<br><br>Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+        }
     };
 
     // ---------- NEW IMAGE GENERATION FUNCTION ----------
@@ -3348,7 +3354,7 @@ async function getSignatureDataURL() {
     };
 
     // ---------- NEW EMAIL + IMAGE GENERATION FUNCTION ----------
-window.generateEODAndEmail = async function generateEODAndEmail() {
+    window.generateEODAndEmail = async function generateEODAndEmail() {
         const overlay = document.getElementById('loadingOverlay');
         overlay.classList.add('show');
 
