@@ -2818,8 +2818,9 @@
 
         // Ensure storage canvas has a valid size even if hidden
         (function ensureStorageCanvasSize(){
-            const rect = canvas.getBoundingClientRect();
-            if (rect.width < 10 || rect.height < 10) {
+            // For hidden elements, getBoundingClientRect returns 0
+            // So check canvas.width directly instead
+            if (!canvas.width || canvas.width < 10 || !canvas.height || canvas.height < 10) {
                 canvas.width = 800;
                 canvas.height = 300;
             }
@@ -3114,6 +3115,11 @@ async function getSignatureDataURL() {
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
+
+        // If canvas has no dimensions (e.g., display:none), return empty
+        if (width === 0 || height === 0) {
+            return ''; // No signature
+        }
 
         // Get all pixel data
         const imageData = ctx.getImageData(0, 0, width, height);
