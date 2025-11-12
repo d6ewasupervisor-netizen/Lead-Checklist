@@ -3278,14 +3278,14 @@ async function getSignatureDataURL() {
 
     // Rebind generator to use the overrides (name unchanged)
     window.generateEODCoverSheet = async function generateEODCoverSheet() {
-    try {
-        const payload = await window.collectPayload();
-        await window.fillPdf(payload);
-        showCustomAlert('PDF Generated', 'EOD Cover Sheet PDF generated and downloaded successfully!<br><br>Please review the file and attach it to your EOD email along with sign-off sheets and photos.');
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        showCustomAlert('Error Generating PDF', error.message + '<br><br>Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
-    }
+        try {
+            const payload = await window.collectPayload();
+            await window.fillPdf(payload);
+            showCustomAlert('PDF Generated', 'EOD Cover Sheet PDF generated and downloaded successfully!<br><br>Please review the file and attach it to your EOD email along with sign-off sheets and photos.');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showCustomAlert('Error Generating PDF', error.message + '<br><br>Please ensure the file "End Of Day Cover Sheet Form Editable Template.pdf" is in the same directory as this HTML file.');
+        }
     };
 
     // ---------- NEW IMAGE GENERATION FUNCTION ----------
@@ -3346,7 +3346,7 @@ async function getSignatureDataURL() {
     };
 
     // ---------- NEW EMAIL + IMAGE GENERATION FUNCTION ----------
-window.generateEODAndEmail = async function generateEODAndEmail() {
+    window.generateEODAndEmail = async function generateEODAndEmail() {
         const overlay = document.getElementById('loadingOverlay');
         overlay.classList.add('show');
 
