@@ -2665,127 +2665,31 @@
             {label: 'Notes', id: 'notes', type: 'textarea'},
         ];
 
-        function makeRow(f){
+        function makeRow(f) {
             const wrapper = document.createElement('div');
             wrapper.style.marginBottom = '10px';
-                function makeRadio(id, labelText) {
-                    const wrap = document.createElement('label');
-                    wrap.className = 'custom-radio';
-                    wrap.style.display = 'flex';
-                    wrap.style.alignItems = 'center';
-                    wrap.style.gap = '6px';
-                    wrap.style.cursor = 'pointer';
-                    let tip = '';
-                    if (labelText === 'Yes') tip = 'Select if this is true for today.';
-                    if (labelText === 'No') tip = 'Select if this does not apply for today.';
-                    if (labelText === 'N/A') tip = 'Select if this is not applicable.';
-                    wrap.innerHTML = `<input type='checkbox' id='${id}' style='accent-color:#0d4f8b; width:20px; height:20px;' title='${tip}'> <span title='${tip}'>${labelText}</span>`;
-                    return wrap;
-                }
-                const yes = makeRadio(yesId, 'Yes');
-                const no = makeRadio(noId, 'No');
-                grp.appendChild(yes);
-                grp.appendChild(no);
-                if (f.type === 'yna-checkbox'){
-                    const na = makeRadio(naId, 'N/A');
-                    grp.appendChild(na);
-                }
-                if (f.type === 'text' || f.type === 'date') {
-                    const el = document.createElement('input');
-                    el.type = f.type === 'date' ? 'date' : 'text';
-                    el.value = document.getElementById(f.id)?.value ?? '';
-                    el.style.width = '100%';
-                    el.style.padding = '8px';
-                    el.style.borderRadius = '4px';
-                    el.style.background = '#4b5563';
-                    el.style.color = '#f9fafb';
-                    el.addEventListener('input', e => {
-                        const main = document.getElementById(f.id);
-                        if (main) main.value = e.target.value;
-                        autoSave();
-                    });
-                    wrapper.appendChild(el);
-                } else if (f.type === 'textarea') {
-                    const ta = document.createElement('textarea');
-                    ta.value = document.getElementById(f.id)?.value ?? '';
-                    ta.style.width = '100%';
-                    ta.style.minHeight = '60px';
-                    ta.style.padding = '8px';
-                    ta.style.borderRadius = '4px';
-                    ta.style.background = '#4b5563';
-                    ta.style.color = '#f9fafb';
-                    ta.addEventListener('input', e => {
-                        const main = document.getElementById(f.id);
-                        if (main) main.value = e.target.value;
-                        autoSave();
-                    });
-                    wrapper.appendChild(ta);
-                } else if (f.type === 'yn-checkbox' || f.type === 'yna-checkbox') {
-                    const yesId = f.id + 'Yes_egg';
-                    const noId = f.id + 'No_egg';
-                    const naId = f.id + 'NA_egg';
-                    function makeRadio(id, labelText) {
-                        const wrap = document.createElement('label');
-                        wrap.className = 'custom-radio';
-                        wrap.style.display = 'flex';
-                        wrap.style.alignItems = 'center';
-                        wrap.style.gap = '6px';
-                        wrap.style.cursor = 'pointer';
-                        let tip = '';
-                        if (labelText === 'Yes') tip = 'Select if this is true for today.';
-                        if (labelText === 'No') tip = 'Select if this does not apply for today.';
-                        if (labelText === 'N/A') tip = 'Select if this is not applicable.';
-                        wrap.innerHTML = `<input type='checkbox' id='${id}' style='accent-color:#0d4f8b; width:20px; height:20px;' title='${tip}'> <span title='${tip}'>${labelText}</span>`;
-                        return wrap;
-                    }
-                    const grp = document.createElement('div');
-                    grp.style.display = 'flex';
-                    grp.style.gap = '12px';
-                    const yes = makeRadio(yesId, 'Yes');
-                    const no = makeRadio(noId, 'No');
-                    grp.appendChild(yes);
-                    grp.appendChild(no);
-                    if (f.type === 'yna-checkbox'){
-                        const na = makeRadio(naId, 'N/A');
-                        grp.appendChild(na);
-                    }
-                    // Initialize states from main inputs (use name/value so we don't rely on specific id conventions)
-                    const mainCheckedYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`)?.checked || false;
-                    const mainCheckedNo = document.querySelector(`input[name="${f.id}"][value="No"]`)?.checked || false;
-                    const mainCheckedNA = document.querySelector(`input[name="${f.id}"][value="NA"]`)?.checked || false;
-                    if (mainCheckedYes) setTimeout(() => { document.getElementById(yesId).checked = true; }, 0);
-                    if (mainCheckedNo) setTimeout(() => { document.getElementById(noId).checked = true; }, 0);
-                    if (f.type === 'yna-checkbox' && mainCheckedNA) setTimeout(() => { document.getElementById(naId).checked = true; }, 0);
-                    // Radio-like behavior: only one can be checked at a time
-                    [yesId, noId, naId].forEach(id => {
-                        const el = document.getElementById(id);
-                        if (!el) return;
-                        el.addEventListener('change', () => {
-                            if (el.checked) {
-                                [yesId, noId, naId].forEach(otherId => {
-                                    if (otherId !== id) {
-                                        const otherEl = document.getElementById(otherId);
-                                        if (otherEl) otherEl.checked = false;
-                                    }
-                                });
-                            }
-                            // Sync to main inputs
-                            const mainYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`);
-                            const mainNo = document.querySelector(`input[name="${f.id}"][value="No"]`);
-                            const mainNA = document.querySelector(`input[name="${f.id}"][value="NA"]`);
-                            if (mainYes) mainYes.checked = document.getElementById(yesId)?.checked;
-                            if (mainNo) mainNo.checked = document.getElementById(noId)?.checked;
-                            if (mainNA) mainNA.checked = document.getElementById(naId)?.checked;
-                            // Toggle related conditional UI if needed
-                            if (f.id === 'calledHotline') toggleHotlineFields(mainYes || {id:'eodHotlineYes',checked:document.getElementById(yesId)?.checked});
-                            if (f.id === 'issueResolved') toggleResolutionField(mainNA || {id:'eodResolvedNA',checked:document.getElementById(naId)?.checked});
-                            toggleRadio(f.id);
-                            autoSave();
-                            updateProgress();
-                        });
-                    });
-                    wrapper.appendChild(grp);
-                }
+
+            // Text or date input
+            if (f.type === 'text' || f.type === 'date') {
+                const el = document.createElement('input');
+                el.type = f.type === 'date' ? 'date' : 'text';
+                el.value = document.getElementById(f.id)?.value ?? '';
+                el.style.width = '100%';
+                el.style.padding = '8px';
+                el.style.borderRadius = '4px';
+                el.style.background = '#4b5563';
+                el.style.color = '#f9fafb';
+                el.addEventListener('input', e => {
+                    const main = document.getElementById(f.id);
+                    if (main) main.value = e.target.value;
+                    autoSave();
+                });
+                wrapper.appendChild(el);
+                return wrapper;
+            }
+
+            // Textarea
+            if (f.type === 'textarea') {
                 const ta = document.createElement('textarea');
                 ta.value = document.getElementById(f.id)?.value ?? '';
                 ta.style.width = '100%';
@@ -2800,6 +2704,86 @@
                     autoSave();
                 });
                 wrapper.appendChild(ta);
+                return wrapper;
+            }
+
+            // Yes/No or Yes/No/N-A checkbox group (radio-like behavior)
+            if (f.type === 'yn-checkbox' || f.type === 'yna-checkbox') {
+                const yesId = f.id + 'Yes_egg';
+                const noId = f.id + 'No_egg';
+                const naId = f.id + 'NA_egg';
+
+                function makeRadioLocal(id, labelText) {
+                    const wrap = document.createElement('label');
+                    wrap.className = 'custom-radio';
+                    wrap.style.display = 'flex';
+                    wrap.style.alignItems = 'center';
+                    wrap.style.gap = '6px';
+                    wrap.style.cursor = 'pointer';
+                    let tip = '';
+                    if (labelText === 'Yes') tip = 'Select if this is true for today.';
+                    if (labelText === 'No') tip = 'Select if this does not apply for today.';
+                    if (labelText === 'N/A') tip = 'Select if this is not applicable.';
+                    wrap.innerHTML = `<input type='checkbox' id='${id}' style='accent-color:#0d4f8b; width:20px; height:20px;' title='${tip}'> <span title='${tip}'>${labelText}</span>`;
+                    return wrap;
+                }
+
+                const grp = document.createElement('div');
+                grp.style.display = 'flex';
+                grp.style.gap = '12px';
+                grp.appendChild(makeRadioLocal(yesId, 'Yes'));
+                grp.appendChild(makeRadioLocal(noId, 'No'));
+                if (f.type === 'yna-checkbox') grp.appendChild(makeRadioLocal(naId, 'N/A'));
+                wrapper.appendChild(grp);
+
+                // Initialize states from main inputs
+                const mainCheckedYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`)?.checked || false;
+                const mainCheckedNo = document.querySelector(`input[name="${f.id}"][value="No"]`)?.checked || false;
+                const mainCheckedNA = document.querySelector(`input[name="${f.id}"][value="NA"]`)?.checked || false;
+
+                const yesEl = wrapper.querySelector(`#${yesId}`);
+                const noEl = wrapper.querySelector(`#${noId}`);
+                const naEl = wrapper.querySelector(`#${naId}`);
+
+                if (mainCheckedYes && yesEl) yesEl.checked = true;
+                if (mainCheckedNo && noEl) noEl.checked = true;
+                if (f.type === 'yna-checkbox' && mainCheckedNA && naEl) naEl.checked = true;
+
+                const ids = [yesId, noId, naId];
+                ids.forEach(id => {
+                    const localEl = wrapper.querySelector(`#${id}`);
+                    if (!localEl) return;
+                    localEl.addEventListener('change', () => {
+                        if (localEl.checked) {
+                            ids.forEach(otherId => {
+                                if (otherId !== id) {
+                                    const otherEl = wrapper.querySelector(`#${otherId}`);
+                                    if (otherEl) otherEl.checked = false;
+                                }
+                            });
+                        }
+
+                        // Sync to main inputs
+                        const mainYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`);
+                        const mainNo = document.querySelector(`input[name="${f.id}"][value="No"]`);
+                        const mainNA = document.querySelector(`input[name="${f.id}"][value="NA"]`);
+                        if (mainYes) mainYes.checked = !!(wrapper.querySelector(`#${yesId}`)?.checked);
+                        if (mainNo) mainNo.checked = !!(wrapper.querySelector(`#${noId}`)?.checked);
+                        if (mainNA) mainNA.checked = !!(wrapper.querySelector(`#${naId}`)?.checked);
+
+                        // Toggle related conditional UI if needed
+                        const mainYesObj = mainYes || { id: 'eodHotlineYes', checked: !!(wrapper.querySelector(`#${yesId}`)?.checked) };
+                        const mainNAObj = mainNA || { id: 'eodResolvedNA', checked: !!(wrapper.querySelector(`#${naId}`)?.checked) };
+                        if (f.id === 'calledHotline') toggleHotlineFields(mainYesObj);
+                        if (f.id === 'issueResolved') toggleResolutionField(mainNAObj);
+
+                        toggleRadio(f.id);
+                        autoSave();
+                        updateProgress();
+                    });
+                });
+
+                return wrapper;
             }
 
             return wrapper;
@@ -2944,13 +2928,6 @@
         });
     initEasterEgg();
     // --- END EASTER EGG ---
-    async function embedDataUrl(pdfDoc, dataUrl) {
-    if (!dataUrl) return null;
-    const res = await fetch(dataUrl);
-    const bytes = await res.arrayBuffer();
-    const isPng = dataUrl.startsWith('data:image/png');
-    return isPng ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
-    }
     
     /* * REPLACED isoDate function with a more comprehensive date formatter
      * and a new store number formatter.
@@ -3417,7 +3394,8 @@ Notes:
             overlay.classList.remove('show'); // Hide overlay on error
             showCustomAlert('Error Generating Email', error.message + (payload ? `<br><br>Debug Info: Store=${payload.StoreNumberPadded}, Date=${payload.DateMMDDYYYY}` : ''));
         }
-    };
+    }
+}
 
 </script>
 
