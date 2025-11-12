@@ -2669,25 +2669,20 @@
             const wrapper = document.createElement('div');
             wrapper.style.marginBottom = '10px';
 
-            // Add label
-            const label = document.createElement('label');
-            label.textContent = f.label;
-            label.style.display = 'block';
-            label.style.marginBottom = '5px';
-            label.style.fontWeight = 'bold';
-            label.style.color = '#f9fafb';
-            wrapper.appendChild(label);
-
             // Text or date input
             if (f.type === 'text' || f.type === 'date') {
                 const el = document.createElement('input');
                 el.type = f.type === 'date' ? 'date' : 'text';
+                el.placeholder = f.label;
                 el.value = document.getElementById(f.id)?.value ?? '';
                 el.style.width = '100%';
                 el.style.padding = '8px';
                 el.style.borderRadius = '4px';
                 el.style.background = '#4b5563';
                 el.style.color = '#f9fafb';
+                el.style.marginBottom = '10px';
+                // Style placeholder text
+                el.style.setProperty('--placeholder-color', '#aaa');
                 el.addEventListener('input', e => {
                     const main = document.getElementById(f.id);
                     if (main) main.value = e.target.value;
@@ -2700,6 +2695,7 @@
             // Textarea
             if (f.type === 'textarea') {
                 const ta = document.createElement('textarea');
+                ta.placeholder = f.label;
                 ta.value = document.getElementById(f.id)?.value ?? '';
                 ta.style.width = '100%';
                 ta.style.minHeight = '60px';
@@ -2707,6 +2703,7 @@
                 ta.style.borderRadius = '4px';
                 ta.style.background = '#4b5563';
                 ta.style.color = '#f9fafb';
+                ta.style.marginBottom = '10px';
                 ta.addEventListener('input', e => {
                     const main = document.getElementById(f.id);
                     if (main) main.value = e.target.value;
@@ -2721,6 +2718,15 @@
                 const yesId = f.id + 'Yes_egg';
                 const noId = f.id + 'No_egg';
                 const naId = f.id + 'NA_egg';
+
+                // Add label above the checkbox group
+                const groupLabel = document.createElement('div');
+                groupLabel.textContent = f.label;
+                groupLabel.style.display = 'block';
+                groupLabel.style.marginBottom = '8px';
+                groupLabel.style.fontWeight = 'bold';
+                groupLabel.style.color = '#f9fafb';
+                wrapper.appendChild(groupLabel);
 
                 function makeRadioLocal(id, labelText) {
                     const wrap = document.createElement('label');
