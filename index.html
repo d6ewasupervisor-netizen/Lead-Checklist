@@ -2017,11 +2017,6 @@
         <div class="custom-modal-dialog" style="max-width:700px; width: 95%;">
             <h2>Quick EOD — Cover Sheet Fields</h2>
             <div id="easterEggContent" style="max-height:60vh; overflow:auto; padding-top:8px;"></div>
-            <div style="margin-top:18px;">
-                <label class="signature-label" style="color:#88c4ed; font-weight:600;">Signature (EOD Quick View):</label>
-                <div id="easterEggSignaturePreview" class="signature-preview-box">Tap "Sign" to add or update your signature.</div>
-                <button class="btn btn-primary" id="openSignatureFull_overlay" style="margin-top:10px;">Sign</button>
-            </div>
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
                 <button class="btn btn-secondary" id="easterEggClose">Close</button>
             </div>
@@ -2801,7 +2796,6 @@
         // Update preview boxes from stored signature
         async function updateSignaturePreviews() {
             const previewMain = document.getElementById('signaturePreview');
-            const previewOverlay = document.getElementById('easterEggSignaturePreview');
             let dataUrl = '';
             try {
                 dataUrl = await getSignatureDataURL();
@@ -2809,10 +2803,8 @@
 
             if (dataUrl) {
                 if (previewMain) previewMain.innerHTML = `<img alt="Signature preview" src="${dataUrl}">`;
-                if (previewOverlay) previewOverlay.innerHTML = `<img alt="Signature preview" src="${dataUrl}">`;
             } else {
                 if (previewMain) previewMain.textContent = 'Tap "Sign" and rotate your device to landscape to sign.';
-                if (previewOverlay) previewOverlay.textContent = 'Tap "Sign" to add or update your signature.';
             }
         }
 
@@ -3057,9 +3049,7 @@
             // Add remaining fields as usual in stacked layout
             fields.slice(3).forEach(f => content.appendChild(makeRow(f)));
 
-            // Update overlay signature preview and wire Sign button
             updateSignaturePreviews();
-            document.getElementById('openSignatureFull_overlay')?.addEventListener('click', openSignatureFull);
             overlay.classList.add('show');
         }
 
