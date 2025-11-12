@@ -1944,16 +1944,39 @@
         </div>
     </div>
     <!-- EASTER EGG: Quick EOD modal (revealed by clicking header logo) -->
+    <style>
+    .custom-modal-overlay {
+        opacity: 0;
+        transition: opacity 0.35s cubic-bezier(.4,0,.2,1);
+        pointer-events: none;
+    }
+    .custom-modal-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .btn {
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .btn:hover {
+        box-shadow: 0 4px 16px rgba(136,196,237,0.18);
+        transform: translateY(-2px) scale(1.04);
+    }
+    </style>
     <div id="easterEggOverlay" class="custom-modal-overlay">
         <div class="custom-modal-dialog" style="max-width:700px; width: 95%;">
             <h2>Quick EOD — Cover Sheet Fields</h2>
-            <div id="easterEggContent" style="max-height:60vh; overflow:auto; padding-top:8px;">
-                <!-- Content populated dynamically to mirror EOD fields -->
+            <div id="easterEggContent" style="max-height:60vh; overflow:auto; padding-top:8px;"></div>
+            <div style="margin-top:18px;">
+                <label class="signature-label" style="color:#88c4ed; font-weight:600;">Signature (EOD Quick View):</label>
+                <canvas id="easterEggSignaturePad" class="signature-canvas" style="background:white; width:100%; height:188px; display:block; margin-bottom:8px;"></canvas>
+                <button class="btn-clear-sig" id="easterEggClearSig">Clear Signature</button>
+                <button class="btn-clear-sig" id="easterEggUploadSig" style="margin-left:10px;">Upload Signature</button>
+                <input type="file" id="easterEggSigUpload" accept="image/png, image/jpeg" style="display:none;" />
             </div>
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
                 <button class="btn btn-secondary" id="easterEggClose">Close</button>
+                <button class="btn btn-success" id="easterEggImage">Generate Image</button>
                 <button class="btn btn-primary" id="easterEggPdf">Generate PDF</button>
-                <button class="btn btn-success" id="easterEggImage">Generate & Open Email</button>
             </div>
         </div>
     </div>
@@ -2645,29 +2668,124 @@
         function makeRow(f){
             const wrapper = document.createElement('div');
             wrapper.style.marginBottom = '10px';
-            const label = document.createElement('label');
-            label.style.display = 'block';
-            label.style.fontWeight = '600';
-            label.style.color = '#f9fafb';
-            label.textContent = f.label;
-            wrapper.appendChild(label);
-
-            if (f.type === 'text' || f.type === 'date'){
-                const el = document.createElement('input');
-                el.type = f.type === 'date' ? 'date' : 'text';
-                el.value = document.getElementById(f.id)?.value ?? '';
-                el.style.width = '100%';
-                el.style.padding = '8px';
-                el.style.borderRadius = '4px';
-                el.style.background = '#4b5563';
-                el.style.color = '#f9fafb';
-                el.addEventListener('input', e => {
-                    const main = document.getElementById(f.id);
-                    if (main) main.value = e.target.value;
-                    autoSave();
-                });
-                wrapper.appendChild(el);
-            } else if (f.type === 'textarea'){
+                function makeRadio(id, labelText) {
+                    const wrap = document.createElement('label');
+                    wrap.className = 'custom-radio';
+                    wrap.style.display = 'flex';
+                    wrap.style.alignItems = 'center';
+                    wrap.style.gap = '6px';
+                    wrap.style.cursor = 'pointer';
+                    let tip = '';
+                    if (labelText === 'Yes') tip = 'Select if this is true for today.';
+                    if (labelText === 'No') tip = 'Select if this does not apply for today.';
+                    if (labelText === 'N/A') tip = 'Select if this is not applicable.';
+                    wrap.innerHTML = `<input type='checkbox' id='${id}' style='accent-color:#0d4f8b; width:20px; height:20px;' title='${tip}'> <span title='${tip}'>${labelText}</span>`;
+                    return wrap;
+                }
+                const yes = makeRadio(yesId, 'Yes');
+                const no = makeRadio(noId, 'No');
+                grp.appendChild(yes);
+                grp.appendChild(no);
+                if (f.type === 'yna-checkbox'){
+                    const na = makeRadio(naId, 'N/A');
+                    grp.appendChild(na);
+                }
+                if (f.type === 'text' || f.type === 'date') {
+                    const el = document.createElement('input');
+                    el.type = f.type === 'date' ? 'date' : 'text';
+                    el.value = document.getElementById(f.id)?.value ?? '';
+                    el.style.width = '100%';
+                    el.style.padding = '8px';
+                    el.style.borderRadius = '4px';
+                    el.style.background = '#4b5563';
+                    el.style.color = '#f9fafb';
+                    el.addEventListener('input', e => {
+                        const main = document.getElementById(f.id);
+                        if (main) main.value = e.target.value;
+                        autoSave();
+                    });
+                    wrapper.appendChild(el);
+                } else if (f.type === 'textarea') {
+                    const ta = document.createElement('textarea');
+                    ta.value = document.getElementById(f.id)?.value ?? '';
+                    ta.style.width = '100%';
+                    ta.style.minHeight = '60px';
+                    ta.style.padding = '8px';
+                    ta.style.borderRadius = '4px';
+                    ta.style.background = '#4b5563';
+                    ta.style.color = '#f9fafb';
+                    ta.addEventListener('input', e => {
+                        const main = document.getElementById(f.id);
+                        if (main) main.value = e.target.value;
+                        autoSave();
+                    });
+                    wrapper.appendChild(ta);
+                } else if (f.type === 'yn-checkbox' || f.type === 'yna-checkbox') {
+                    const yesId = f.id + 'Yes_egg';
+                    const noId = f.id + 'No_egg';
+                    const naId = f.id + 'NA_egg';
+                    function makeRadio(id, labelText) {
+                        const wrap = document.createElement('label');
+                        wrap.className = 'custom-radio';
+                        wrap.style.display = 'flex';
+                        wrap.style.alignItems = 'center';
+                        wrap.style.gap = '6px';
+                        wrap.style.cursor = 'pointer';
+                        let tip = '';
+                        if (labelText === 'Yes') tip = 'Select if this is true for today.';
+                        if (labelText === 'No') tip = 'Select if this does not apply for today.';
+                        if (labelText === 'N/A') tip = 'Select if this is not applicable.';
+                        wrap.innerHTML = `<input type='checkbox' id='${id}' style='accent-color:#0d4f8b; width:20px; height:20px;' title='${tip}'> <span title='${tip}'>${labelText}</span>`;
+                        return wrap;
+                    }
+                    const grp = document.createElement('div');
+                    grp.style.display = 'flex';
+                    grp.style.gap = '12px';
+                    const yes = makeRadio(yesId, 'Yes');
+                    const no = makeRadio(noId, 'No');
+                    grp.appendChild(yes);
+                    grp.appendChild(no);
+                    if (f.type === 'yna-checkbox'){
+                        const na = makeRadio(naId, 'N/A');
+                        grp.appendChild(na);
+                    }
+                    // Initialize states from main inputs (use name/value so we don't rely on specific id conventions)
+                    const mainCheckedYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`)?.checked || false;
+                    const mainCheckedNo = document.querySelector(`input[name="${f.id}"][value="No"]`)?.checked || false;
+                    const mainCheckedNA = document.querySelector(`input[name="${f.id}"][value="NA"]`)?.checked || false;
+                    if (mainCheckedYes) setTimeout(() => { document.getElementById(yesId).checked = true; }, 0);
+                    if (mainCheckedNo) setTimeout(() => { document.getElementById(noId).checked = true; }, 0);
+                    if (f.type === 'yna-checkbox' && mainCheckedNA) setTimeout(() => { document.getElementById(naId).checked = true; }, 0);
+                    // Radio-like behavior: only one can be checked at a time
+                    [yesId, noId, naId].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        el.addEventListener('change', () => {
+                            if (el.checked) {
+                                [yesId, noId, naId].forEach(otherId => {
+                                    if (otherId !== id) {
+                                        const otherEl = document.getElementById(otherId);
+                                        if (otherEl) otherEl.checked = false;
+                                    }
+                                });
+                            }
+                            // Sync to main inputs
+                            const mainYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`);
+                            const mainNo = document.querySelector(`input[name="${f.id}"][value="No"]`);
+                            const mainNA = document.querySelector(`input[name="${f.id}"][value="NA"]`);
+                            if (mainYes) mainYes.checked = document.getElementById(yesId)?.checked;
+                            if (mainNo) mainNo.checked = document.getElementById(noId)?.checked;
+                            if (mainNA) mainNA.checked = document.getElementById(naId)?.checked;
+                            // Toggle related conditional UI if needed
+                            if (f.id === 'calledHotline') toggleHotlineFields(mainYes || {id:'eodHotlineYes',checked:document.getElementById(yesId)?.checked});
+                            if (f.id === 'issueResolved') toggleResolutionField(mainNA || {id:'eodResolvedNA',checked:document.getElementById(naId)?.checked});
+                            toggleRadio(f.id);
+                            autoSave();
+                            updateProgress();
+                        });
+                    });
+                    wrapper.appendChild(grp);
+                }
                 const ta = document.createElement('textarea');
                 ta.value = document.getElementById(f.id)?.value ?? '';
                 ta.style.width = '100%';
@@ -2682,65 +2800,6 @@
                     autoSave();
                 });
                 wrapper.appendChild(ta);
-            } else if (f.type === 'yn-checkbox' || f.type === 'yna-checkbox'){
-                const yesId = f.id + 'Yes_egg';
-                const noId = f.id + 'No_egg';
-                const naId = f.id + 'NA_egg';
-
-                const grp = document.createElement('div');
-                grp.style.display = 'flex';
-                grp.style.gap = '12px';
-                const yes = document.createElement('label');
-                yes.style.cursor = 'pointer';
-                yes.innerHTML = `<input type='checkbox' id='${yesId}'> Yes`;
-                const no = document.createElement('label');
-                no.style.cursor = 'pointer';
-                no.innerHTML = `<input type='checkbox' id='${noId}'> No`;
-                grp.appendChild(yes);
-                grp.appendChild(no);
-
-                if (f.type === 'yna-checkbox'){
-                    const na = document.createElement('label');
-                    na.style.cursor = 'pointer';
-                    na.innerHTML = `<input type='checkbox' id='${naId}'> N/A`;
-                    grp.appendChild(na);
-                }
-
-                // Initialize states from main inputs (use name/value so we don't rely on specific id conventions)
-                const mainCheckedYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`)?.checked || false;
-                const mainCheckedNo = document.querySelector(`input[name="${f.id}"][value="No"]`)?.checked || false;
-                const mainCheckedNA = document.querySelector(`input[name="${f.id}"][value="NA"]`)?.checked || false;
-
-                if (mainCheckedYes) document.getElementById(yesId).checked = true;
-                if (mainCheckedNo) document.getElementById(noId).checked = true;
-                if (f.type === 'yna-checkbox' && mainCheckedNA) document.getElementById(naId).checked = true;
-
-                // Wire change to sync with main inputs
-                grp.addEventListener('change', () => {
-                    // Sync yes/no/na to the main checkboxes/radio-like groups
-                    const mainYes = document.querySelector(`input[name="${f.id}"][value="Yes"]`);
-                    const mainNo = document.querySelector(`input[name="${f.id}"][value="No"]`);
-                    const mainNA = document.querySelector(`input[name="${f.id}"][value="NA"]`);
-
-                    const y = document.getElementById(yesId).checked;
-                    const n = document.getElementById(noId).checked;
-                    const na = f.type === 'yna-checkbox' ? document.getElementById(naId).checked : false;
-
-                    if (mainYes) mainYes.checked = y;
-                    if (mainNo) mainNo.checked = n;
-                    if (mainNA) mainNA.checked = na;
-
-                    // Toggle related conditional UI if needed
-                    if (f.id === 'calledHotline') toggleHotlineFields(mainYes || {id:'eodHotlineYes',checked:y});
-                    if (f.id === 'issueResolved') toggleResolutionField(mainNA || {id:'eodResolvedNA',checked:na});
-
-                    // For other radio-like groups, call toggleRadio by name
-                    toggleRadio(f.id);
-                    autoSave();
-                    updateProgress();
-                });
-
-                wrapper.appendChild(grp);
             }
 
             return wrapper;
@@ -2750,30 +2809,122 @@
             content.innerHTML = '';
             fields.forEach(f => content.appendChild(makeRow(f)));
 
-            // Signature preview
-            const sigWrap = document.createElement('div');
-            sigWrap.style.marginTop = '8px';
-            const sigLabel = document.createElement('label');
-            sigLabel.style.color = '#f9fafb';
-            sigLabel.style.fontWeight = '600';
-            sigLabel.textContent = 'Signature Preview';
-            sigWrap.appendChild(sigLabel);
-            const sigImg = document.createElement('img');
-            sigImg.id = 'sigPreviewEasterEgg';
-            sigImg.style.display = 'block';
-            sigImg.style.width = '100%';
-            sigImg.style.height = 'auto';
-            sigImg.style.background = '#fff';
-            sigImg.style.border = '1px solid #0d4f8b';
-            sigImg.style.borderRadius = '6px';
-            const canvas = document.getElementById('signaturePad');
-            try{
-                const data = canvas.toDataURL('image/png');
-                if (data && data !== 'data:,') sigImg.src = data;
-                else sigImg.alt = 'No signature yet';
-            }catch(e){ sigImg.alt = 'No signature yet'; }
-            sigWrap.appendChild(sigImg);
-            content.appendChild(sigWrap);
+            // --- Signature canvas logic for overlay ---
+            const mainCanvas = document.getElementById('signaturePad');
+            const eggCanvas = document.getElementById('easterEggSignaturePad');
+            const eggClearBtn = document.getElementById('easterEggClearSig');
+            const eggUploadBtn = document.getElementById('easterEggUploadSig');
+            const eggUploadInput = document.getElementById('easterEggSigUpload');
+
+            // Resize overlay canvas to match main
+            function resizeEggCanvas() {
+                eggCanvas.width = mainCanvas.width;
+                eggCanvas.height = mainCanvas.height;
+            }
+            resizeEggCanvas();
+
+            // Copy signature from main to overlay
+            function copyMainToEgg() {
+                try {
+                    const data = mainCanvas.toDataURL('image/png');
+                    const img = new window.Image();
+                    img.onload = function() {
+                        const ctx = eggCanvas.getContext('2d');
+                        ctx.clearRect(0, 0, eggCanvas.width, eggCanvas.height);
+                        ctx.drawImage(img, 0, 0);
+                    };
+                    img.src = data;
+                } catch(e) {}
+            }
+            copyMainToEgg();
+
+            // Drawing logic for overlay canvas
+            let isDrawingEgg = false, lastEggX = 0, lastEggY = 0;
+            const eggCtx = eggCanvas.getContext('2d');
+            function startEggDraw(e) {
+                isDrawingEgg = true;
+                const rect = eggCanvas.getBoundingClientRect();
+                const touch = e.touches ? e.touches[0] : e;
+                lastEggX = touch.clientX - rect.left;
+                lastEggY = touch.clientY - rect.top;
+            }
+            function drawEgg(e) {
+                if (!isDrawingEgg) return;
+                e.preventDefault();
+                const rect = eggCanvas.getBoundingClientRect();
+                const touch = e.touches ? e.touches[0] : e;
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                eggCtx.beginPath();
+                eggCtx.moveTo(lastEggX, lastEggY);
+                eggCtx.lineTo(x, y);
+                eggCtx.strokeStyle = '#000';
+                eggCtx.lineWidth = 5;
+                eggCtx.lineCap = 'round';
+                eggCtx.lineJoin = 'round';
+                eggCtx.stroke();
+                lastEggX = x;
+                lastEggY = y;
+            }
+            function stopEggDraw() {
+                if (isDrawingEgg) {
+                    isDrawingEgg = false;
+                    syncEggToMain();
+                }
+            }
+            eggCanvas.addEventListener('mousedown', startEggDraw);
+            eggCanvas.addEventListener('mousemove', drawEgg);
+            eggCanvas.addEventListener('mouseup', stopEggDraw);
+            eggCanvas.addEventListener('mouseout', stopEggDraw);
+            eggCanvas.addEventListener('touchstart', startEggDraw, { passive: false });
+            eggCanvas.addEventListener('touchmove', drawEgg, { passive: false });
+            eggCanvas.addEventListener('touchend', stopEggDraw);
+
+            // Clear button
+            eggClearBtn.onclick = function() {
+                eggCtx.clearRect(0, 0, eggCanvas.width, eggCanvas.height);
+                syncEggToMain();
+            };
+
+            // Upload button
+            eggUploadBtn.onclick = function() {
+                eggUploadInput.click();
+            };
+            eggUploadInput.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Error: Please upload an image file (PNG or JPG).');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new window.Image();
+                    img.onload = function() {
+                        eggCtx.clearRect(0, 0, eggCanvas.width, eggCanvas.height);
+                        eggCtx.drawImage(img, 0, 0, eggCanvas.width, eggCanvas.height);
+                        syncEggToMain();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                event.target.value = null;
+            };
+
+            // Sync overlay signature to main canvas and localStorage
+            function syncEggToMain() {
+                try {
+                    const data = eggCanvas.toDataURL('image/png');
+                    const ctxMain = mainCanvas.getContext('2d');
+                    const img = new window.Image();
+                    img.onload = function() {
+                        ctxMain.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                        ctxMain.drawImage(img, 0, 0);
+                        autoSave();
+                    };
+                    img.src = data;
+                } catch(e) {}
+            }
 
             overlay.classList.add('show');
         }
@@ -2791,23 +2942,7 @@
         btnImage?.addEventListener('click', async () => {
             try{ await window.generateEODAndEmail(); } catch(e){ console.error(e); }
         });
-    })();
     // --- END EASTER EGG ---
-(() => {
-    // Local helpers used by the overrides
-    const pickYN = (v) => {
-    if (typeof v === 'string') {
-        const s = v.trim().toLowerCase();
-        if (s.startsWith('y')) return 'Yes';
-        if (s.startsWith('n')) return 'No';
-    }
-    return v ? 'Yes' : 'No';
-    };
-    const pickYNN = (v) => {
-    if (typeof v === 'string') {
-        const s = v.trim().toLowerCase();
-        if (s === 'na' || s === 'n/a') return 'NA';
-        if (s.startsWith('y')) return 'Yes';
         if (s.startsWith('n')) return 'No';
     }
     if (v === null || v === undefined) return 'NA';
@@ -3218,9 +3353,68 @@ Notes:
                 `Your image has been saved as <b>${jpgFilename}</b>.<br><br>Click 'Yes' to open your email client and attach the file.`,
                 () => {
                     // This code runs ONLY when the user clicks "Yes"
-                    window.location.href = mailtoUrl;
+                    // Use the new fallback function for desktop Outlook support
+                    openEmailClientWithFallback(mailtoUrl, subject, body, cc);
                 }
             );
+
+    // NEW: Helper function to open Outlook/email client with fallback for desktop
+    async function openEmailClientWithFallback(mailtoUrl, subject, body, cc) {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            // On mobile, directly use mailto protocol
+            window.location.href = mailtoUrl;
+            return;
+        }
+
+        // On desktop: try mailto: protocol, but with a fallback to clipboard + instructions
+        const mailtoAttempt = new Promise((resolve) => {
+            // Set a short timeout; if the protocol handler doesn't respond, fall back
+            const timer = setTimeout(() => {
+                resolve(false); // mailto protocol likely failed
+            }, 1500);
+
+            // Try to open mailto
+            window.location.href = mailtoUrl;
+
+            // Check if the window is still in focus (mailto likely worked if user switched to email app)
+            window.addEventListener('blur', () => {
+                clearTimeout(timer);
+                resolve(true);
+            }, { once: true });
+        });
+
+        const success = await mailtoAttempt;
+
+        if (!success) {
+            // Fallback: copy body to clipboard and show instructions
+            try {
+                await navigator.clipboard.writeText(body);
+                showCustomAlert(
+                    'Email Body Copied to Clipboard',
+                    `<strong>Mailto protocol not available on this desktop.</strong><br><br>` +
+                    `<strong>To:</strong> (Store Manager)<br>` +
+                    `<strong>CC:</strong> ${cc}<br><br>` +
+                    `<strong>Subject:</strong> ${subject}<br><br>` +
+                    `<strong>The email body has been copied to your clipboard.</strong><br>` +
+                    `Paste it into your email client and attach the saved JPG file.<br><br>` +
+                    `<em>Alternatively, open Outlook and create a new email manually.</em>`
+                );
+            } catch (clipErr) {
+                // If clipboard fails too, just show the full email details
+                showCustomAlert(
+                    'Manual Email Composition Required',
+                    `<strong>To:</strong> (Store Manager)<br>` +
+                    `<strong>CC:</strong> ${cc}<br><br>` +
+                    `<strong>Subject:</strong> ${subject}<br><br>` +
+                    `<strong>Body:</strong><br>${body.substring(0, 200)}...<br><br>` +
+                    `Please compose the email manually and attach the saved JPG file.`
+                );
+            }
+        }
+    }
+    // --- END EMAIL FALLBACK ---
 
         } catch (error) {
             console.error('Error generating JPG and Email:', error);
@@ -3229,7 +3423,6 @@ Notes:
         }
     };
 
-})();
 </script>
 
 </body>
