@@ -2926,7 +2926,14 @@
         btnImage?.addEventListener('click', async () => {
             try{ await window.generateEODAndEmail(); } catch(e){ console.error(e); }
         });
-    initEasterEgg();
+    }
+
+    // Call initEasterEgg after all DOM is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initEasterEgg);
+    } else {
+        initEasterEgg();
+    }
     // --- END EASTER EGG ---
     
     /* * REPLACED isoDate function with a more comprehensive date formatter
@@ -3266,7 +3273,7 @@ Date:
 Store Number:
   ${payload.StoreNumber || ''}
 
-Did you take a picture of the KOMPASS cart and load it to the KOMPASS Maintenance line in PROD at the start of the shift?
+Before photo of the KOMPASS cart loaded to maintenance in PROD? 
   ${pickYN(payload.BeforePicPosted)}
 
 Manager’s name - who you checked in with:
@@ -3299,10 +3306,10 @@ Did all sets get signed out in SI?
 Sign-out sheet attached to the EOD email?
   ${pickYN(payload.SignoutSheetAttachedEmail)}
 
-Sign-out sheet attached to the KOMPASS Maintenance line in PROD?
+Sign-out sheet attached to the maintenance line in PROD?
   ${pickYN(payload.SignoutSheetAttachedPROD)}
 
-Did you take an after picture of the KOMAPSS cart and load it to the KOMPASS Maintenance line in PROD at the end of the shift?
+After photo of the KOMPASS cart loaded to maintenance in PROD? 
   ${pickYN(payload.AfterPicPosted)}
 
 Notes:
@@ -3330,72 +3337,70 @@ Notes:
                     openEmailClientWithFallback(mailtoUrl, subject, body, cc);
                 }
             );
-
-    // NEW: Helper function to open Outlook/email client with fallback for desktop
-    async function openEmailClientWithFallback(mailtoUrl, subject, body, cc) {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (isMobile) {
-            // On mobile, directly use mailto protocol
-            window.location.href = mailtoUrl;
-            return;
-        }
-
-        // On desktop: try mailto: protocol, but with a fallback to clipboard + instructions
-        const mailtoAttempt = new Promise((resolve) => {
-            // Set a short timeout; if the protocol handler doesn't respond, fall back
-            const timer = setTimeout(() => {
-                resolve(false); // mailto protocol likely failed
-            }, 1500);
-
-            // Try to open mailto
-            window.location.href = mailtoUrl;
-
-            // Check if the window is still in focus (mailto likely worked if user switched to email app)
-            window.addEventListener('blur', () => {
-                clearTimeout(timer);
-                resolve(true);
-            }, { once: true });
-        });
-
-        const success = await mailtoAttempt;
-
-        if (!success) {
-            // Fallback: copy body to clipboard and show instructions
-            try {
-                await navigator.clipboard.writeText(body);
-                showCustomAlert(
-                    'Email Body Copied to Clipboard',
-                    `<strong>Mailto protocol not available on this desktop.</strong><br><br>` +
-                    `<strong>To:</strong> (Store Manager)<br>` +
-                    `<strong>CC:</strong> ${cc}<br><br>` +
-                    `<strong>Subject:</strong> ${subject}<br><br>` +
-                    `<strong>The email body has been copied to your clipboard.</strong><br>` +
-                    `Paste it into your email client and attach the saved JPG file.<br><br>` +
-                    `<em>Alternatively, open Outlook and create a new email manually.</em>`
-                );
-            } catch (clipErr) {
-                // If clipboard fails too, just show the full email details
-                showCustomAlert(
-                    'Manual Email Composition Required',
-                    `<strong>To:</strong> (Store Manager)<br>` +
-                    `<strong>CC:</strong> ${cc}<br><br>` +
-                    `<strong>Subject:</strong> ${subject}<br><br>` +
-                    `<strong>Body:</strong><br>${body.substring(0, 200)}...<br><br>` +
-                    `Please compose the email manually and attach the saved JPG file.`
-                );
-            }
-        }
-    }
-    // --- END EMAIL FALLBACK ---
-
         } catch (error) {
             console.error('Error generating JPG and Email:', error);
             overlay.classList.remove('show'); // Hide overlay on error
             showCustomAlert('Error Generating Email', error.message + (payload ? `<br><br>Debug Info: Store=${payload.StoreNumberPadded}, Date=${payload.DateMMDDYYYY}` : ''));
         }
+
+        // NEW: Helper function to open Outlook/email client with fallback for desktop
+        async function openEmailClientWithFallback(mailtoUrl, subject, body, cc) {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // On mobile, directly use mailto protocol
+                window.location.href = mailtoUrl;
+                return;
+            }
+
+            // On desktop: try mailto: protocol, but with a fallback to clipboard + instructions
+            const mailtoAttempt = new Promise((resolve) => {
+                // Set a short timeout; if the protocol handler doesn't respond, fall back
+                const timer = setTimeout(() => {
+                    resolve(false); // mailto protocol likely failed
+                }, 1500);
+
+                // Try to open mailto
+                window.location.href = mailtoUrl;
+
+                // Check if the window is still in focus (mailto likely worked if user switched to email app)
+                window.addEventListener('blur', () => {
+                    clearTimeout(timer);
+                    resolve(true);
+                }, { once: true });
+            });
+
+            const success = await mailtoAttempt;
+
+            if (!success) {
+                // Fallback: copy body to clipboard and show instructions
+                try {
+                    await navigator.clipboard.writeText(body);
+                    showCustomAlert(
+                        'Email Body Copied to Clipboard',
+                        `<strong>Mailto protocol not available on this desktop.</strong><br><br>` +
+                        `<strong>To:</strong> (Store Manager)<br>` +
+                        `<strong>CC:</strong> ${cc}<br><br>` +
+                        `<strong>Subject:</strong> ${subject}<br><br>` +
+                        `<strong>The email body has been copied to your clipboard.</strong><br>` +
+                        `Paste it into your email client and attach the saved JPG file.<br><br>` +
+                        `<em>Alternatively, open Outlook and create a new email manually.</em>`
+                    );
+                } catch (clipErr) {
+                    // If clipboard fails too, just show the full email details
+                    showCustomAlert(
+                        'Manual Email Composition Required',
+                        `<strong>To:</strong> (Store Manager)<br>` +
+                        `<strong>CC:</strong> ${cc}<br><br>` +
+                        `<strong>Subject:</strong> ${subject}<br><br>` +
+                        `<strong>Body:</strong><br>${body.substring(0, 200)}...<br><br>` +
+                        `Please compose the email manually and attach the saved JPG file.`
+                    );
+                }
+            }
+        }
     }
-}
+    // --- END EMAIL FALLBACK ---
 
 </script>
 
