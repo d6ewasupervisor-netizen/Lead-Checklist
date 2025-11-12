@@ -2634,7 +2634,7 @@
 
     <script>
     // --- EASTER EGG: Quick EOD view logic ---
-    (function(){
+    function initEasterEgg() {
         const logo = document.getElementById('headerLogo');
         const overlay = document.getElementById('easterEggOverlay');
         const content = document.getElementById('easterEggContent');
@@ -2942,12 +2942,8 @@
         btnImage?.addEventListener('click', async () => {
             try{ await window.generateEODAndEmail(); } catch(e){ console.error(e); }
         });
+    initEasterEgg();
     // --- END EASTER EGG ---
-        if (s.startsWith('n')) return 'No';
-    }
-    if (v === null || v === undefined) return 'NA';
-    return v ? 'Yes' : 'No';
-    };
     async function embedDataUrl(pdfDoc, dataUrl) {
     if (!dataUrl) return null;
     const res = await fetch(dataUrl);
