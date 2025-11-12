@@ -1860,10 +1860,11 @@
             <!-- Signature Section - Moved to the end -->
             <div class="signature-section">
                 <label class="signature-label">Lead Signature:</label>
-                <canvas id="signaturePad" class="signature-canvas"></canvas>
-                <button class="btn-clear-sig" onclick="clearSignature()">Clear Signature</button>
-                <button class="btn-clear-sig" onclick="document.getElementById('sigUpload').click()" style="margin-left: 10px;">Upload Signature</button>
-                <input type="file" id="sigUpload" accept="image/png, image/jpeg" style="display: none;" onchange="loadSignature(event)">
+                <div id="signaturePreview" class="signature-preview-box">Tap "Sign" and rotate your device to landscape to sign.</div>
+                <button class="btn btn-primary" id="openSignatureFull" style="margin-top:10px;">Sign</button>
+                <!-- Hidden storage canvas for internal use -->
+                <canvas id="signaturePad" class="signature-canvas" style="display:none;"></canvas>
+                <input type="file" id="sigUpload" accept="image/png, image/jpeg" style="display: none;">
             </div>
 
             <!-- Action Buttons -->
@@ -1897,6 +1898,48 @@
                 <button class="btn btn-primary" id="customModalConfirm">OK</button>
             </div>
         </div>
+    </div>
+    
+    <!-- Full-screen Signature Overlay -->
+    <style>
+        .signature-preview-box {
+            border: 2px solid #0d4f8b;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #111827;
+            min-height: 188px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .signature-preview-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .signature-fullscreen-overlay { position: fixed; inset: 0; background: #111827; display: none; z-index: 10002; flex-direction: column; }
+        .signature-fullscreen-overlay.show { display: flex; }
+        .sig-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px; background: #0d4f8b; color: #fff; }
+        .sig-toolbar .sig-orientation-hint { color: #fcd34d; font-weight: 600; }
+        @media (orientation: landscape) { .sig-toolbar .sig-orientation-hint { display: none; } }
+        #sigFsCanvas { flex: 1; background: #fff; touch-action: none; display: block; width: 100%; height: 100%; }
+
+        /* Make Easter Egg dialog fit safely on mobile */
+        #easterEggOverlay .custom-modal-dialog { max-width: 96vw !important; width: 96vw !important; margin: 2vw !important; padding: 16px !important; }
+        #easterEggContent { overflow-wrap: anywhere; word-break: break-word; }
+    </style>
+    <div id="signatureFullOverlay" class="signature-fullscreen-overlay">
+        <div class="sig-toolbar">
+            <button class="btn btn-secondary" id="sigFsClose">Close</button>
+            <div class="sig-orientation-hint">Rotate device to landscape for larger signing area</div>
+            <div style="margin-left:auto; display:flex; gap:8px;">
+                <button class="btn btn-secondary" id="sigFsLoad">Load Image</button>
+                <button class="btn btn-secondary" id="sigFsClear">Clear</button>
+                <button class="btn btn-primary" id="sigFsAccept">Accept</button>
+            </div>
+            <input type="file" id="sigFsUpload" accept="image/png, image/jpeg" style="display:none;">
+        </div>
+        <canvas id="sigFsCanvas"></canvas>
     </div>
     <div id="disclaimerModal" class="custom-modal-overlay">
         <div class="custom-modal-dialog" style="max-width: 600px;">
@@ -1968,10 +2011,8 @@
             <div id="easterEggContent" style="max-height:60vh; overflow:auto; padding-top:8px;"></div>
             <div style="margin-top:18px;">
                 <label class="signature-label" style="color:#88c4ed; font-weight:600;">Signature (EOD Quick View):</label>
-                <canvas id="easterEggSignaturePad" class="signature-canvas" style="background:white; width:100%; height:188px; display:block; margin-bottom:8px;"></canvas>
-                <button class="btn-clear-sig" id="easterEggClearSig">Clear Signature</button>
-                <button class="btn-clear-sig" id="easterEggUploadSig" style="margin-left:10px;">Upload Signature</button>
-                <input type="file" id="easterEggSigUpload" accept="image/png, image/jpeg" style="display:none;" />
+                <div id="easterEggSignaturePreview" class="signature-preview-box">Tap "Sign" to add or update your signature.</div>
+                <button class="btn btn-primary" id="openSignatureFull_overlay" style="margin-top:10px;">Sign</button>
             </div>
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
                 <button class="btn btn-secondary" id="easterEggClose">Close</button>
@@ -2584,6 +2625,184 @@
             // Clear the input value so the same file can be loaded again if needed
             event.target.value = null;
         }
+        
+        // --- NEW: Full-screen signature logic ---
+        const fsOverlay = document.getElementById('signatureFullOverlay');
+        const fsCanvas = document.getElementById('sigFsCanvas');
+        const fsCtx = fsCanvas.getContext('2d');
+        const fsCloseBtn = document.getElementById('sigFsClose');
+        const fsClearBtn = document.getElementById('sigFsClear');
+        const fsAcceptBtn = document.getElementById('sigFsAccept');
+        const fsLoadBtn = document.getElementById('sigFsLoad');
+        const fsUploadInput = document.getElementById('sigFsUpload');
+
+        let fsDrawing = false, fsLastX = 0, fsLastY = 0;
+
+        function resizeFsCanvas() {
+            // Preserve current drawing
+            const data = fsCanvas.width && fsCanvas.height ? fsCanvas.toDataURL('image/png') : null;
+            const toolbar = fsOverlay.querySelector('.sig-toolbar');
+            const toolbarH = toolbar ? toolbar.offsetHeight : 0;
+            fsCanvas.width = window.innerWidth;
+            fsCanvas.height = window.innerHeight - toolbarH;
+            if (data) {
+                const img = new Image();
+                img.onload = () => {
+                    // Fit image into new canvas while preserving aspect
+                    const scale = Math.min(fsCanvas.width / img.width, fsCanvas.height / img.height);
+                    const dw = img.width * scale;
+                    const dh = img.height * scale;
+                    const dx = (fsCanvas.width - dw) / 2;
+                    const dy = (fsCanvas.height - dh) / 2;
+                    fsCtx.clearRect(0, 0, fsCanvas.width, fsCanvas.height);
+                    fsCtx.drawImage(img, 0, 0, img.width, img.height, dx, dy, dw, dh);
+                };
+                img.src = data;
+            } else {
+                fsCtx.clearRect(0, 0, fsCanvas.width, fsCanvas.height);
+            }
+        }
+
+        function openSignatureFull() {
+            fsOverlay.classList.add('show');
+            resizeFsCanvas();
+
+            // Seed with current signature from storage canvas
+            try {
+                const data = canvas.toDataURL('image/png');
+                if (data && data !== 'data:,') {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Center inside fullscreen canvas
+                        const scale = Math.min(fsCanvas.width / img.width, fsCanvas.height / img.height);
+                        const dw = img.width * scale;
+                        const dh = img.height * scale;
+                        const dx = (fsCanvas.width - dw) / 2;
+                        const dy = (fsCanvas.height - dh) / 2;
+                        fsCtx.drawImage(img, 0, 0, img.width, img.height, dx, dy, dw, dh);
+                    };
+                    img.src = data;
+                }
+            } catch(e) {}
+        }
+
+        function closeSignatureFull() {
+            fsOverlay.classList.remove('show');
+        }
+
+        function fsStart(e) {
+            fsDrawing = true;
+            const rect = fsCanvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            fsLastX = touch.clientX - rect.left;
+            fsLastY = touch.clientY - rect.top;
+        }
+        function fsDraw(e) {
+            if (!fsDrawing) return;
+            e.preventDefault();
+            const rect = fsCanvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            fsCtx.beginPath();
+            fsCtx.moveTo(fsLastX, fsLastY);
+            fsCtx.lineTo(x, y);
+            fsCtx.strokeStyle = '#000';
+            fsCtx.lineWidth = 5;
+            fsCtx.lineCap = 'round';
+            fsCtx.lineJoin = 'round';
+            fsCtx.stroke();
+            fsLastX = x;
+            fsLastY = y;
+        }
+        function fsStop() { fsDrawing = false; }
+
+        fsCanvas.addEventListener('mousedown', fsStart);
+        fsCanvas.addEventListener('mousemove', fsDraw);
+        fsCanvas.addEventListener('mouseup', fsStop);
+        fsCanvas.addEventListener('mouseout', fsStop);
+        fsCanvas.addEventListener('touchstart', fsStart, { passive: false });
+        fsCanvas.addEventListener('touchmove', fsDraw, { passive: false });
+        fsCanvas.addEventListener('touchend', fsStop);
+
+        window.addEventListener('resize', () => { if (fsOverlay.classList.contains('show')) resizeFsCanvas(); });
+        window.addEventListener('orientationchange', () => { setTimeout(() => { if (fsOverlay.classList.contains('show')) resizeFsCanvas(); }, 200); });
+
+        fsClearBtn.addEventListener('click', () => {
+            fsCtx.clearRect(0, 0, fsCanvas.width, fsCanvas.height);
+        });
+
+        fsLoadBtn.addEventListener('click', () => fsUploadInput.click());
+        fsUploadInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Error: Please upload an image file (PNG or JPG).');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    fsCtx.clearRect(0, 0, fsCanvas.width, fsCanvas.height);
+                    // Fit the loaded image into the canvas
+                    const scale = Math.min(fsCanvas.width / img.width, fsCanvas.height / img.height);
+                    const dw = img.width * scale;
+                    const dh = img.height * scale;
+                    const dx = (fsCanvas.width - dw) / 2;
+                    const dy = (fsCanvas.height - dh) / 2;
+                    fsCtx.drawImage(img, 0, 0, img.width, img.height, dx, dy, dw, dh);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = null;
+        });
+
+        fsAcceptBtn.addEventListener('click', () => {
+            // Copy fullscreen canvas to hidden storage canvas
+            canvas.width = fsCanvas.width;
+            canvas.height = fsCanvas.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(fsCanvas, 0, 0);
+            autoSave();
+            updateSignaturePreviews();
+            closeSignatureFull();
+        });
+        fsCloseBtn.addEventListener('click', closeSignatureFull);
+
+        // Wire open buttons
+        document.getElementById('openSignatureFull')?.addEventListener('click', openSignatureFull);
+
+        // Update preview boxes from stored signature
+        async function updateSignaturePreviews() {
+            const previewMain = document.getElementById('signaturePreview');
+            const previewOverlay = document.getElementById('easterEggSignaturePreview');
+            let dataUrl = '';
+            try {
+                dataUrl = await getSignatureDataURL();
+            } catch(e) { dataUrl = ''; }
+
+            if (dataUrl) {
+                if (previewMain) previewMain.innerHTML = `<img alt="Signature preview" src="${dataUrl}">`;
+                if (previewOverlay) previewOverlay.innerHTML = `<img alt="Signature preview" src="${dataUrl}">`;
+            } else {
+                if (previewMain) previewMain.textContent = 'Tap "Sign" and rotate your device to landscape to sign.';
+                if (previewOverlay) previewOverlay.textContent = 'Tap "Sign" to add or update your signature.';
+            }
+        }
+
+        // Ensure storage canvas has a valid size even if hidden
+        (function ensureStorageCanvasSize(){
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width < 10 || rect.height < 10) {
+                canvas.width = 800;
+                canvas.height = 300;
+            }
+        })();
+
+        // Initialize previews on load
+        updateSignaturePreviews();
     </script>
     
     <script>
@@ -2804,123 +3023,9 @@
             content.innerHTML = '';
             fields.forEach(f => content.appendChild(makeRow(f)));
 
-            // --- Signature canvas logic for overlay ---
-            const mainCanvas = document.getElementById('signaturePad');
-            const eggCanvas = document.getElementById('easterEggSignaturePad');
-            const eggClearBtn = document.getElementById('easterEggClearSig');
-            const eggUploadBtn = document.getElementById('easterEggUploadSig');
-            const eggUploadInput = document.getElementById('easterEggSigUpload');
-
-            // Resize overlay canvas to match main
-            function resizeEggCanvas() {
-                eggCanvas.width = mainCanvas.width;
-                eggCanvas.height = mainCanvas.height;
-            }
-            resizeEggCanvas();
-
-            // Copy signature from main to overlay
-            function copyMainToEgg() {
-                try {
-                    const data = mainCanvas.toDataURL('image/png');
-                    const img = new window.Image();
-                    img.onload = function() {
-                        const ctx = eggCanvas.getContext('2d');
-                        ctx.clearRect(0, 0, eggCanvas.width, eggCanvas.height);
-                        ctx.drawImage(img, 0, 0);
-                    };
-                    img.src = data;
-                } catch(e) {}
-            }
-            copyMainToEgg();
-
-            // Drawing logic for overlay canvas
-            let isDrawingEgg = false, lastEggX = 0, lastEggY = 0;
-            const eggCtx = eggCanvas.getContext('2d');
-            function startEggDraw(e) {
-                isDrawingEgg = true;
-                const rect = eggCanvas.getBoundingClientRect();
-                const touch = e.touches ? e.touches[0] : e;
-                lastEggX = touch.clientX - rect.left;
-                lastEggY = touch.clientY - rect.top;
-            }
-            function drawEgg(e) {
-                if (!isDrawingEgg) return;
-                e.preventDefault();
-                const rect = eggCanvas.getBoundingClientRect();
-                const touch = e.touches ? e.touches[0] : e;
-                const x = touch.clientX - rect.left;
-                const y = touch.clientY - rect.top;
-                eggCtx.beginPath();
-                eggCtx.moveTo(lastEggX, lastEggY);
-                eggCtx.lineTo(x, y);
-                eggCtx.strokeStyle = '#000';
-                eggCtx.lineWidth = 5;
-                eggCtx.lineCap = 'round';
-                eggCtx.lineJoin = 'round';
-                eggCtx.stroke();
-                lastEggX = x;
-                lastEggY = y;
-            }
-            function stopEggDraw() {
-                if (isDrawingEgg) {
-                    isDrawingEgg = false;
-                    syncEggToMain();
-                }
-            }
-            eggCanvas.addEventListener('mousedown', startEggDraw);
-            eggCanvas.addEventListener('mousemove', drawEgg);
-            eggCanvas.addEventListener('mouseup', stopEggDraw);
-            eggCanvas.addEventListener('mouseout', stopEggDraw);
-            eggCanvas.addEventListener('touchstart', startEggDraw, { passive: false });
-            eggCanvas.addEventListener('touchmove', drawEgg, { passive: false });
-            eggCanvas.addEventListener('touchend', stopEggDraw);
-
-            // Clear button
-            eggClearBtn.onclick = function() {
-                eggCtx.clearRect(0, 0, eggCanvas.width, eggCanvas.height);
-                syncEggToMain();
-            };
-
-            // Upload button
-            eggUploadBtn.onclick = function() {
-                eggUploadInput.click();
-            };
-            eggUploadInput.onchange = function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                if (!file.type.startsWith('image/')) {
-                    alert('Error: Please upload an image file (PNG or JPG).');
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new window.Image();
-                    img.onload = function() {
-                        eggCtx.clearRect(0, 0, eggCanvas.width, eggCanvas.height);
-                        eggCtx.drawImage(img, 0, 0, eggCanvas.width, eggCanvas.height);
-                        syncEggToMain();
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-                event.target.value = null;
-            };
-
-            // Sync overlay signature to main canvas and localStorage
-            function syncEggToMain() {
-                try {
-                    const data = eggCanvas.toDataURL('image/png');
-                    const ctxMain = mainCanvas.getContext('2d');
-                    const img = new window.Image();
-                    img.onload = function() {
-                        ctxMain.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-                        ctxMain.drawImage(img, 0, 0);
-                        autoSave();
-                    };
-                    img.src = data;
-                } catch(e) {}
-            }
-
+            // Update overlay signature preview and wire Sign button
+            updateSignaturePreviews();
+            document.getElementById('openSignatureFull_overlay')?.addEventListener('click', openSignatureFull);
             overlay.classList.add('show');
         }
 
